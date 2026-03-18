@@ -131,43 +131,13 @@ console.log("Average Rating:", avgRating);
  
 const handleEnroll = async (courseId, userId) => {
   try {
-    // 1. Create Order
-    const orderData = await axios.post(serverUrl + "/api/payment/create-order", {
-      courseId,
-      userId
-    } , {withCredentials:true});
-    console.log(orderData)
-
-    const options = {
-      key: import.meta.env.VITE_RAZORPAY_KEY_ID, // from .env
-      amount: orderData.data.amount,
-      currency: "INR",
-      name: "Virtual Courses",
-      description: "Course Enrollment Payment",
-      order_id: orderData.data.id,
-      handler: async function (response) {
-  console.log("Razorpay Response:", response);
-  try {
-    const verifyRes = await axios.post(serverUrl + "/api/payment/verify-payment",{
-  ...response,       
-  courseId,
-  userId
-}, { withCredentials: true });
-    
-setIsEnrolled(true)
-    toast.success(verifyRes.data.message);
-  } catch (verifyError) {
-    toast.error("Payment verification failed.");
-    console.error("Verification Error:", verifyError);
-  }
-  },
-    };
-    
-    const rzp = new window.Razorpay(options)
-    rzp.open()
+    // 1. Direct Free Enrollment for Non-Profit
+    const response = await axios.post(`${serverUrl}/api/course/enroll/${courseId}`, {}, { withCredentials: true });
+    setIsEnrolled(true);
+    toast.success(response.data.message || "Enrolled successfully!");
 
   } catch (err) {
-    toast.error("Something went wrong while enrolling.");
+    toast.error(err.response?.data?.message || "Something went wrong while enrolling.");
     console.error("Enroll Error:", err);
   }
 };
@@ -198,14 +168,10 @@ setIsEnrolled(true)
             <h1 className="text-2xl font-bold">{selectedCourseData?.title}</h1>
             <p className="text-gray-600">{selectedCourseData?.subTitle}</p>
 
-            {/* Rating & Price */}
+            {/* Rating */}
             <div className="flex items-start flex-col justify-between">
               <div className="text-yellow-500 font-medium">
                 ⭐ {avgRating} <span className="text-gray-500">(1,200 reviews)</span>
-              </div>
-              <div>
-                <span className="text-lg font-semibold text-black">{selectedCourseData?.price}</span>{" "}
-                <span className="line-through text-sm text-gray-400">₹599</span>
               </div>
             </div>
 
@@ -216,14 +182,35 @@ setIsEnrolled(true)
               
             </ul>
 
-            {/* Enroll Button */}
-            {!isEnrolled ?<button className="bg-[black] text-white px-6 py-2 rounded hover:bg-gray-700 mt-3" onClick={()=>handleEnroll(courseId , userData._id)}>
-              Enroll Now
-            </button> :
-            <button className="bg-green-200 text-green-600 px-6 py-2 rounded hover:bg-gray-100 hover:border mt-3" onClick={()=>navigate(`/viewlecture/${courseId}`)}>
-             Watch Now
-            </button>
-            }
+            {/* Enroll / Watch / Join Buttons */}
+            <div className="flex flex-wrap gap-3 mt-3">
+              {!isEnrolled ? (
+                <button 
+                  className="bg-[black] text-white px-6 py-2 rounded hover:bg-gray-700" 
+                  onClick={() => handleEnroll(courseId, userData._id)}
+                >
+                  Enroll Now
+                </button>
+              ) : (
+                <>
+                  <button 
+                    className="bg-green-200 text-green-600 px-6 py-2 rounded hover:bg-green-300 font-medium" 
+                    onClick={() => navigate(`/viewlecture/${courseId}`)}
+                  >
+                    Watch Now
+                  </button>
+                  
+                  {selectedCourseData?.zoomLink && (
+                    <button 
+                      className="bg-indigo-600 text-white px-6 py-2 rounded hover:bg-indigo-700 font-medium shadow-md transition-all active:scale-95"
+                      onClick={() => window.open(selectedCourseData.zoomLink, "_blank")}
+                    >
+                      Join Live Class
+                    </button>
+                  )}
+                </>
+              )}
+            </div>
           </div>
         </div>
 

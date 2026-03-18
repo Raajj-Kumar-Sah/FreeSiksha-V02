@@ -11,6 +11,7 @@ const getCreatorCourseData = () => {
   return (
     useEffect(()=>{
     const getCreatorData = async () => {
+      if (!userData) return;
       try {
         const result = await axios.get(serverUrl + "/api/course/getcreatorcourses" , {withCredentials:true})
         

@@ -1,52 +1,94 @@
 import React from 'react'
-import home from "../assets/home1.jpg"
 import Nav from '../components/Nav'
-import { SiViaplay } from "react-icons/si";
 import Logos from '../components/Logos';
 import Cardspage from '../components/Cardspage';
 import ExploreCourses from '../components/ExploreCourses';
-import About from '../components/About';
-import ai from '../assets/ai.png'
-import ai1 from '../assets/SearchAi.png'
+import About from '../components/About.jsx';
 import ReviewPage from '../components/ReviewPage';
+import Contact from '../components/Contact';
 import Footer from '../components/Footer';
 import { useNavigate } from 'react-router-dom';
+import heroImg from '../assets/hero_students_collaboration.png' // This will be the generated image
+
 function Home() {
-      const navigate = useNavigate()
+  const navigate = useNavigate()
 
   return (
+    <div className="w-full bg-[var(--bg-main)] text-[var(--text-main)]">
+      <Nav />
+      
+      {/* Hero Section */}
+      <section className="pt-32 pb-16 px-4 lg:px-12 max-w-7xl mx-auto">
+        <div className="grid lg:grid-cols-2 gap-12 items-center">
+          {/* Left Content */}
+          <div className="space-y-8">
+            <div className="inline-flex items-center px-4 py-1.5 rounded-full bg-blue-50/10 border border-blue-100/20">
+              <span className="text-xs font-bold text-blue-600 tracking-wider">NON PROFIT EDUCATION</span>
+            </div>
+            
+            <h1 className="text-5xl lg:text-7xl font-extrabold text-[var(--text-main)] leading-[1.1]">
+              Free & Quality <br />
+              <span className="text-blue-600">Education</span> for All
+            </h1>
+            
+            <p className="text-lg text-[var(--text-muted)] leading-relaxed max-w-xl">
+              Empowering learners worldwide with accessible, high-quality education and industry-recognized certifications. Join 1M+ students today.
+            </p>
+            
+            <div className="flex flex-wrap gap-4">
+              <button 
+                onClick={() => navigate("/allcourses")}
+                className="btn-primary px-8 py-4 rounded-full text-[16px]"
+              >
+                Explore Courses
+              </button>
+              <button 
+                onClick={() => navigate("/signup")}
+                className="btn-secondary px-8 py-4 rounded-full text-[16px]"
+              >
+                Join Now
+              </button>
+            </div>
+            
+            {/* Social Proof */}
+            <div className="flex items-center gap-4 pt-4">
+              <div className="flex -space-x-3">
+                {[1, 2, 3].map((i) => (
+                  <div key={i} className="w-10 h-10 rounded-full border-2 border-white bg-slate-200"></div>
+                ))}
+              </div>
+              <p className="text-sm text-[var(--text-muted)]">
+                <span className="font-bold text-[var(--text-main)]">12,000+</span> seekers joined this month
+              </p>
+            </div>
+          </div>
 
-    
-    
-    <div className='w-[100%] overflow-hidden'>
-      
-      <div className='w-[100%] lg:h-[140vh] h-[70vh] relative'>
-        <Nav/>
-        <img src={home} className='object-cover md:object-fill   w-[100%] lg:h-[100%] h-[50vh]' alt="" />
-        <span className='lg:text-[70px] absolute  md:text-[40px]  lg:top-[10%] top-[15%] w-[100%] flex items-center justify-center text-white font-bold text-[20px] '>
-          Grow Your Skills to Advance 
-        </span>
-        <span className='lg:text-[70px] text-[20px] md:text-[40px] absolute lg:top-[18%] top-[20%] w-[100%] flex items-center justify-center text-white font-bold'>
-          Your Career path
-        </span>
-        <div className='absolute lg:top-[30%] top-[75%]  md:top-[80%] w-[100%] flex items-center justify-center gap-3 flex-wrap'>
-          
-      <button className='px-[20px] py-[10px] border-2 lg:border-white border-black lg:text-white text-black rounded-[10px] text-[18px] font-light flex gap-2 cursor-pointer' onClick={()=>navigate("/allcourses")}>View all Courses <SiViaplay className='w-[30px] h-[30px] lg:fill-white fill-black' /></button>
-      <button className='px-[20px] py-[10px] lg:bg-white bg-black lg:text-black text-white rounded-[10px] text-[18px] font-light flex gap-2 cursor-pointer items-center justify-center' onClick={()=>navigate("/searchwithai")}>Search with AI <img src={ai} className='w-[30px] h-[30px] rounded-full hidden lg:block' alt="" /><img src={ai1} className='w-[35px] h-[35px] rounded-full lg:hidden' alt="" /></button>
-      </div>
-      </div>
-      <Logos/>
-      <ExploreCourses/>
-      <Cardspage/>
-      <About/>
-      <ReviewPage/>
-      <Footer/>
+          {/* Right Image */}
+          <div className="relative">
+            <div className="absolute -inset-4 bg-blue-600/5 rounded-[40px] transform rotate-3"></div>
+            <div className="relative bg-[var(--bg-surface)] p-2 rounded-[32px] shadow-2xl border border-[var(--border-color)] overflow-hidden">
+              <img 
+                src={heroImg} 
+                alt="Students collaborating" 
+                className="w-full h-auto rounded-[24px]"
+              />
+            </div>
+            
+            {/* Decorative Elements */}
+            <div className="absolute -top-6 -right-6 w-24 h-24 bg-blue-600/10 rounded-full blur-2xl"></div>
+            <div className="absolute -bottom-6 -left-6 w-32 h-32 bg-blue-400/10 rounded-full blur-3xl"></div>
+          </div>
+        </div>
+      </section>
 
-      
-      
-      
+      <Logos />
+      <ExploreCourses />
+      <Cardspage />
+      <About />
+      <ReviewPage />
+      <Contact />
+      <Footer />
     </div>
-
   ) 
 }
 

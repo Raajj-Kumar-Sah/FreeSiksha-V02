@@ -15,10 +15,14 @@ export const createOrder = async (req, res) => {
     const course = await Course.findById(courseId);
     if (!course) return res.status(404).json({ message: "Course not found" });
 
+    if (course.price === undefined || course.price === null || isNaN(course.price)) {
+      return res.status(400).json({ message: "Course price is not set. Please contact admin." });
+    }
+
     const options = {
-      amount: course.price * 100, // in paisa
+      amount: Math.round(course.price * 100), // in paisa
       currency: 'INR',
-      receipt: `${courseId}.toString()`,
+      receipt: courseId.toString(),
     };
 
     const order = await razorpayInstance.orders.create(options);

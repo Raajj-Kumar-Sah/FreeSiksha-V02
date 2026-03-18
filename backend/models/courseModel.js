@@ -45,6 +45,9 @@ const courseSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Review'
         }],
+    zoomLink:{
+        type:String
+    }
 },{timestamps:true})
 
 const Course = mongoose.model("Course",courseSchema)

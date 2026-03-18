@@ -16,6 +16,7 @@ import AddCourses from './pages/admin/AddCourses'
 import CreateCourse from './pages/admin/CreateCourse'
 import CreateLecture from './pages/admin/CreateLecture'
 import EditLecture from './pages/admin/EditLecture'
+import AboutPage from './pages/AboutPage'
 
 import getCouseData from './customHooks/getCouseData'
 import ViewCourse from './pages/ViewCourse'
@@ -25,12 +26,13 @@ import EnrolledCourse from './pages/EnrolledCourse'
 import ViewLecture from './pages/ViewLecture'
 import SearchWithAi from './pages/SearchWithAi'
 import getAllReviews from './customHooks/getAllReviews'
+import Loader from './components/Loader'
 
 export const serverUrl = "http://localhost:8000"
 
 function App() {
   
-  let {userData} = useSelector(state=>state.user)
+  let {userData, isLoading} = useSelector(state=>state.user)
 
   getCurrentUser()
   getCouseData()
@@ -38,11 +40,12 @@ function App() {
   getAllReviews()
   return (
     <>
-    
+    {isLoading && <Loader />}
       <ToastContainer />
       <ScrollToTop/>
       <Routes>
         <Route path='/' element={<Home/>}/>
+        <Route path='/about' element={<AboutPage/>}/>
         <Route path='/login' element={<Login/>}/>
         <Route path='/signup' element={!userData?<SignUp/>:<Navigate to={"/"}/>}/>
         <Route path='/profile' element={userData?<Profile/>:<Navigate to={"/signup"}/>}/>

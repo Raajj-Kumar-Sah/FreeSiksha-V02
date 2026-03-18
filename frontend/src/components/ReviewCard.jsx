@@ -1,35 +1,38 @@
 import React from "react";
-import { FaStar } from "react-icons/fa6";
-import { FaRegStar } from "react-icons/fa";
-const ReviewCard = ({ text, name, image, rating, role }) => {
+import { FaStar } from "react-icons/fa";
+
+const ReviewCard = ({ text, name, image, role, rating }) => {
   return (
-    <div className="bg-white p-6 rounded-xl shadow-md hover:shadow-lg transition-all duration-300 max-w-sm w-full">
-      {/* ⭐ Rating Stars */}
-      <div className="flex items-center mb-3 text-yellow-400 text-sm">
-        {Array(5)
-          .fill(0)
-          .map((_, i) => (
-            <span key={i}>
-              {i < rating ? <FaStar/> : <FaRegStar/>}
-            </span>
-          ))}
+    <div className="premium-card p-8 flex flex-col gap-6 h-full border border-border">
+      {/* 👤 Reviewer Header */}
+      <div className="flex items-center gap-4">
+        <div className="w-12 h-12 rounded-full overflow-hidden border-2 border-border p-0.5">
+          <img
+            src={image}
+            alt={name}
+            className="w-full h-full rounded-full object-cover"
+          />
+        </div>
+        <div>
+          <h4 className="font-bold text-main leading-tight">{name}</h4>
+          <p className="text-xs text-muted font-medium">{role}</p>
+        </div>
       </div>
 
       {/* 💬 Review Text */}
-      <p className="text-gray-700 text-sm mb-5">{text}</p>
-
-      {/* 👤 Reviewer Info */}
-      <div className="flex items-center gap-3">
-        <img
-          src={image}
-          alt={name}
-          className="w-10 h-10 rounded-full object-cover"
-        />
-        <div>
-          <h4 className="font-semibold text-gray-800 text-sm">{name}</h4>
-          <p className="text-xs text-gray-500">{role}</p>
+      <blockquote className="relative">
+        <div className="flex text-yellow-400 text-xs mb-4">
+          {[...Array(5)].map((_, i) => (
+            <FaStar key={i} className={i < rating ? "fill-current" : "text-border"} />
+          ))}
         </div>
-      </div>
+        <span className="absolute -top-4 -left-2 text-4xl text-blue-100 font-serif leading-none">"</span>
+
+        <p className="text-muted text-[15px] italic leading-relaxed relative z-10">
+          {text}
+        </p>
+        <span className="absolute -bottom-6 right-0 text-4xl text-blue-100 font-serif leading-none">"</span>
+      </blockquote>
     </div>
   );
 };

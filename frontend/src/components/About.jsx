@@ -1,34 +1,72 @@
 import React from 'react'
-import about from "../assets/about.jpg"
-import VideoPlayer from './VideoPlayer'
-import { TfiLayoutLineSolid } from "react-icons/tfi";
-import { BiSolidBadgeCheck } from "react-icons/bi";
+import { FiCpu, FiAward, FiUsers, FiClock, FiGlobe, FiBriefcase } from "react-icons/fi";
+
 function About() {
+  const features = [
+    {
+      icon: <FiCpu className="text-blue-600 text-2xl" />,
+      title: "AI Recommendation",
+      description: "Get personalized learning paths tailored to your career goals and previous knowledge.",
+      bgColor: "bg-blue-50"
+    },
+    {
+      icon: <FiAward className="text-indigo-600 text-2xl" />,
+      title: "Industry Certificates",
+      description: "Earn recognized credentials from top tech companies and educational institutions.",
+      bgColor: "bg-indigo-50"
+    },
+    {
+      icon: <FiUsers className="text-purple-600 text-2xl" />,
+      title: "Expert Mentors",
+      description: "Direct access to industry veterans who guide you through complex subjects and projects.",
+      bgColor: "bg-purple-50"
+    },
+    {
+      icon: <FiClock className="text-emerald-600 text-2xl" />,
+      title: "Flexible Learning",
+      description: "Self-paced video lectures and live sessions that fit into your busy schedule.",
+      bgColor: "bg-emerald-50"
+    },
+    {
+      icon: <FiGlobe className="text-cyan-600 text-2xl" />,
+      title: "Community Support",
+      description: "Join a global network of peers for collaborative projects and peer-to-peer learning.",
+      bgColor: "bg-cyan-50"
+    },
+    {
+      icon: <FiBriefcase className="text-amber-600 text-2xl" />,
+      title: "Career Guidance",
+      description: "Resume reviews, interview prep, and direct job placement assistance with partners.",
+      bgColor: "bg-amber-50"
+    }
+  ];
+
   return (
-    <div className='w-[100vw] lg:h-[70vh] min-h-[50vh] flex flex-wrap items-center justify-center gap-2 mb-[30px]'>
-        <div className='lg:w-[40%] md:w-[80%] w-[100%] h-[100%] flex  items-center justify-center relative' >
-            <img src={about} className='w-[80%] h-[90%] rounded-lg ' alt="" />
-            <VideoPlayer />
+    <section id="about" className="py-24 px-4 lg:px-12 max-w-7xl mx-auto">
+      <div className="text-center space-y-4 mb-16">
+        <h2 className="text-3xl lg:text-4xl font-bold text-main">Why Choose FreeSiksha?</h2>
+        <p className="text-muted max-w-2xl mx-auto">
+          Experience a new way of learning with our comprehensive platform designed for student success.
+        </p>
+      </div>
 
-        </div>
-        <div className='lg:w-[50%] md:w-[70%] w-[100%] h-[100%] flex  items-start justify-center flex-col px-[35px] md:px-[80px]' >
-          <div className='flex text-[18px] items-center justify-center gap-[20px]'>About Us <TfiLayoutLineSolid  className='w-[40px] h-[40px]'/> </div>
-          <div className='md:text-[45px] text-[35px] font-semibold'>We Are Maximize Your Learning Growth</div>
-          <div className='text-[15px] '>We provide a modern Learning Management System to simplify online education, track progress, and enhance student-instructor collaboration efficiently.</div>
-          <div className=' w-[100%] lg:w-[60%]'>
-            <div className='flex items-center justify-between  mt-[40px]'>
-              <div className='flex items-center justify-center gap-[10px]'><BiSolidBadgeCheck className='w-[20px] h-[20px]'/>Simplified Learning</div>
-              <div className='flex items-center justify-center gap-[10px]'><BiSolidBadgeCheck className='w-[20px] h-[20px]'/>Expert Trainers</div> 
+      <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+        {features.map((feature, index) => (
+          <div 
+            key={index} 
+            className="premium-card p-8 group hover:border-blue-200"
+          >
+            <div className={`w-14 h-14 ${feature.bgColor} rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform`}>
+              {feature.icon}
             </div>
-            <div className='flex items-center justify-between mt-[20px] '>
-              <div className='flex items-center justify-center gap-[10px]'><BiSolidBadgeCheck className='w-[20px] h-[20px]'/>Big Experience</div>
-              <div className='flex items-center justify-center gap-[10px]'><BiSolidBadgeCheck className='w-[20px] h-[20px]'/>Lifetime Access</div>
-
-            </div>
+            <h3 className="text-xl font-bold text-main mb-3">{feature.title}</h3>
+            <p className="text-muted leading-relaxed text-sm">
+              {feature.description}
+            </p>
           </div>
-        </div>
-      
-    </div>
+        ))}
+      </div>
+    </section>
   )
 }
 

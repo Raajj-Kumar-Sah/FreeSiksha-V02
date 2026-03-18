@@ -15,7 +15,7 @@ function Courses() {
   let navigate = useNavigate()
   let dispatch = useDispatch()
 
-  const { creatorCourseData } = useSelector(state => state.course)
+  const { creatorCourseData, courseData } = useSelector(state => state.course)
 
   useEffect(() => {
     const getCreatorData = async () => {
@@ -35,6 +35,32 @@ function Courses() {
     }
     getCreatorData()
   }, [])
+
+  const togglePublish = async (courseId, currentStatus) => {
+    try {
+      const result = await axios.post(`${serverUrl}/api/course/editcourse/${courseId}`, { isPublished: !currentStatus }, { withCredentials: true })
+      
+      // Update creatorCourseData
+      const updatedCreatorCourses = creatorCourseData.map(c => c._id === courseId ? result.data : c)
+      dispatch(setCreatorCourseData(updatedCreatorCourses))
+      
+      // Update general courseData (published list)
+      if (result.data.isPublished) {
+        if (!courseData.find(c => c._id === courseId)) {
+          dispatch(setCourseData([result.data, ...courseData]))
+        } else {
+          dispatch(setCourseData(courseData.map(c => c._id === courseId ? result.data : c)))
+        }
+      } else {
+        dispatch(setCourseData(courseData.filter(c => c._id !== courseId)))
+      }
+      
+      toast.success(result.data.isPublished ? "Course Published" : "Course Unpublished")
+    } catch (error) {
+      console.error(error)
+      toast.error("Failed to update status")
+    }
+  }
 
 
 
@@ -60,7 +86,6 @@ function Courses() {
             <thead className="border-b bg-gray-50">
               <tr>
                 <th className="text-left py-3 px-4">Course</th>
-                <th className="text-left py-3 px-4">Price</th>
                 <th className="text-left py-3 px-4">Status</th>
                 <th className="text-left py-3 px-4">Action</th>
               </tr>
@@ -80,11 +105,13 @@ function Courses() {
                     /> : <img src={img1} alt='' className="w-14 h-14 object-cover rounded-md object-fit" />}
                     <span>{course?.title}</span>
                   </td>
-                  {course?.price ? <td className="py-3 px-4">₹{course?.price}</td> : <td className="py-3 px-4">₹ NA</td>}
                   <td className="py-3 px-4">
-                    <span className={`  px-3 py-1 rounded-full text-xs ${course?.isPublished ? "text-green-600 bg-green-100" : "text-red-600 bg-red-100"}`}>
+                    <button 
+                      onClick={() => togglePublish(course._id, course.isPublished)}
+                      className={`px-3 py-1 rounded-full text-xs cursor-pointer transition-colors ${course?.isPublished ? "text-green-600 bg-green-100 hover:bg-green-200" : "text-red-600 bg-red-100 hover:bg-red-200"}`}
+                    >
                       {course?.isPublished ? "Published" : "Draft"}
-                    </span>
+                    </button>
                   </td>
                   <td className="py-3 px-4">
                     <FaEdit className="text-gray-600 hover:text-blue-600 cursor-pointer" onClick={() => navigate(`/addcourses/${course?._id}`)} />
@@ -118,13 +145,15 @@ function Courses() {
                 />}
                 <div className="flex-1">
                   <h2 className="font-medium text-sm">{course?.title}</h2>
-                  {course?.price ? <p className="text-gray-600 text-xs mt-1">₹{course?.price}</p> : <p className="text-gray-600 text-xs mt-1">₹ NA</p>}
                 </div>
                 <FaEdit className="text-gray-600 hover:text-blue-600 cursor-pointer" onClick={() => navigate(`/addcourses/${course?._id}`)} />
               </div>
-              <span className={` w-fit px-3 py-1 text-xs rounded-full  ${course?.isPublished ? "text-green-600 bg-green-100" : "text-red-600 bg-red-100"}`}>
+              <button 
+                onClick={() => togglePublish(course._id, course.isPublished)}
+                className={`w-fit px-3 py-1 text-xs rounded-full cursor-pointer transition-colors ${course?.isPublished ? "text-green-600 bg-green-100 hover:bg-green-200" : "text-red-600 bg-red-100 hover:bg-red-200"}`}
+              >
                 {course?.isPublished ? "Published" : "Draft"}
-              </span>
+              </button>
             </div>
           ))}
           <p className="text-center text-sm text-gray-400 mt-4 pl-[80px]">

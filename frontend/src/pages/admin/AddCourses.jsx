@@ -20,7 +20,7 @@ function AddCourses() {
     const [description,setDescription] = useState("")
     const [category,setCategory] = useState("")
     const [level,setLevel] = useState("")
-    const [price,setPrice] = useState("")
+    const [zoomLink,setZoomLink] = useState("")
     const [isPublished,setIsPublished] = useState(false)
    const thumb=useRef()
    const [frontendImage,setFrontendImage] = useState(null)
@@ -49,7 +49,7 @@ function AddCourses() {
     setDescription(selectedCourse.description || "")
     setCategory(selectedCourse.category || "")
     setLevel(selectedCourse.level || "")
-    setPrice(selectedCourse.price || "")
+    setZoomLink(selectedCourse.zoomLink || "")
     setFrontendImage(selectedCourse.thumbnail || img)
     setIsPublished(selectedCourse?.isPublished)
 
@@ -76,9 +76,9 @@ const editCourseHandler = async () => {
   formData.append("description", description);
   formData.append("category", category);
   formData.append("level", level);
-  formData.append("price", price);
   formData.append("thumbnail", backendImage);
   formData.append("isPublished", isPublished);
+  formData.append("zoomLink", zoomLink);
 
   try {
     const result = await axios.post(
@@ -204,10 +204,10 @@ const editCourseHandler = async () => {
               </select>
             </div>
 
-            {/* Price */}
+            {/* Zoom Link */}
             <div className="flex-1">
-              <label className="block text-sm font-medium text-gray-700 mb-1">Price (INR)</label>
-              <input type="number" placeholder="₹" className="w-full border px-4 py-2 rounded-md" onChange={(e)=>setPrice(e.target.value)} value={price} />
+              <label className="block text-sm font-medium text-gray-700 mb-1">Zoom/Meeting Link</label>
+              <input type="text" placeholder="https://zoom.us/j/..." className="w-full border px-4 py-2 rounded-md" onChange={(e)=>setZoomLink(e.target.value)} value={zoomLink} />
             </div>
           </div>
 

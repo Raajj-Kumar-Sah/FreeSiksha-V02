@@ -26,7 +26,7 @@ export const createCourse = async (req,res) => {
 
 export const getPublishedCourses = async (req,res) => {
     try {
-        const courses = await Course.find({isPublished:true}).populate("lectures reviews")
+        const courses = await Course.find({isPublished:true}).populate("lectures reviews").sort({createdAt:-1})
         if(!courses)
         {
             return res.status(404).json({message:"Course not found"})
@@ -43,7 +43,7 @@ export const getPublishedCourses = async (req,res) => {
 export const getCreatorCourses = async (req,res) => {
     try {
         const userId = req.userId
-        const courses = await Course.find({creator:userId})
+        const courses = await Course.find({creator:userId}).sort({createdAt:-1})
         if(!courses)
         {
             return res.status(404).json({message:"Course not found"})
@@ -58,7 +58,10 @@ export const getCreatorCourses = async (req,res) => {
 export const editCourse = async (req,res) => {
     try {
         const {courseId} = req.params;
-        const {title , subTitle , description , category , level , price , isPublished } = req.body;
+        let {title , subTitle , description , category , level , price , isPublished, zoomLink } = req.body;
+        if(isPublished !== undefined){
+            isPublished = isPublished === "true" || isPublished === true;
+        }
         let thumbnail
          if(req.file){
             thumbnail =await uploadOnCloudinary(req.file.path)
@@ -67,7 +70,7 @@ export const editCourse = async (req,res) => {
         if(!course){
             return res.status(404).json({message:"Course not found"})
         }
-        const updateData = {title , subTitle , description , category , level , price , isPublished ,thumbnail}
+        const updateData = {title , subTitle , description , category , level , price , isPublished ,thumbnail, zoomLink}
 
         course = await Course.findByIdAndUpdate(courseId , updateData , {new:true})
         return res.status(201).json(course)
@@ -218,6 +221,36 @@ export const getCreatorById = async (req, res) => {
   } catch (error) {
     console.error("Error fetching user by ID:", error);
     res.status(500).json({ message: "get Creator error" });
+  }
+};
+
+// Enroll in Free Course
+export const enrollInFreeCourse = async (req, res) => {
+  try {
+    const { courseId } = req.params;
+    const userId = req.userId;
+
+    const course = await Course.findById(courseId);
+    if (!course) return res.status(404).json({ message: "Course not found" });
+
+    const user = await User.findById(userId);
+    if (!user) return res.status(404).json({ message: "User not found" });
+
+    if (user.enrolledCourses.includes(courseId)) {
+      return res.status(400).json({ message: "Already enrolled in this course" });
+    }
+
+    // Update user and course enrollment
+    user.enrolledCourses.push(courseId);
+    await user.save();
+
+    course.enrolledStudents.push(userId);
+    await course.save();
+
+    return res.status(200).json({ message: "Enrolled successfully in free course" });
+  } catch (error) {
+    console.error("Enrollment error:", error);
+    res.status(500).json({ message: "Internal server error during enrollment" });
   }
 };
 

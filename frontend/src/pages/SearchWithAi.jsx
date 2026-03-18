@@ -1,10 +1,10 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import ai from "../assets/ai.png"
 import ai1 from "../assets/SearchAi.png"
 import { RiMicAiFill } from "react-icons/ri";
 import axios from 'axios';
 import { serverUrl } from '../App';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import start from "../assets/start.mp3"
 import { FaArrowLeftLong } from "react-icons/fa6";
 function SearchWithAi() {
@@ -12,6 +12,7 @@ function SearchWithAi() {
   const [recommendations, setRecommendations] = useState([]);
   const [listening,setListening] = useState(false)
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const startSound = new Audio(start)
   function speak(message) {
     let utterance = new SpeechSynthesisUtterance(message);
@@ -25,8 +26,30 @@ function SearchWithAi() {
     console.log("Speech recognition not supported");
   }
 
-  const handleSearch = async () => {
+  const handleRecommendation = async (query) => {
+    try {
+      const result = await axios.post(`${serverUrl}/api/ai/search`, { input: query }, { withCredentials: true });
+      setRecommendations(result.data);
+      if(result.data.length>0){
+        speak("These are the top courses I found for you")
+      }else{
+        speak("No courses found")
+      }
+      setListening(false)
+    } catch (error) {
+      console.log(error);
+    }
+  };
 
+  useEffect(() => {
+    const query = searchParams.get('query');
+    if (query) {
+      setInput(query);
+      handleRecommendation(query);
+    }
+  }, [searchParams]);
+
+  const handleSearch = async () => {
     if (!recognition) return;
     setListening(true)
     startSound.play()
@@ -36,25 +59,6 @@ function SearchWithAi() {
       setInput(transcript);
       await handleRecommendation(transcript);
     };
-  
-      
-    
-  };
-
-  const handleRecommendation = async (query) => {
-    try {
-      const result = await axios.post(`${serverUrl}/api/ai/search`, { input: query }, { withCredentials: true });
-      setRecommendations(result.data);
-      if(result.data.length>0){
- speak("These are the top courses I found for you")
-      }else{
-         speak("No courses found")
-      }
-     
-      setListening(false)
-    } catch (error) {
-      console.log(error);
-    }
   };
 
   return (
