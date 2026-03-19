@@ -65,12 +65,20 @@ function Dashboard() {
               </div>
             </div>
 
-            <button 
-              className="btn-primary px-8 py-3.5 rounded-2xl font-bold shadow-lg shadow-blue-500/20 hover:scale-105 active:scale-95 transition-all w-full md:w-auto" 
-              onClick={() => navigate("/courses")}
-            >
-              Create New Course
-            </button>
+            <div className="flex flex-col sm:flex-row gap-4 w-full md:w-auto mt-6">
+              <button 
+                className="btn-primary px-8 py-3.5 rounded-2xl font-bold shadow-lg shadow-blue-500/20 hover:scale-105 active:scale-95 transition-all flex-1" 
+                onClick={() => navigate("/courses")}
+              >
+                Manage Courses
+              </button>
+              <button 
+                className="bg-blue-50 dark:bg-blue-900/40 text-blue-600 px-8 py-3.5 rounded-2xl font-bold hover:bg-blue-100 dark:hover:bg-blue-900/60 transition-all flex-1 border border-blue-200 dark:border-blue-700" 
+                onClick={() => navigate("/enrollments")}
+              >
+                Manage Enrollments
+              </button>
+            </div>
           </div>
         </div>
 

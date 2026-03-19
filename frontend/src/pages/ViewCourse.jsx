@@ -11,6 +11,7 @@ import { FaLock, FaPlayCircle } from "react-icons/fa";
 import { toast } from 'react-toastify';
 import { FaStar } from "react-icons/fa6";
 import Nav from '../components/Nav';
+import { setUserData } from '../redux/userSlice';
 
 
 function ViewCourse() {
@@ -132,10 +133,16 @@ console.log("Average Rating:", avgRating);
  
 const handleEnroll = async (courseId, userId) => {
   try {
-    // 1. Direct Free Enrollment for Non-Profit
     const response = await axios.post(`${serverUrl}/api/course/enroll/${courseId}`, {}, { withCredentials: true });
-    setIsEnrolled(true);
-    toast.success(response.data.message || "Enrolled successfully!");
+    
+    // Update local redux state to reflect the new pending request immediately
+    const updatedUser = {
+      ...userData,
+      pendingCourses: [...(userData.pendingCourses || []), courseId]
+    };
+    dispatch(setUserData(updatedUser));
+    
+    toast.success(response.data.message || "Enrollment requested successfully!");
 
   } catch (err) {
     toast.error(err.response?.data?.message || "Something went wrong while enrolling.");
@@ -204,12 +211,19 @@ const handleEnroll = async (courseId, userId) => {
 
             {/* Enroll / Watch / Join Buttons */}
             <div className="flex flex-wrap gap-4 mt-6">
-              {!isEnrolled ? (
+              {!isEnrolled && !userData?.pendingCourses?.includes(courseId) ? (
                 <button 
                   className="btn-primary flex-1 min-w-[200px] py-4 rounded-xl font-bold shadow-lg shadow-blue-500/20" 
                   onClick={() => handleEnroll(courseId, userData._id)}
                 >
-                  Enroll for Free
+                  Request to Join
+                </button>
+              ) : !isEnrolled && userData?.pendingCourses?.includes(courseId) ? (
+                 <button 
+                  className="flex-1 min-w-[200px] py-4 rounded-xl font-bold text-blue-600 bg-blue-50 dark:bg-blue-900/40 border border-blue-200 dark:border-blue-700 cursor-not-allowed" 
+                  disabled
+                >
+                  Pending Approval...
                 </button>
               ) : (
                 <>

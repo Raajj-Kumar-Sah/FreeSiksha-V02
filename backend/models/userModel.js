@@ -22,11 +22,36 @@ const userSchema = new mongoose.Schema(
       enum: ["educator", "student"],
       required: true
     },
+    age: {
+      type: Number,
+      required: true
+    },
+    city: {
+      type: String,
+      required: true
+    },
+    qualification: {
+      type: String,
+      required: true
+    },
+    phone: {
+      type: String,
+      required: true
+    },
+    gender: {
+      type: String,
+      enum: ['Male', 'Female', 'Other'],
+      required: true
+    },
     photoUrl: {
       type: String,
       default: ""
     },
     enrolledCourses: [{
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Course'
+    }],
+    pendingCourses: [{
       type: mongoose.Schema.Types.ObjectId,
       ref: 'Course'
     }],

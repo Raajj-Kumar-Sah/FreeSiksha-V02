@@ -29,6 +29,10 @@ const courseSchema = new mongoose.Schema({
         type:mongoose.Schema.Types.ObjectId,
         ref:"User"
     }],
+    pendingStudents:[{
+        type:mongoose.Schema.Types.ObjectId,
+        ref:"User"
+    }],
     lectures:[{
         type:mongoose.Schema.Types.ObjectId,
         ref:"Lecture"

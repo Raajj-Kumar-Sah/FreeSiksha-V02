@@ -41,6 +41,7 @@ function Nav() {
   }
 
   return (
+    <>
     <nav className="fixed top-0 left-0 w-full z-50 glass h-[72px] flex items-center justify-between px-4 lg:px-12">
       {/* Logo Section */}
       <div className="flex items-center gap-8">
@@ -120,6 +121,9 @@ function Nav() {
                   <div className="absolute top-14 right-0 w-48 bg-[var(--bg-surface)] rounded-2xl shadow-xl border border-[var(--border-color)] py-2 animate-in fade-in slide-in-from-top-2 duration-200">
                     <button onClick={() => { navigate("/profile"); setShowPro(false); }} className="w-full text-left px-4 py-2 hover:bg-[var(--bg-main)] text-[var(--text-main)]">My Profile</button>
                     <button onClick={() => { navigate("/enrolledcourses"); setShowPro(false); }} className="w-full text-left px-4 py-2 hover:bg-[var(--bg-main)] text-[var(--text-main)]">My Courses</button>
+                    {userData.role === "educator" && (
+                        <button onClick={() => { navigate("/enrollments"); setShowPro(false); }} className="w-full text-left px-4 py-2 hover:bg-[var(--bg-main)] text-[var(--text-main)]">Manage Enrollments</button>
+                    )}
                     <hr className="my-1 border-[var(--border-color)]" />
                     <button onClick={handleLogout} className="w-full text-left px-4 py-2 hover:bg-red-500/10 text-red-600 dark:text-red-400">Logout</button>
                   </div>
@@ -143,34 +147,65 @@ function Nav() {
           {showHam ? <GiSplitCross className="text-2xl" /> : <GiHamburgerMenu className="text-2xl" />}
         </button>
       </div>
+    </nav>
 
-      {/* Mobile Drawer */}
-      <div className={`fixed inset-0 bg-[var(--bg-main)] z-[60] transform transition-transform duration-300 ${showHam ? 'translate-x-0' : 'translate-x-full'} lg:hidden`}>
-        <div className="p-6 flex flex-col h-full">
+      {/* Mobile Drawer (Moved outside <nav> to fix transparency issues from glass class) */}
+      <div className={`fixed inset-0 bg-[var(--bg-main)] z-[100] transform transition-transform duration-300 ${showHam ? 'translate-x-0' : 'translate-x-full'} lg:hidden flex flex-col`}>
+        <div className="p-6 flex flex-col h-full overflow-y-auto">
           <div className="flex items-center justify-between mb-8">
-            <span className="text-xl font-bold text-blue-600">FreeSiksha</span>
-            <button onClick={() => setShowHam(false)} className="p-2 text-[var(--text-main)]"><GiSplitCross className="text-2xl" /></button>
+            <div className="flex items-center gap-2">
+                <img src={logo} className="w-8 h-8 rounded-md" alt="Logo" />
+                <span className="text-xl font-bold text-blue-600">FreeSiksha</span>
+            </div>
+            <button onClick={() => setShowHam(false)} className="p-2 text-[var(--text-main)] bg-[var(--bg-surface)] rounded-full hover:bg-gray-200 dark:hover:bg-gray-800 transition-colors">
+                <GiSplitCross className="text-2xl" />
+            </button>
           </div>
 
-          <div className="flex flex-col gap-4 text-lg font-medium text-[var(--text-main)] mb-8">
-            <Link to="/" onClick={() => setShowHam(false)}>Home</Link>
-            <Link to="/about" onClick={() => setShowHam(false)}>About</Link>
-            <Link to="/allcourses" onClick={() => setShowHam(false)}>Courses</Link>
+          <div className="flex flex-col gap-6 text-xl font-bold text-[var(--text-main)] mb-8 px-2">
+            <Link to="/" onClick={() => setShowHam(false)} className="hover:text-blue-600 transition-colors">Home</Link>
+            <Link to="/about" onClick={() => setShowHam(false)} className="hover:text-blue-600 transition-colors">About</Link>
+            <Link to="/allcourses" onClick={() => setShowHam(false)} className="hover:text-blue-600 transition-colors">Courses</Link>
+            <Link to="/#blog" onClick={() => setShowHam(false)} className="hover:text-blue-600 transition-colors">Blog</Link>
+            
+            {!userData && (
+                <Link to="/signup" onClick={() => setShowHam(false)} className="hover:text-blue-600 transition-colors">Join FreeSiksha</Link>
+            )}
+
+            {userData && (
+                <div className="pt-4 border-t border-[var(--border-color)] flex flex-col gap-6 mt-2">
+                    <span className="text-sm uppercase tracking-widest text-[var(--text-muted)] font-black">Account</span>
+                    <Link to="/profile" onClick={() => setShowHam(false)} className="hover:text-blue-600 transition-colors">My Profile</Link>
+                    <Link to="/enrolledcourses" onClick={() => setShowHam(false)} className="hover:text-blue-600 transition-colors">My Enrolled Courses</Link>
+                    
+                    {userData.role === "educator" && (
+                        <>
+                           <Link to="/dashboard" onClick={() => setShowHam(false)} className="hover:text-blue-600 transition-colors text-blue-500">Educator Dashboard</Link>
+                           <Link to="/enrollments" onClick={() => setShowHam(false)} className="hover:text-blue-600 transition-colors">Manage Enrollments</Link>
+                        </>
+                    )}
+                </div>
+            )}
           </div>
 
-          <div className="mt-auto space-y-4">
+          <div className="mt-auto space-y-4 pt-8">
             {!userData ? (
-              <>
-                <button onClick={() => navigate("/login")} className="w-full btn-secondary py-3">Login</button>
-                <button onClick={() => navigate("/signup")} className="w-full btn-primary py-3">Register</button>
-              </>
+              <div className="flex flex-col gap-3">
+                <button onClick={() => { navigate("/login"); setShowHam(false); }} className="w-full bg-[var(--bg-surface)] border-2 border-[var(--border-color)] text-[var(--text-main)] py-4 rounded-2xl font-black text-lg">Sign In</button>
+                <button onClick={() => { navigate("/signup"); setShowHam(false); }} className="w-full bg-blue-600 text-white py-4 rounded-2xl font-black text-lg shadow-lg shadow-blue-500/30">Register Now</button>
+              </div>
             ) : (
-              <button onClick={handleLogout} className="w-full bg-red-500/10 text-red-600 py-3 rounded-xl font-medium">Logout</button>
+              <button 
+                onClick={() => { handleLogout(); setShowHam(false); }} 
+                className="w-full bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400 py-4 rounded-2xl font-black text-lg border border-red-200 dark:border-red-900/50"
+              >
+                  Sign Out
+              </button>
             )}
           </div>
         </div>
       </div>
-    </nav>
+    </>
   )
 }
 

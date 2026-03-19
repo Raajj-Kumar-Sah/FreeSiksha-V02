@@ -27,6 +27,7 @@ import ViewLecture from './pages/ViewLecture'
 import SearchWithAi from './pages/SearchWithAi'
 import getAllReviews from './customHooks/getAllReviews'
 import Loader from './components/Loader'
+import Enrollments from './pages/admin/Enrollments'
 
 export const serverUrl = "http://localhost:8000"
 
@@ -56,7 +57,7 @@ function App() {
          <Route path='/viewlecture/:courseId' element={userData?<ViewLecture/>:<Navigate to={"/signup"}/>}/>
          <Route path='/searchwithai' element={userData?<SearchWithAi/>:<Navigate to={"/signup"}/>}/>
         
-        
+        <Route path='/enrollments' element={userData?.role === "educator"?<Enrollments/>:<Navigate to={"/signup"}/>}/>
         <Route path='/dashboard' element={userData?.role === "educator"?<Dashboard/>:<Navigate to={"/signup"}/>}/>
         <Route path='/courses' element={userData?.role === "educator"?<Courses/>:<Navigate to={"/signup"}/>}/>
         <Route path='/addcourses/:courseId' element={userData?.role === "educator"?<AddCourses/>:<Navigate to={"/signup"}/>}/>

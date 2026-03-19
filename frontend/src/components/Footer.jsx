@@ -1,7 +1,8 @@
 import React from "react";
 import { useNavigate, Link } from "react-router-dom";
 import logo from "../assets/logo.jpg";
-import { FiFacebook, FiTwitter, FiInstagram, FiLinkedin, FiShare2 } from "react-icons/fi";
+import { FiTwitter, FiLinkedin } from "react-icons/fi";
+import { FaWhatsapp } from "react-icons/fa";
 
 const Footer = () => {
   const navigate = useNavigate();
@@ -22,11 +23,15 @@ const Footer = () => {
               We are a non-profit organization dedicated to making high-quality tech education accessible to everyone, everywhere.
             </p>
             <div className="flex gap-4">
-              {[FiShare2, FiTwitter, FiInstagram].map((Icon, i) => (
-                <button key={i} className="w-10 h-10 rounded-full bg-[var(--bg-surface)] flex items-center justify-center text-[var(--text-muted)] hover:bg-blue-600 hover:text-white transition-all shadow-sm">
-                  <Icon />
-                </button>
-              ))}
+              <a href="https://x.com/FreeSikshaAll" target="_blank" rel="noopener noreferrer" title="Twitter / X" className="w-10 h-10 rounded-full bg-[var(--bg-surface)] flex items-center justify-center text-[var(--text-muted)] hover:bg-black dark:hover:bg-white hover:text-white dark:hover:text-black transition-all shadow-sm">
+                  <FiTwitter />
+              </a>
+              <a href="https://api.whatsapp.com/send/?phone=9980887720&text&type=phone_number&app_absent=0" target="_blank" rel="noopener noreferrer" title="WhatsApp" className="w-10 h-10 rounded-full bg-[var(--bg-surface)] flex items-center justify-center text-[var(--text-muted)] hover:bg-green-500 hover:text-white transition-all shadow-sm">
+                  <FaWhatsapp className="text-lg" />
+              </a>
+              <a href="https://www.linkedin.com/company/freesiksha-com/posts/?feedView=all" target="_blank" rel="noopener noreferrer" title="LinkedIn" className="w-10 h-10 rounded-full bg-[var(--bg-surface)] flex items-center justify-center text-[var(--text-muted)] hover:bg-blue-700 hover:text-white transition-all shadow-sm">
+                  <FiLinkedin />
+              </a>
             </div>
           </div>
 

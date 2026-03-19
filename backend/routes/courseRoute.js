@@ -1,6 +1,6 @@
 import express from "express"
 import isAuth from "../middlewares/isAuth.js"
-import { createCourse, createLecture, editCourse, editLecture, enrollInFreeCourse, getCourseById, getCourseLecture, getCreatorById, getCreatorCourses, getPublishedCourses, removeCourse, removeLecture } from "../controllers/courseController.js"
+import { approveStudent, createCourse, createLecture, editCourse, editLecture, enrollInFreeCourse, getCourseById, getCourseLecture, getCourseStudents, getCreatorById, getCreatorCourses, getPublishedCourses, rejectStudent, removeCourse, removeLecture, unenrollFromCourse, removeCourseStudent } from "../controllers/courseController.js"
 import upload from "../middlewares/multer.js"
 
 let courseRouter = express.Router()
@@ -16,12 +16,13 @@ courseRouter.get("/getcourselecture/:courseId",isAuth,getCourseLecture)
 courseRouter.post("/editlecture/:lectureId",isAuth,upload.single("videoUrl"),editLecture)
 courseRouter.delete("/removelecture/:lectureId",isAuth,removeLecture)
 courseRouter.post("/getcreator",isAuth,getCreatorById)
+
 courseRouter.post("/enroll/:courseId", isAuth, enrollInFreeCourse);
+courseRouter.get("/:courseId/students", isAuth, getCourseStudents);
+courseRouter.post("/:courseId/approve/:studentId", isAuth, approveStudent);
+courseRouter.post("/:courseId/reject/:studentId", isAuth, rejectStudent);
 
-
-
-
-
-
+courseRouter.post("/:courseId/unenroll", isAuth, unenrollFromCourse);
+courseRouter.post("/:courseId/removestudent/:studentId", isAuth, removeCourseStudent);
 
 export default courseRouter

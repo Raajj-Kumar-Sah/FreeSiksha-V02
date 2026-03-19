@@ -8,37 +8,41 @@ import sendMail from "../configs/Mail.js"
 
 
 export const signUp=async (req,res)=>{
- 
     try {
-
-        let {name,email,password,role}= req.body
+        let {name, email, password, role, age, city, qualification, phone, gender}= req.body
         let existUser= await User.findOne({email})
+        
         if(existUser){
-            return res.status(400).json({message:"email already exist"})
+            if (existUser.isOtpVerifed) {
+                return res.status(400).json({message:"email already exists"})
+            }
+            // If exists but not verified, we can just delete it to recreate them, or update it
+            await User.deleteOne({ email });
         }
+        
         if(!validator.isEmail(email)){
             return res.status(400).json({message:"Please enter valid Email"})
         }
-        if(password.length < 8){
+        if(!password || password.length < 8){
             return res.status(400).json({message:"Please enter a Strong Password"})
         }
         
         let hashPassword = await bcrypt.hash(password,10)
         let user = await User.create({
-            name ,
-            email ,
-            password:hashPassword ,
-            role,
-           
-            })
-        let token = await genToken(user._id)
-        res.cookie("token",token,{
-            httpOnly:true,
-            secure:false,
-            sameSite: "Strict",
-            maxAge: 7 * 24 * 60 * 60 * 1000
+            name, email, password: hashPassword, role, age, city, qualification, phone, gender,
+            isOtpVerifed: false
         })
-        return res.status(201).json(user)
+
+        // Generate OTP
+        const otp = Math.floor(1000 + Math.random() * 9000).toString()
+        user.resetOtp = otp;
+        user.otpExpires = Date.now() + 5*60*1000;
+        await user.save();
+        
+        // Send OTP internally to their email
+        await sendMail(email, otp);
+
+        return res.status(201).json({ message: "OTP sent to email", requireOtp: true, email })
 
     } catch (error) {
         console.log("signUp error")
@@ -48,27 +52,74 @@ export const signUp=async (req,res)=>{
 
 export const login=async(req,res)=>{
     try {
-        let {email,password}= req.body
-        let user= await User.findOne({email})
+        let { identifier, password }= req.body // identifier can be email or phone
+        
+        // Find by email or phone
+        let user = await User.findOne({ 
+             $or: [ { email: identifier }, { phone: identifier } ]
+        })
+
         if(!user){
             return res.status(400).json({message:"user does not exist"})
         }
+        if(!user.isOtpVerifed) {
+            // Re-send OTP if they try to log in but never verified
+            const otp = Math.floor(1000 + Math.random() * 9000).toString()
+            user.resetOtp = otp;
+            user.otpExpires = Date.now() + 5*60*1000;
+            await user.save();
+            await sendMail(user.email, otp);
+            return res.status(200).json({ message: "OTP sent to your registered email to verify account.", requireOtp: true, email: user.email })
+        }
+
         let isMatch =await bcrypt.compare(password, user.password)
         if(!isMatch){
             return res.status(400).json({message:"incorrect Password"})
         }
-        let token =await genToken(user._id)
+
+        // Generate Login OTP
+        const otp = Math.floor(1000 + Math.random() * 9000).toString()
+        user.resetOtp = otp;
+        user.otpExpires = Date.now() + 5*60*1000;
+        await user.save();
+        
+        // Send OTP to their email (even if they logged in with mobile, per user instructions)
+        await sendMail(user.email, otp);
+        
+        return res.status(200).json({ message: "OTP sent to registered email.", requireOtp: true, email: user.email })
+
+    } catch (error) {
+        console.log("login error")
+        return res.status(500).json({message:`login Error ${error}`})
+    }
+}
+
+export const verifyAuthOtp = async (req,res) => {
+    try {
+        const {email, otp} = req.body
+        const user = await User.findOne({email})
+        
+        if(!user || user.resetOtp !== otp || user.otpExpires < Date.now() ){
+            return res.status(400).json({message:"Invalid or expired OTP"})
+        }
+        
+        user.isOtpVerifed = true;
+        user.resetOtp = undefined;
+        user.otpExpires = undefined;
+        await user.save();
+
+        let token = await genToken(user._id)
         res.cookie("token",token,{
             httpOnly:true,
             secure:false,
             sameSite: "Strict",
             maxAge: 7 * 24 * 60 * 60 * 1000
         })
+        
         return res.status(200).json(user)
 
     } catch (error) {
-        console.log("login error")
-        return res.status(500).json({message:`login Error ${error}`})
+         return res.status(500).json({message:`Verify auth otp error ${error}`})
     }
 }
 

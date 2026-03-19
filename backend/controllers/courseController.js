@@ -224,7 +224,7 @@ export const getCreatorById = async (req, res) => {
   }
 };
 
-// Enroll in Free Course
+// Request Enrollment in Free Course (Pending Approval)
 export const enrollInFreeCourse = async (req, res) => {
   try {
     const { courseId } = req.params;
@@ -239,20 +239,164 @@ export const enrollInFreeCourse = async (req, res) => {
     if (user.enrolledCourses.includes(courseId)) {
       return res.status(400).json({ message: "Already enrolled in this course" });
     }
+    if (user.pendingCourses.includes(courseId)) {
+      return res.status(400).json({ message: "Enrollment request already pending" });
+    }
 
-    // Update user and course enrollment
-    user.enrolledCourses.push(courseId);
+    // Add to pending queues instead of directly enrolling
+    user.pendingCourses.push(courseId);
     await user.save();
 
-    course.enrolledStudents.push(userId);
+    course.pendingStudents.push(userId);
     await course.save();
 
-    return res.status(200).json({ message: "Enrolled successfully in free course" });
+    return res.status(200).json({ message: "Enrollment requested successfully! Waiting for teacher approval." });
   } catch (error) {
     console.error("Enrollment error:", error);
-    res.status(500).json({ message: "Internal server error during enrollment" });
+    res.status(500).json({ message: "Internal server error during enrollment request" });
   }
 };
+
+// Get Course Enrollments (Pending and Approved)
+export const getCourseStudents = async (req, res) => {
+    try {
+        const { courseId } = req.params;
+        const course = await Course.findById(courseId)
+            .populate('enrolledStudents', 'name email createdAt')
+            .populate('pendingStudents', 'name email createdAt');
+
+        if (!course) return res.status(404).json({ message: "Course not found" });
+
+        // Ensure only the creator can view this list
+        if (course.creator.toString() !== req.userId) {
+            return res.status(403).json({ message: "Unauthorized to view student list" });
+        }
+
+        res.status(200).json({
+            enrolled: course.enrolledStudents,
+            pending: course.pendingStudents
+        });
+    } catch (error) {
+        console.error("Fetch students error:", error);
+        res.status(500).json({ message: "Internal server error while fetching course students" });
+    }
+}
+
+// Approve Student Enrollment
+export const approveStudent = async (req, res) => {
+    try {
+        const { courseId, studentId } = req.params;
+        const course = await Course.findById(courseId);
+        
+        if (!course) return res.status(404).json({ message: "Course not found" });
+        if (course.creator.toString() !== req.userId) {
+            return res.status(403).json({ message: "Unauthorized: Only the creator can approve students." });
+        }
+
+        const user = await User.findById(studentId);
+        if (!user) return res.status(404).json({ message: "User not found" });
+
+        // Remove from pending arrays
+        course.pendingStudents = course.pendingStudents.filter(id => id.toString() !== studentId);
+        user.pendingCourses = user.pendingCourses.filter(id => id.toString() !== courseId);
+
+        // Add to enrolled arrays
+        if (!course.enrolledStudents.includes(studentId)) course.enrolledStudents.push(studentId);
+        if (!user.enrolledCourses.includes(courseId)) user.enrolledCourses.push(courseId);
+
+        await course.save();
+        await user.save();
+
+        res.status(200).json({ message: "Student approved successfully." });
+    } catch (error) {
+         console.error("Approve student error:", error);
+         res.status(500).json({ message: "Internal server error while approving student" });
+    }
+}
+
+// Reject Student Enrollment
+export const rejectStudent = async (req, res) => {
+    try {
+        const { courseId, studentId } = req.params;
+        const course = await Course.findById(courseId);
+        
+        if (!course) return res.status(404).json({ message: "Course not found" });
+        if (course.creator.toString() !== req.userId) {
+            return res.status(403).json({ message: "Unauthorized: Only the creator can reject students." });
+        }
+
+        const user = await User.findById(studentId);
+        if (!user) return res.status(404).json({ message: "User not found" });
+
+        // Remove from pending arrays explicitly
+        course.pendingStudents = course.pendingStudents.filter(id => id.toString() !== studentId);
+        user.pendingCourses = user.pendingCourses.filter(id => id.toString() !== courseId);
+
+        await course.save();
+        await user.save();
+
+        res.status(200).json({ message: "Student enrollment request rejected." });
+    } catch (error) {
+         console.error("Reject student error:", error);
+         res.status(500).json({ message: "Internal server error while rejecting student" });
+    }
+}
+
+// Student Unenrolls from a Course
+export const unenrollFromCourse = async (req, res) => {
+    try {
+        const { courseId } = req.params;
+        const userId = req.userId;
+
+        const course = await Course.findById(courseId);
+        if (!course) return res.status(404).json({ message: "Course not found" });
+
+        const user = await User.findById(userId);
+        if (!user) return res.status(404).json({ message: "User not found" });
+
+        // Remove from both pending and enrolled arrays for safety
+        course.pendingStudents = course.pendingStudents.filter(id => id.toString() !== userId);
+        course.enrolledStudents = course.enrolledStudents.filter(id => id.toString() !== userId);
+        
+        user.pendingCourses = user.pendingCourses.filter(id => id.toString() !== courseId);
+        user.enrolledCourses = user.enrolledCourses.filter(id => id.toString() !== courseId);
+
+        await course.save();
+        await user.save();
+
+        res.status(200).json({ message: "Unenrolled successfully." });
+    } catch (error) {
+         console.error("Unenroll error:", error);
+         res.status(500).json({ message: "Internal server error during unenrollment" });
+    }
+}
+
+// Teacher Removes a Student from a Course
+export const removeCourseStudent = async (req, res) => {
+    try {
+        const { courseId, studentId } = req.params;
+        
+        const course = await Course.findById(courseId);
+        if (!course) return res.status(404).json({ message: "Course not found" });
+        if (course.creator.toString() !== req.userId) {
+            return res.status(403).json({ message: "Unauthorized: Only the creator can remove students." });
+        }
+
+        const user = await User.findById(studentId);
+        if (!user) return res.status(404).json({ message: "User not found" });
+
+        course.enrolledStudents = course.enrolledStudents.filter(id => id.toString() !== studentId);
+        user.enrolledCourses = user.enrolledCourses.filter(id => id.toString() !== courseId);
+
+        await course.save();
+        await user.save();
+
+        res.status(200).json({ message: "Student removed from course." });
+    } catch (error) {
+         console.error("Remove student error:", error);
+         res.status(500).json({ message: "Internal server error while removing student" });
+    }
+}
 
 
 
