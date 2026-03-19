@@ -5,6 +5,8 @@ import { useNavigate } from "react-router-dom";
 import { serverUrl } from "../../App";
 import { toast } from "react-toastify";
 import { ClipLoader } from "react-spinners";
+import Nav from "../../components/Nav";
+
 const CreateCourse = () => {
     let navigate = useNavigate()
     let [loading,setLoading]=useState(false)
@@ -30,54 +32,58 @@ const CreateCourse = () => {
 
     return (
         
-        <div className="min-h-screen flex items-center justify-center bg-gray-100 px-4 py-10">
-            <div className="max-w-xl w-[600px] mx-auto p-6 bg-white shadow-md rounded-md mt-10 relative">
-                <FaArrowLeftLong  className='top-[8%] absolute left-[5%] w-[22px] h-[22px] cursor-pointer' onClick={()=>navigate("/courses")}/>
-                <h2 className="text-2xl font-semibold mb-6 text-center">Create Course</h2>
+        <div className="min-h-screen flex items-center justify-center bg-[var(--bg-main)] px-4 py-10 pt-[72px]">
+            <Nav />
+            <div className="max-w-xl w-[600px] mx-auto p-8 bg-[var(--bg-surface)] shadow-lg rounded-2xl border border-[var(--border-color)] relative">
+                <div className="flex items-center gap-2 mb-6 group cursor-pointer w-fit" onClick={()=>navigate("/courses")}>
+                    <FaArrowLeftLong  className='text-[var(--text-main)] group-hover:-translate-x-1 transition-transform'/>
+                    <span className="text-sm font-medium text-[var(--text-main)]">Back to Courses</span>
+                </div>
+                <h2 className="text-3xl font-black mb-8 text-center text-[var(--text-main)]">Create <span className="text-blue-600">Course</span></h2>
 
-                <form className="space-y-5" onSubmit={(e)=>e.preventDefault()}>
+                <form className="space-y-6" onSubmit={(e)=>e.preventDefault()}>
                     {/* Course Title */}
-                    <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                    <div className="space-y-2">
+                        <label className="text-xs font-bold text-blue-600 uppercase tracking-widest ml-1">
                             Course Title
                         </label>
                         <input
                             type="text"
                             placeholder="Enter course title"
-                            className="w-full border border-gray-300 rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[black]"
+                            className="w-full bg-[var(--bg-main)] border border-[var(--border-color)] rounded-xl px-5 py-3.5 text-[var(--text-main)] placeholder-[var(--text-muted)] focus:outline-none focus:ring-2 focus:ring-blue-100 transition-all font-medium"
                             onChange={(e)=>setTitle(e.target.value)} value={title}
                         />
                     </div>
 
                     {/* Category */}
-                    <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                    <div className="space-y-2">
+                        <label className="text-xs font-bold text-blue-600 uppercase tracking-widest ml-1">
                             Category
                         </label>
                         <select
-                            className="w-full border border-gray-300 rounded-md px-4 py-2 bg-white focus:outline-none focus:ring-2 focus:ring-[black]"
+                            className="w-full bg-[var(--bg-main)] border border-[var(--border-color)] rounded-xl px-5 py-3.5 text-[var(--text-main)] focus:outline-none focus:ring-2 focus:ring-blue-100 transition-all font-medium"
                             onChange={(e)=>setCategory(e.target.value)}
                         >
-                            <option value="">Select category</option>
-                            <option value="App Development">App Development</option>
-                             <option value="AI/ML">AI/ML</option>
-                            <option value="AI Tools">AI Tools
+                            <option value="" className="bg-[var(--bg-surface)] text-[var(--text-main)]">Select category</option>
+                            <option value="Networking" className="bg-[var(--bg-surface)] text-[var(--text-main)]">Networking</option>
+                             <option value="Soft-Skills" className="bg-[var(--bg-surface)] text-[var(--text-main)]">Soft-Skills</option>
+                            <option value="AI Tools" className="bg-[var(--bg-surface)] text-[var(--text-main)]">AI Tools
                             </option>
-                             <option value="Data Science">Data Science</option>
-                            <option value="Data Analytics">Data Analytics</option>
-                            <option value="Ethical Hacking">Ethical Hacking</option>
-                            <option value="UI UX Designing">UI UX Designing</option>
-                            <option value="Web Development">Web Development</option>
-                            <option value="Others">Others</option>
+                             <option value="Data Science" className="bg-[var(--bg-surface)] text-[var(--text-main)]">Data Science</option>
+                            <option value="Data Analytics" className="bg-[var(--bg-surface)] text-[var(--text-main)]">Data Analytics</option>
+                            <option value="Ethical Hacking" className="bg-[var(--bg-surface)] text-[var(--text-main)]">Ethical Hacking</option>
+                            <option value="UI UX Designing" className="bg-[var(--bg-surface)] text-[var(--text-main)]">UI UX Designing</option>
+                            <option value="Web Development" className="bg-[var(--bg-surface)] text-[var(--text-main)]">Web Development</option>
+                            <option value="Others" className="bg-[var(--bg-surface)] text-[var(--text-main)]">Others</option>
                         </select>
                     </div>
 
                     {/* Submit Button */}
                     <button
                         type="submit"
-                        className="w-full bg-[black] text-white py-2 px-4 rounded-md active:bg-[#3a3a3a] transition" disabled={loading} onClick={CreateCourseHandler}
+                        className="w-full btn-primary py-4 rounded-xl font-bold shadow-lg shadow-blue-500/20 flex items-center justify-center mt-8" disabled={loading} onClick={CreateCourseHandler}
                     >
-                        {loading?<ClipLoader size={30} color='white' /> : "Create"}
+                        {loading?<ClipLoader size={24} color='white' /> : "Create Course"}
                     </button>
                 </form>
             </div>

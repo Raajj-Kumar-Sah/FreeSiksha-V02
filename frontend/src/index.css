@@ -1,33 +1,30 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@300;400;500;600;700;800;900&display=swap');
 @import "tailwindcss";
 
-@theme {
-  --color-primary-600: #2563eb;
-  --color-primary-700: #1d4ed8;
-  --color-surface-50: #f8fafc;
-  --color-surface-100: #f1f5f9;
-  --color-surface-200: #e2e8f0;
-  --color-main: var(--text-main);
-  --color-muted: var(--text-muted);
-  --background-main: var(--bg-main);
-  --background-surface: var(--bg-surface);
-  --color-border: var(--border-color);
+:root {
+  /* Fonts */
   --font-inter: "Inter", sans-serif;
   --font-outfit: "Outfit", sans-serif;
-}
 
-:root {
-  /* Default Dark Mode */
+  /* Default Dark Mode Colors */
   --primary: #3b82f6;
   --primary-hover: #2563eb;
   --bg-main: #0f172a;
   --bg-surface: #1e293b;
   --text-main: #f8fafc;
-  --text-muted: #edeff2;
+  --text-muted: #94a3b8;
   --border-color: #334155;
   --glass-bg: rgba(15, 23, 42, 0.7);
   --border-radius: 16px;
   --shadow-premium: 0 10px 25px -5px rgba(0, 0, 0, 0.3), 0 8px 10px -6px rgba(0, 0, 0, 0.3);
+  --hero-overlay: rgba(15, 23, 42, 0.85);
+
+  /* Functional Color Wrappers (Tailwind Support) */
+  --color-main: var(--text-main);
+  --color-muted: var(--text-muted);
+  --background-main: var(--bg-main);
+  --background-surface: var(--bg-surface);
+  --color-border: var(--border-color);
 }
 
 .light-mode {
@@ -40,6 +37,7 @@
   --border-color: #f1f5f9;
   --glass-bg: rgba(255, 255, 255, 0.7);
   --shadow-premium: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.05);
+  --hero-overlay: rgba(255, 255, 255, 0.85);
 }
 
 * {
@@ -111,4 +109,36 @@ body {
 .btn-secondary:hover {
   background-color: var(--bg-surface);
   border-color: var(--text-muted);
+}
+
+.hero-video-container {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  z-index: 0;
+}
+
+.hero-video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: grayscale(20%) brightness(80%);
+}
+
+.hero-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: var(--hero-overlay);
+  z-index: 1;
+}
+
+.hero-content {
+  position: relative;
+  z-index: 2;
 }

@@ -67,23 +67,24 @@ function ForgotPassword() {
 
 
   return (
-     <div className="min-h-screen flex items-center justify-center bg-gray-100 px-4">
-     { step==1 && <div className="bg-white shadow-md rounded-xl p-8 max-w-md w-full">
-        <h2 className="text-2xl font-bold mb-6 text-center text-gray-800">
-          Forgot Your Password?
+     <div className="min-h-screen flex items-center justify-center bg-[var(--bg-main)] px-4">
+      { step==1 && <div className="bg-[var(--bg-surface)] shadow-xl rounded-3xl p-10 max-w-md w-full border border-[var(--border-color)] relative overflow-hidden">
+        <div className="absolute top-0 right-0 w-24 h-24 bg-blue-600/5 rounded-full -mr-12 -mt-12"></div>
+        <h2 className="text-3xl font-black mb-2 text-center text-[var(--text-main)]">
+          Forgot <span className="text-blue-600">Password?</span>
         </h2>
+        <p className="text-[var(--text-muted)] text-sm text-center mb-8">No worries! Enter your email to receive an OTP.</p>
 
-          <form  className="space-y-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700">
-                Enter your email address
+          <form  className="space-y-6">
+            <div className="space-y-2">
+              <label className="text-xs font-bold text-blue-600 uppercase tracking-widest ml-1">
+                Email Address
               </label>
               <input
                 type="email"
-                className="mt-1 w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-[black]"
+                className="w-full px-5 py-3.5 bg-[var(--bg-main)] border border-[var(--border-color)] rounded-2xl text-[var(--text-main)] focus:outline-none focus:ring-2 focus:ring-blue-100 transition-all font-medium"
                 placeholder="you@example.com"
                 onChange={(e)=>setEmail(e.target.value)}
-
                 value={email}
                 required
               />
@@ -91,40 +92,40 @@ function ForgotPassword() {
 
             <button
               type="submit"
-              className="w-full bg-[black] hover:bg-[#4b4b4b] text-white py-2 px-4 rounded-md font-medium cursor-pointer" disabled={loading} onClick={handleStep1}
+              className="w-full btn-primary py-4 rounded-xl font-bold shadow-lg shadow-blue-500/20 flex items-center justify-center" 
+              disabled={loading} 
+              onClick={handleStep1}
             >
-              {loading?<ClipLoader size={30} color='white'/>:"Send OTP"}
+              {loading ? <ClipLoader size={24} color='white'/> : "Send Reset OTP"}
             </button>
           </form>
         
 
-        <div className="text-sm text-center mt-4" onClick={()=>navigate("/login")} >
-        
-            Back to Login
-        
+        <div className="mt-8 text-center">
+            <button onClick={()=>navigate("/login")} className="text-sm font-bold text-[var(--text-muted)] hover:text-blue-600 transition-colors uppercase tracking-widest">
+                Back to Login
+            </button>
         </div>
       </div>}
 
-
-      {step==2 && <div className="bg-white shadow-lg rounded-xl p-8 max-w-md w-full">
-        <h2 className="text-2xl font-bold text-center text-gray-800 mb-2">
-          Enter OTP
+      {step==2 && <div className="bg-[var(--bg-surface)] shadow-xl rounded-3xl p-10 max-w-md w-full border border-[var(--border-color)] relative overflow-hidden">
+        <div className="absolute top-0 right-0 w-24 h-24 bg-blue-600/5 rounded-full -mr-12 -mt-12"></div>
+        <h2 className="text-3xl font-black text-center text-[var(--text-main)] mb-2">
+          Verify <span className="text-blue-600">OTP</span>
         </h2>
-      
+        <p className="text-[var(--text-muted)] text-sm text-center mb-8">Enter the 4-digit code sent to your email.</p>
 
-        {/* OTP Inputs */}
-        
-          <form  className="space-y-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700">
-                Please enter the 4-digit code sent to your email.
+          <form  className="space-y-6">
+            <div className="space-y-2">
+              <label className="text-xs font-bold text-blue-600 uppercase tracking-widest ml-1">
+                Verification Code
               </label>
               <input
                 type="text"
-                className="mt-1 w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-[black]"
-                placeholder="Enter Here"
+                className="w-full px-5 py-4 bg-[var(--bg-main)] border border-[var(--border-color)] rounded-2xl text-[var(--text-main)] text-center text-2xl font-black tracking-[1em] focus:outline-none focus:ring-2 focus:ring-blue-100 transition-all"
+                placeholder="0000"
+                maxLength={4}
                 onChange={(e)=>setOtp(e.target.value)}
-
                 value={otp}
                 required
               />
@@ -132,74 +133,68 @@ function ForgotPassword() {
 
             <button
               type="submit"
-              className="w-full bg-[black] hover:bg-[#4b4b4b] text-white py-2 px-4 rounded-md font-medium cursor-pointer" disabled={loading} onClick={handleStep2} 
+              className="w-full btn-primary py-4 rounded-xl font-bold shadow-lg shadow-blue-500/20 flex items-center justify-center" 
+              disabled={loading} 
+              onClick={handleStep2} 
             >
-              {loading?<ClipLoader size={30} color='white'/>:"Verify OTP"}
+              {loading ? <ClipLoader size={24} color='white'/> : "Verify & Continue"}
             </button>
           </form>
-        
 
-        <div className="text-sm text-center mt-4" onClick={()=>navigate("/login")} >
-        
-            Back to Login
-        
-        </div>
-       
-
-      
-
+          <div className="mt-8 text-center">
+              <button onClick={()=>navigate("/login")} className="text-sm font-bold text-[var(--text-muted)] hover:text-blue-600 transition-colors uppercase tracking-widest">
+                  Back to Login
+              </button>
+          </div>
       </div>}
-      {step==3 &&   <div className="bg-white shadow-lg rounded-xl p-8 max-w-md w-full">
-        <h2 className="text-2xl font-bold text-center text-gray-800 mb-2">
-          Reset Your Password
-        </h2>
-        <p className="text-sm text-gray-500 text-center mb-6">
-          Enter a new password below to regain access to your account.
-        </p>
 
-        <form className="space-y-5" onSubmit={(e)=>e.preventDefault()}>
-          {/* New Password */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1" >
+      {step==3 && <div className="bg-[var(--bg-surface)] shadow-xl rounded-3xl p-10 max-w-md w-full border border-[var(--border-color)] relative overflow-hidden">
+        <div className="absolute top-0 right-0 w-24 h-24 bg-blue-600/5 rounded-full -mr-12 -mt-12"></div>
+        <h2 className="text-3xl font-black text-center text-[var(--text-main)] mb-2">
+          New <span className="text-blue-600">Password</span>
+        </h2>
+        <p className="text-[var(--text-muted)] text-sm text-center mb-8">Set a strong password to secure your account.</p>
+
+        <form className="space-y-6" onSubmit={(e)=>e.preventDefault()}>
+          <div className="space-y-2">
+            <label className="text-xs font-bold text-blue-600 uppercase tracking-widest ml-1">
               New Password
             </label>
             <input
-              type="text"
-              placeholder="Enter new password"
-              className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-[black] focus:outline-none" onChange={(e)=>setNewPassword(e.target.value)}
-
-                value={newpassword}
+              type="password"
+              placeholder="••••••••"
+              className="w-full px-5 py-3.5 bg-[var(--bg-main)] border border-[var(--border-color)] rounded-2xl text-[var(--text-main)] focus:outline-none focus:ring-2 focus:ring-blue-100 transition-all font-medium"
+              onChange={(e)=>setNewPassword(e.target.value)}
+              value={newpassword}
             />
           </div>
 
-          {/* Confirm Password */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+          <div className="space-y-2">
+            <label className="text-xs font-bold text-blue-600 uppercase tracking-widest ml-1">
               Confirm Password
             </label>
             <input
-              type="text"
-              placeholder="Re-enter new password"
-              className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-[black] focus:outline-none" onChange={(e)=>setConpassword(e.target.value)}
-
-                value={conPassword}
+              type="password"
+              placeholder="••••••••"
+              className="w-full px-5 py-3.5 bg-[var(--bg-main)] border border-[var(--border-color)] rounded-2xl text-[var(--text-main)] focus:outline-none focus:ring-2 focus:ring-blue-100 transition-all font-medium"
+              onChange={(e)=>setConpassword(e.target.value)}
+              value={conPassword}
             />
           </div>
 
-          {/* Submit Button */}
           <button
             type="submit"
-            className="w-full bg-[black] hover:bg-[#4b4b4b] text-white py-2 rounded-md font-medium" onClick={handleStep3}
+            className="w-full btn-primary py-4 rounded-xl font-bold shadow-lg shadow-blue-500/20 flex items-center justify-center" 
+            onClick={handleStep3}
           >
-            {loading?<ClipLoader size={30} color='white'/>:"Reset Password"}
+            {loading ? <ClipLoader size={24} color='white'/> : "Reset Password"}
           </button>
         </form>
 
-        {/* Back to login */}
-        <div className="text-center text-sm mt-4" onClick={()=>navigate("/login")}>
-          
-            Back to Login
-          
+        <div className="mt-8 text-center" onClick={()=>navigate("/login")}>
+            <button className="text-sm font-bold text-[var(--text-muted)] hover:text-blue-600 transition-colors uppercase tracking-widest">
+                Back to Login
+            </button>
         </div>
       </div>}
     </div>

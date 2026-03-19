@@ -7,7 +7,7 @@ import { serverUrl } from '../../App';
 import { ClipLoader } from 'react-spinners';
 import { useDispatch, useSelector } from 'react-redux';
 import { setLectureData } from '../../redux/lectureSlice';
-
+import Nav from "../../components/Nav";
 function CreateLecture() {
     const navigate = useNavigate()
     const {courseId} = useParams()
@@ -55,43 +55,65 @@ function CreateLecture() {
    
   
   return (
-     <div className="min-h-screen bg-gray-100 flex items-center justify-center p-4">
-      <div className="bg-white shadow-xl rounded-xl w-full max-w-2xl p-6">
+     <div className="min-h-screen flex flex-col bg-[var(--bg-main)]">
+      <Nav />
+      <div className="flex-1 flex items-center justify-center p-4 mt-[72px]">
+        <div className="bg-[var(--bg-surface)] shadow-xl rounded-[32px] border border-[var(--border-color)] w-full max-w-2xl p-8 md:p-10 relative overflow-hidden">
+        
         {/* Header */}
-        <div className="mb-6">
-          <h1 className="text-2xl font-semibold text-gray-800 mb-1">Let’s Add a Lecture</h1>
-          <p className="text-sm text-gray-500">Enter the title and add your video lectures to enhance your course content.</p>
+        <div className="mb-8 relative z-10">
+          <div className="inline-flex items-center px-3 py-1 rounded-full bg-blue-50 dark:bg-blue-900/30 text-blue-600 text-xs font-bold tracking-wider uppercase mb-3">
+              Course Content
+          </div>
+          <h1 className="text-3xl font-black text-[var(--text-main)] mb-2">Manage <span className="text-blue-600">Lectures</span></h1>
+          <p className="text-sm text-[var(--text-muted)]">Add or edit video lectures to enhance your course content.</p>
         </div>
 
         {/* Input */}
-        <input
-          type="text"
-          placeholder="e.g. Introduction to Mern Stack"
-          className="w-full border border-gray-300 rounded-md p-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400 mb-4"
-          onChange={(e)=>setLectureTitle(e.target.value)}
-          value={lectureTitle}
-        />
+        <div className="space-y-2 mb-6 relative z-10">
+            <label className="text-xs font-bold text-blue-600 uppercase tracking-widest ml-1">New Lecture Title</label>
+            <input
+            type="text"
+            placeholder="e.g. Introduction to Mern Stack"
+            className="w-full bg-[var(--bg-main)] border border-[var(--border-color)] rounded-xl px-5 py-3.5 text-[var(--text-main)] placeholder-[var(--text-muted)] focus:outline-none focus:ring-2 focus:ring-blue-100 transition-all font-medium"
+            onChange={(e)=>setLectureTitle(e.target.value)}
+            value={lectureTitle}
+            />
+        </div>
 
         {/* Buttons */}
-        <div className="flex gap-4 mb-6">
-          <button className="flex items-center gap-2 px-4 py-2 rounded-md bg-gray-200 hover:bg-gray-300 text-sm font-medium" onClick={()=>navigate(`/addcourses/${courseId}`)
-          }>
-            <FaArrowLeft /> Back to Course
+        <div className="flex flex-col sm:flex-row gap-4 mb-10 pb-10 border-b border-[var(--border-color)] relative z-10">
+          <button className="flex-1 btn-primary py-3.5 rounded-xl font-bold shadow-lg shadow-blue-500/20 flex justify-center items-center gap-2" disabled={loading} onClick={createLectureHandler}>
+           {loading?<ClipLoader size={20} color='white'/>: "+ Create Lecture"}
           </button>
-          <button className="px-5 py-2 rounded-md bg-[black] text-white hover:bg-gray-600 transition-all text-sm font-medium shadow" disabled={loading} onClick={createLectureHandler}>
-           {loading?<ClipLoader size={30} color='white'/>: "+ Create Lecture"}
+          <button className="flex-1 flex items-center justify-center gap-2 px-6 py-3.5 rounded-xl bg-[var(--bg-main)] text-[var(--text-main)] border border-[var(--border-color)] hover:bg-[var(--bg-surface)] transition-all font-bold" onClick={()=>navigate(`/addcourses/${courseId}`)}>
+            <FaArrowLeft /> Course Settings
           </button>
         </div>
 
         {/* Lecture List */}
-         <div className="space-y-2">
-          {lectureData.map((lecture, index) => (
-            <div key={index} className="bg-gray-100 rounded-md flex justify-between items-center p-3 text-sm font-medium text-gray-700">
-              <span>Lecture - {index + 1}: {lecture.lectureTitle}</span>
-              <FaEdit className="text-gray-500 hover:text-gray-700 cursor-pointer"  onClick={()=>navigate(`/editlecture/${courseId}/${lecture._id}`)}/>
+         <div className="space-y-3 relative z-10 h-[300px] overflow-y-auto pr-2 custom-scrollbar">
+            <h3 className="text-lg font-bold text-[var(--text-main)] mb-4 sticky top-0 bg-[var(--bg-surface)] py-2">Existing Lectures ({lectureData.length})</h3>
+          {lectureData.length === 0 ? (
+              <div className="text-center py-10 border-2 border-dashed border-[var(--border-color)] rounded-2xl">
+                  <p className="text-[var(--text-muted)] font-medium text-sm">No lectures created yet. Add your first one above!</p>
+              </div>
+          ) : lectureData.map((lecture, index) => (
+            <div key={index} className="bg-[var(--bg-main)] border border-[var(--border-color)] rounded-2xl flex justify-between items-center p-4 transition-all hover:border-blue-300 group">
+              <div className="flex items-center gap-4">
+                  <div className="w-10 h-10 rounded-xl bg-[var(--bg-surface)] border border-[var(--border-color)] flex items-center justify-center text-[var(--text-muted)] font-black text-sm group-hover:bg-blue-50 group-hover:text-blue-600 transition-colors">
+                      {index + 1}
+                  </div>
+                  <span className="text-sm font-bold text-[var(--text-main)]">{lecture.lectureTitle}</span>
+              </div>
+              
+              <button className="p-2.5 rounded-xl bg-[var(--bg-surface)] border border-[var(--border-color)] text-[var(--text-muted)] hover:text-blue-600 hover:border-blue-200 transition-all shadow-sm" onClick={()=>navigate(`/editlecture/${courseId}/${lecture._id}`)}>
+                  <FaEdit />
+              </button>
             </div>
           ))}
         </div> 
+      </div>
       </div>
     </div>
     

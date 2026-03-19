@@ -7,49 +7,66 @@ function Profile() {
   let {userData} = useSelector(state=>state.user)
   let navigate = useNavigate()
   return (
-    <div className="min-h-screen bg-gray-100 px-4 py-10 flex items-center justify-center ">
-      
-      <div className="bg-white shadow-lg rounded-2xl p-8 max-w-xl w-full relative">
-        <FaArrowLeftLong  className='absolute top-[8%] left-[5%] w-[22px] h-[22px] cursor-pointer' onClick={()=>navigate("/")}/>
+    <div className="min-h-screen bg-[var(--bg-main)] px-4 py-10 flex items-center justify-center">
+      <div className="bg-[var(--bg-surface)] shadow-lg border border-[var(--border-color)] rounded-3xl p-10 max-w-xl w-full relative overflow-hidden group">
+        <div className="absolute top-0 right-0 w-32 h-32 bg-blue-600/5 rounded-full -mr-16 -mt-16 group-hover:scale-110 transition-transform"></div>
+        
+        <div className="flex items-center gap-2 mb-8 group/back cursor-pointer w-fit" onClick={()=>navigate("/")}>
+          <FaArrowLeftLong className='text-[var(--text-main)] group-hover/back:-translate-x-1 transition-transform' />
+          <span className="text-sm font-medium text-[var(--text-main)]">Back to Home</span>
+        </div>
+
         {/* Profile Header */}
         <div className="flex flex-col items-center text-center">
-          {userData.photoUrl ? <img
-            src={userData?.photoUrl}
-            alt=""
-            className="w-24 h-24 rounded-full object-cover border-4 border-[black]"
-          /> : <div className='w-24 h-24 rounded-full text-white flex items-center justify-center text-[30px] border-2 bg-black  border-white cursor-pointer'>
-         {userData?.name.slice(0,1).toUpperCase()}
-          </div>}
-          <h2 className="text-2xl font-bold mt-4 text-gray-800">{userData.name}</h2>
-          <p className="text-sm text-gray-500">{userData.role}</p>
+          <div className="relative">
+            {userData.photoUrl ? (
+              <img src={userData.photoUrl} alt="Profile" className="w-28 h-28 rounded-3xl object-cover border-4 border-[var(--bg-surface)] shadow-xl" />
+            ) : (
+              <div className="w-28 h-28 rounded-3xl bg-blue-600 text-white flex items-center justify-center text-4xl font-black border-4 border-[var(--bg-surface)] shadow-xl">
+                {userData?.name?.charAt(0).toUpperCase()}
+              </div>
+            )}
+            <div className="absolute -bottom-2 -right-2 w-8 h-8 bg-emerald-500 border-4 border-[var(--bg-surface)] rounded-full shadow-lg"></div>
+          </div>
+          
+          <h2 className="text-3xl font-black mt-6 text-[var(--text-main)]">{userData.name}</h2>
+          <div className="inline-flex items-center px-4 py-1 rounded-full bg-blue-50 dark:bg-blue-900/30 text-blue-600 text-[10px] font-bold tracking-widest uppercase mt-2">
+            {userData.role}
+          </div>
         </div>
 
         {/* Profile Info */}
-        <div className="mt-6 space-y-4">
-          <div className="text-sm">
-            <span className="font-semibold text-gray-700">Email: </span>
-            <span>{userData.email}</span>
+        <div className="mt-10 space-y-6">
+          <div className="p-4 bg-[var(--bg-main)] rounded-2xl border border-[var(--border-color)]">
+            <p className="text-[10px] font-bold text-blue-600 uppercase tracking-widest mb-1">Email Address</p>
+            <p className="text-[var(--text-main)] font-medium">{userData.email}</p>
           </div>
 
-          <div className="text-sm">
-            <span className="font-semibold text-gray-700">Bio: </span>
-            <span>{userData.description}</span>
+          <div className="p-4 bg-[var(--bg-main)] rounded-2xl border border-[var(--border-color)]">
+            <p className="text-[10px] font-bold text-blue-600 uppercase tracking-widest mb-1">About Me</p>
+            <p className="text-[var(--text-main)] leading-relaxed italic">"{userData.description || "No bio added yet."}"</p>
           </div>
 
-          
-
-          <div className="text-sm">
-            <span className="font-semibold text-gray-700">Enrolled Courses: </span>
-            <span>{userData.enrolledCourses.length}</span>
+          <div className="grid grid-cols-2 gap-4">
+            <div className="p-4 bg-[var(--bg-main)] rounded-2xl border border-[var(--border-color)] text-center">
+              <p className="text-[10px] font-bold text-blue-600 uppercase tracking-widest mb-1">Courses</p>
+              <p className="text-2xl font-black text-[var(--text-main)]">{userData.enrolledCourses.length}</p>
+            </div>
+            <div className="p-4 bg-[var(--bg-main)] rounded-2xl border border-[var(--border-color)] text-center">
+              <p className="text-[10px] font-bold text-blue-600 uppercase tracking-widest mb-1">Certificates</p>
+              <p className="text-2xl font-black text-[var(--text-main)]">0</p>
+            </div>
           </div>
         </div>
 
         {/* Actions */}
-        <div className="mt-6 flex justify-center gap-4">
-          <button className="px-5 py-2 rounded bg-[black] text-white active:bg-[#4b4b4b] cursor-pointer transition" onClick={()=>navigate("/editprofile")}>
-            Edit Profile
+        <div className="mt-10">
+          <button 
+            className="w-full btn-primary py-4 rounded-xl font-bold shadow-lg shadow-blue-500/20" 
+            onClick={()=>navigate("/editprofile")}
+          >
+            Edit Profile Settings
           </button>
-          
         </div>
       </div>
     </div>

@@ -50,7 +50,7 @@ function Nav() {
         </div>
 
         {/* Desktop Links */}
-        <div className="hidden lg:flex items-center gap-6 text-[15px] font-medium text-slate-600">
+        <div className="hidden lg:flex items-center gap-6 text-[15px] font-medium text-[var(--text-muted)]">
           <Link to="/" className="hover:text-blue-600 transition-colors">Home</Link>
           <Link to="/about" className="hover:text-blue-600 transition-colors">About</Link>
           <Link to="/allcourses" className="hover:text-blue-600 transition-colors">Courses</Link>
@@ -62,12 +62,12 @@ function Nav() {
       {/* Action Section */}
       <div className="flex items-center gap-4">
         {/* Search Bar */}
-        <div className="hidden md:flex items-center bg-slate-100 px-4 py-2 rounded-full border border-slate-200 focus-within:border-blue-400 focus-within:ring-2 focus-within:ring-blue-100 transition-all">
-          <IoMdSearch className="text-slate-400 text-xl cursor-pointer" onClick={handleSearch} />
+        <div className="hidden md:flex items-center bg-[var(--bg-main)] px-4 py-2 rounded-full border border-[var(--border-color)] focus-within:border-blue-400 focus-within:ring-2 focus-within:ring-blue-100 transition-all">
+          <IoMdSearch className="text-[var(--text-muted)] text-xl cursor-pointer" onClick={handleSearch} />
           <input 
             type="text" 
             placeholder="Search courses..." 
-            className="bg-transparent border-none focus:outline-none ml-2 text-sm w-48 lg:w-64 text-slate-700"
+            className="bg-transparent border-none focus:outline-none ml-2 text-sm w-48 lg:w-64 text-[var(--text-main)]"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             onKeyDown={handleSearch}
@@ -80,7 +80,7 @@ function Nav() {
             <>
               <button 
                 onClick={() => navigate("/login")}
-                className="text-slate-700 font-medium px-4 py-2 hover:text-blue-600 transition-colors"
+                className="text-[var(--text-main)] font-medium px-4 py-2 hover:text-blue-600 transition-colors"
               >
                 Login
               </button>
@@ -117,11 +117,11 @@ function Nav() {
 
                 {/* Profile Dropdown */}
                 {showPro && (
-                  <div className="absolute top-14 right-0 w-48 bg-white rounded-2xl shadow-xl border border-slate-100 py-2 animate-in fade-in slide-in-from-top-2 duration-200">
-                    <button onClick={() => { navigate("/profile"); setShowPro(false); }} className="w-full text-left px-4 py-2 hover:bg-slate-50 text-slate-700">My Profile</button>
-                    <button onClick={() => { navigate("/enrolledcourses"); setShowPro(false); }} className="w-full text-left px-4 py-2 hover:bg-slate-50 text-slate-700">My Courses</button>
-                    <hr className="my-1 border-slate-100" />
-                    <button onClick={handleLogout} className="w-full text-left px-4 py-2 hover:bg-red-50 text-red-600">Logout</button>
+                  <div className="absolute top-14 right-0 w-48 bg-[var(--bg-surface)] rounded-2xl shadow-xl border border-[var(--border-color)] py-2 animate-in fade-in slide-in-from-top-2 duration-200">
+                    <button onClick={() => { navigate("/profile"); setShowPro(false); }} className="w-full text-left px-4 py-2 hover:bg-[var(--bg-main)] text-[var(--text-main)]">My Profile</button>
+                    <button onClick={() => { navigate("/enrolledcourses"); setShowPro(false); }} className="w-full text-left px-4 py-2 hover:bg-[var(--bg-main)] text-[var(--text-main)]">My Courses</button>
+                    <hr className="my-1 border-[var(--border-color)]" />
+                    <button onClick={handleLogout} className="w-full text-left px-4 py-2 hover:bg-red-500/10 text-red-600 dark:text-red-400">Logout</button>
                   </div>
                 )}
               </div>
@@ -132,27 +132,27 @@ function Nav() {
         {/* Theme Toggle */}
         <button 
           onClick={toggleTheme}
-          className="p-2 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-600 dark:text-slate-400 transition-all shadow-sm border border-slate-200 dark:border-slate-700"
+          className="p-2 rounded-full hover:bg-[var(--bg-surface)] text-[var(--text-muted)] transition-all shadow-sm border border-[var(--border-color)]"
           title={isDarkMode ? "Switch to Light Mode" : "Switch to Dark Mode"}
         >
           {isDarkMode ? <FiSun className="text-xl text-yellow-500" /> : <FiMoon className="text-xl text-blue-600" />}
         </button>
 
         {/* Mobile Menu Toggle */}
-        <button className="lg:hidden p-2 text-slate-600" onClick={() => setShowHam(!showHam)}>
+        <button className="lg:hidden p-2 text-[var(--text-main)]" onClick={() => setShowHam(!showHam)}>
           {showHam ? <GiSplitCross className="text-2xl" /> : <GiHamburgerMenu className="text-2xl" />}
         </button>
       </div>
 
       {/* Mobile Drawer */}
-      <div className={`fixed inset-0 bg-white z-[60] transform transition-transform duration-300 ${showHam ? 'translate-x-0' : 'translate-x-full'} lg:hidden`}>
+      <div className={`fixed inset-0 bg-[var(--bg-main)] z-[60] transform transition-transform duration-300 ${showHam ? 'translate-x-0' : 'translate-x-full'} lg:hidden`}>
         <div className="p-6 flex flex-col h-full">
           <div className="flex items-center justify-between mb-8">
             <span className="text-xl font-bold text-blue-600">FreeSiksha</span>
-            <button onClick={() => setShowHam(false)} className="p-2"><GiSplitCross className="text-2xl" /></button>
+            <button onClick={() => setShowHam(false)} className="p-2 text-[var(--text-main)]"><GiSplitCross className="text-2xl" /></button>
           </div>
 
-          <div className="flex flex-col gap-4 text-lg font-medium text-slate-700 mb-8">
+          <div className="flex flex-col gap-4 text-lg font-medium text-[var(--text-main)] mb-8">
             <Link to="/" onClick={() => setShowHam(false)}>Home</Link>
             <Link to="/about" onClick={() => setShowHam(false)}>About</Link>
             <Link to="/allcourses" onClick={() => setShowHam(false)}>Courses</Link>
@@ -165,7 +165,7 @@ function Nav() {
                 <button onClick={() => navigate("/signup")} className="w-full btn-primary py-3">Register</button>
               </>
             ) : (
-              <button onClick={handleLogout} className="w-full bg-red-50 text-red-600 py-3 rounded-xl">Logout</button>
+              <button onClick={handleLogout} className="w-full bg-red-500/10 text-red-600 py-3 rounded-xl font-medium">Logout</button>
             )}
           </div>
         </div>

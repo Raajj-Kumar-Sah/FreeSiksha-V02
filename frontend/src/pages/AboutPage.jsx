@@ -15,7 +15,7 @@ const AboutPage = () => {
             {/* Hero Section */}
             <section className="pt-32 pb-20 px-4 lg:px-12 bg-[var(--bg-surface)]">
                 <div className="max-w-7xl mx-auto text-center space-y-8">
-                    <div className="inline-flex items-center px-4 py-1.5 rounded-full bg-blue-100 border border-blue-200">
+                    <div className="inline-flex items-center px-4 py-1.5 rounded-full bg-blue-50 dark:bg-blue-900/30 border border-blue-100/20">
                         <span className="text-xs font-bold text-blue-600 tracking-wider">OUR MISSION</span>
                     </div>
                     <h1 className="text-5xl lg:text-6xl font-extrabold text-[var(--text-main)] leading-tight">
@@ -32,33 +32,33 @@ const AboutPage = () => {
             <section className="py-20 px-4 lg:px-12 bg-[var(--bg-main)]">
                 <div className="max-w-7xl mx-auto">
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-                        <div className="premium-card p-8 text-center space-y-4 hover:shadow-blue-100/50">
-                            <div className="w-12 h-12 bg-blue-50 rounded-xl flex items-center justify-center text-blue-600 mx-auto text-2xl">
+                        <div className="premium-card p-8 text-center space-y-4 hover:shadow-blue-500/10 transition-all border border-[var(--border-color)]">
+                            <div className="w-12 h-12 bg-blue-50 dark:bg-blue-900/30 rounded-xl flex items-center justify-center text-blue-600 mx-auto text-2xl">
                                 <FiBookOpen />
                             </div>
                             <h2 className="text-4xl font-black text-[var(--text-main)]">85+</h2>
-                            <p className="text-slate-500 font-medium">Expert-led Courses</p>
+                            <p className="text-[var(--text-muted)] font-medium">Expert-led Courses</p>
                         </div>
-                        <div className="premium-card p-8 text-center space-y-4 hover:shadow-indigo-100/50">
-                            <div className="w-12 h-12 bg-indigo-50 rounded-xl flex items-center justify-center text-indigo-600 mx-auto text-2xl">
+                        <div className="premium-card p-8 text-center space-y-4 hover:shadow-indigo-500/10 transition-all border border-[var(--border-color)]">
+                            <div className="w-12 h-12 bg-indigo-50 dark:bg-indigo-900/30 rounded-xl flex items-center justify-center text-indigo-600 mx-auto text-2xl">
                                 <FiUsers />
                             </div>
                             <h2 className="text-4xl font-black text-[var(--text-main)]">330+</h2>
-                            <p className="text-slate-500 font-medium">Active Mentors</p>
+                            <p className="text-[var(--text-muted)] font-medium">Active Mentors</p>
                         </div>
-                        <div className="premium-card p-8 text-center space-y-4">
-                            <div className="w-12 h-12 bg-emerald-50 rounded-xl flex items-center justify-center text-emerald-600 mx-auto text-2xl">
+                        <div className="premium-card p-8 text-center space-y-4 hover:shadow-emerald-500/10 transition-all border border-[var(--border-color)]">
+                            <div className="w-12 h-12 bg-emerald-50 dark:bg-emerald-900/30 rounded-xl flex items-center justify-center text-emerald-600 mx-auto text-2xl">
                                 <FiGlobe />
                             </div>
                             <h2 className="text-4xl font-black text-[var(--text-main)]">10k+</h2>
-                            <p className="text-slate-500 font-medium">Global Students</p>
+                            <p className="text-[var(--text-muted)] font-medium">Global Students</p>
                         </div>
-                        <div className="premium-card p-8 text-center space-y-4">
-                            <div className="w-12 h-12 bg-rose-50 rounded-xl flex items-center justify-center text-rose-600 mx-auto text-2xl">
+                        <div className="premium-card p-8 text-center space-y-4 hover:shadow-rose-500/10 transition-all border border-[var(--border-color)]">
+                            <div className="w-12 h-12 bg-rose-50 dark:bg-rose-900/30 rounded-xl flex items-center justify-center text-rose-600 mx-auto text-2xl">
                                 <FiHeart />
                             </div>
                             <h2 className="text-4xl font-black text-[var(--text-main)]">100%</h2>
-                            <p className="text-slate-500 font-medium">Free Forever</p>
+                            <p className="text-[var(--text-muted)] font-medium">Free Forever</p>
                         </div>
                     </div>
                 </div>
@@ -67,7 +67,7 @@ const AboutPage = () => {
             {/* Community CTA */}
             <section className="py-20 px-4 lg:px-12">
                 <div className="max-w-7xl mx-auto">
-                    <div className="bg-blue-600 rounded-[40px] p-8 lg:p-16 text-center text-white relative overflow-hidden shadow-2xl shadow-blue-200">
+                    <div className="bg-blue-600 rounded-[40px] p-8 lg:p-16 text-center text-white relative overflow-hidden shadow-2xl shadow-blue-500/20">
                         {/* Decorative circles */}
                         <div className="absolute -top-24 -right-24 w-64 h-64 bg-blue-500 rounded-full blur-3xl opacity-50"></div>
                         <div className="absolute -bottom-24 -left-24 w-64 h-64 bg-indigo-500 rounded-full blur-3xl opacity-50"></div>
@@ -80,13 +80,13 @@ const AboutPage = () => {
                             <div className="flex flex-wrap justify-center gap-4">
                                 <button 
                                     onClick={() => navigate("/signup")}
-                                    className="bg-white text-blue-600 px-10 py-4 rounded-full font-bold shadow-lg hover:scale-105 transition-all text-lg"
+                                    className="bg-white text-blue-600 px-10 py-4 rounded-2xl font-bold shadow-lg hover:scale-105 transition-all text-lg"
                                 >
                                     Join Our Community
                                 </button>
                                 <button 
                                     onClick={() => navigate("/allcourses")}
-                                    className="border-2 border-white/30 hover:border-white text-white px-10 py-4 rounded-full font-bold transition-all text-lg"
+                                    className="bg-white/10 backdrop-blur-md border-2 border-white/20 hover:border-white text-white px-10 py-4 rounded-2xl font-bold transition-all text-lg"
                                 >
                                     Browse Courses
                                 </button>

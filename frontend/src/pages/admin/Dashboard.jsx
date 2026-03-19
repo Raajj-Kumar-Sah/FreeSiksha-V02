@@ -1,4 +1,5 @@
-import React from 'react'
+import React from 'react';
+import Nav from '../../components/Nav';
 import { useSelector } from "react-redux";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from "recharts";
 import img from "../../assets/empty.jpg"; // fallback photo
@@ -28,55 +29,83 @@ function Dashboard() {
   }, 0) || 0;
 
   return (
-    <div className="flex min-h-screen bg-gray-100">
-      <FaArrowLeftLong className=' w-[22px] absolute top-[10%]
-      left-[10%] h-[22px] cursor-pointer' onClick={() => navigate("/")} />
-      <div className="w-full px-6 py-10   bg-gray-50 space-y-10">
+    <div className="flex min-h-screen bg-[var(--bg-main)]">
+      <Nav />
+      
+      <div className="w-full px-6 py-10 space-y-10 mt-[72px] relative max-w-7xl mx-auto">
+        <div className="flex items-center gap-2 mb-8 group cursor-pointer w-fit" onClick={()=>navigate("/")}>
+          <FaArrowLeftLong className='text-[var(--text-main)] group-hover:-translate-x-1 transition-transform' />
+          <span className="text-sm font-bold text-[var(--text-main)] uppercase tracking-wider">Home</span>
+        </div>
+
         {/* Welcome Section */}
-        <div className="max-w-5xl mx-auto bg-white rounded-xl shadow-md p-6 flex flex-col md:flex-row items-center gap-6">
+        <div className="bg-[var(--bg-surface)] rounded-[32px] shadow-xl p-8 flex flex-col md:flex-row items-center gap-8 border border-[var(--border-color)] relative overflow-hidden">
+          <div className="absolute top-0 right-0 w-32 h-32 bg-blue-600/5 rounded-full -mr-16 -mt-16"></div>
           <img
             src={userData?.photoUrl || img}
             alt="Educator"
-            className="w-28 h-28 rounded-full object-cover border-4 border-black shadow-md"
+            className="w-32 h-32 rounded-3xl object-cover border-4 border-[var(--bg-main)] shadow-xl relative z-10"
           />
-          <div className="text-center md:text-left space-y-1">
-            <h1 className="text-2xl font-bold text-gray-800">
-              Welcome, {userData?.name || "Educator"} 👋
-            </h1>
-            <h1 className='text-xl font-semibold text-gray-800'>Total Earning : <span className='font-light text-gray-900'>₹{totalEarnings.toLocaleString()}</span>  </h1>
-            <p className="text-gray-600 text-sm">
-              {userData?.description || "Start creating amazing courses for your students!"}
-            </p>
-            <h1 className='px-[10px] text-center  py-[10px] border-2  bg-black border-black text-white  rounded-[10px] text-[15px] font-light flex items-center justify-center gap-2 cursor-pointer' onClick={() => navigate("/courses")}>Create Courses</h1>
+          <div className="text-center md:text-left space-y-4 flex-1">
+            <div className="space-y-1">
+              <p className="text-xs font-bold text-blue-600 uppercase tracking-widest">Dashboard Overview</p>
+              <h1 className="text-3xl font-black text-[var(--text-main)]">
+                Welcome, {userData?.name || "Educator"} 👋
+              </h1>
+            </div>
+            
+            <div className="flex flex-wrap items-center gap-6">
+              <div className="bg-[var(--bg-main)] px-6 py-3 rounded-2xl border border-[var(--border-color)] shadow-sm">
+                <p className="text-[10px] font-bold text-[var(--text-muted)] uppercase tracking-widest mb-1">Total Earnings</p>
+                <h3 className='text-2xl font-black text-[var(--text-main)]'>₹{totalEarnings.toLocaleString()}</h3>
+              </div>
+              <div className="bg-[var(--bg-main)] px-6 py-3 rounded-2xl border border-[var(--border-color)] shadow-sm">
+                <p className="text-[10px] font-bold text-[var(--text-muted)] uppercase tracking-widest mb-1">Total Courses</p>
+                <h3 className='text-2xl font-black text-[var(--text-main)]'>{creatorCourseData?.length || 0}</h3>
+              </div>
+            </div>
+
+            <button 
+              className="btn-primary px-8 py-3.5 rounded-2xl font-bold shadow-lg shadow-blue-500/20 hover:scale-105 active:scale-95 transition-all w-full md:w-auto" 
+              onClick={() => navigate("/courses")}
+            >
+              Create New Course
+            </button>
           </div>
         </div>
 
         {/* Graphs Section */}
-        <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
           {/* Course Progress Chart */}
-          <div className="bg-white rounded-lg shadow-md p-6">
-            <h2 className="text-lg font-semibold mb-4">Course Progress (Lectures)</h2>
+          <div className="bg-[var(--bg-surface)] rounded-[32px] shadow-lg p-8 border border-[var(--border-color)]">
+            <h2 className="text-xl font-black text-[var(--text-main)] mb-8 uppercase tracking-wider">Course Progress (Lectures)</h2>
             <ResponsiveContainer width="100%" height={300}>
               <BarChart data={courseProgressData}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="name" />
-                <YAxis />
-                <Tooltip />
-                <Bar dataKey="lectures" fill="black" radius={[5, 5, 0, 0]} />
+                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--border-color)" />
+                <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{fill: 'var(--text-muted)', fontSize: 10, fontWeight: 700}}/>
+                <YAxis axisLine={false} tickLine={false} tick={{fill: 'var(--text-muted)', fontSize: 10, fontWeight: 700}}/>
+                <Tooltip 
+                  contentStyle={{backgroundColor: 'var(--bg-surface)', borderColor: 'var(--border-color)', borderRadius: '16px', color: 'var(--text-main)'}}
+                  itemStyle={{color: '#2563eb', fontWeight: 'bold'}}
+                />
+                <Bar dataKey="lectures" fill="#2563eb" radius={[8, 8, 0, 0]} />
               </BarChart>
             </ResponsiveContainer>
           </div>
 
           {/* Enrolled Students Chart */}
-          <div className="bg-white rounded-lg shadow-md p-6">
-            <h2 className="text-lg font-semibold mb-4">Student Enrollment</h2>
+          <div className="bg-[var(--bg-surface)] rounded-[32px] shadow-lg p-8 border border-[var(--border-color)]">
+            <h2 className="text-xl font-black text-[var(--text-main)] mb-8 uppercase tracking-wider">Student Enrollment</h2>
             <ResponsiveContainer width="100%" height={300}>
               <BarChart data={enrollData}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="name" />
-                <YAxis />
-                <Tooltip />
-                <Bar dataKey="enrolled" fill="black" radius={[5, 5, 0, 0]} />
+                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--border-color)" />
+                <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{fill: 'var(--text-muted)', fontSize: 10, fontWeight: 700}}/>
+                <YAxis axisLine={false} tickLine={false} tick={{fill: 'var(--text-muted)', fontSize: 10, fontWeight: 700}}/>
+                <Tooltip 
+                  contentStyle={{backgroundColor: 'var(--bg-surface)', borderColor: 'var(--border-color)', borderRadius: '16px', color: 'var(--text-main)'}}
+                  itemStyle={{color: '#818cf8', fontWeight: 'bold'}}
+                />
+                <Bar dataKey="enrolled" fill="#818cf8" radius={[8, 8, 0, 0]} />
               </BarChart>
             </ResponsiveContainer>
           </div>
