@@ -27,18 +27,18 @@ const Loader = () => {
           color: #ffffff;
           position: relative;
           overflow: hidden;
-          white-space: nowrap;
+          white-space: wrap;
           border-right: 4px solid #3b82f6; /* Cursor color */
           width: 0;
           animation: 
-            typing 2s steps(15, end) forwards,
-            blink 0.8s step-end infinite;
+            typing 2s steps(12,end) forwards,
+            blink 0.5s step-end infinite;
           text-shadow: 0 0 10px rgba(59, 130, 246, 0.5);
         }
 
         @keyframes typing {
           from { width: 0 }
-          to { width: 14ch } /* Approx length of FreeSiksha.com */
+          to { width: 13ch } /* Approx length of FreeSiksha.com */
         }
 
         @keyframes blink {

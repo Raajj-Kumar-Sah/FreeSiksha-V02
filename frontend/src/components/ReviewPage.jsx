@@ -7,7 +7,9 @@ function ReviewPage() {
   const { allReview } = useSelector(state => state.review)
   
   useEffect(() => {
-    setLatestReview(allReview.slice(0, 3));
+    // Filter out any reviews where user data is missing to prevent null reference crashes
+    const validReviews = (allReview || []).filter(item => item && item.user);
+    setLatestReview(validReviews.slice(0, 3));
   }, [allReview])
 
   return (
@@ -24,10 +26,10 @@ function ReviewPage() {
           <ReviewCard 
             key={index} 
             rating={item.rating} 
-            image={item.user.photoUrl} 
+            image={item.user?.photoUrl} 
             text={item.comment} 
-            name={item.user.name} 
-            role={item.user.role} 
+            name={item.user?.name} 
+            role={item.user?.role} 
           />
         ))}
       </div>

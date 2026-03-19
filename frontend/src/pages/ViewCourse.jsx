@@ -150,6 +150,31 @@ const handleEnroll = async (courseId, userId) => {
   }
 };
 
+const [cancelLoading, setCancelLoading] = useState(false);
+
+const handleCancelRequest = async () => {
+  if (!window.confirm("Cancel your enrollment request? You can re-apply at any time.")) return;
+  setCancelLoading(true);
+  try {
+    await axios.post(`${serverUrl}/api/course/${courseId}/unenroll`, {}, { withCredentials: true });
+    // Remove courseId from pending list in Redux
+    const updatedUser = {
+      ...userData,
+      pendingCourses: (userData.pendingCourses || []).filter(id => {
+        const pendingId = typeof id === 'string' ? id : id._id;
+        return pendingId?.toString() !== courseId?.toString();
+      })
+    };
+    dispatch(setUserData(updatedUser));
+    toast.success("Enrollment request cancelled. You can re-apply anytime!");
+  } catch (err) {
+    toast.error(err.response?.data?.message || "Failed to cancel request.");
+    console.error("Cancel Error:", err);
+  } finally {
+    setCancelLoading(false);
+  }
+};
+
   return (
      <div className="min-h-screen bg-[var(--bg-main)] p-6">
       <Nav />
@@ -218,12 +243,17 @@ const handleEnroll = async (courseId, userId) => {
                 >
                   Request to Join
                 </button>
-              ) : !isEnrolled && userData?.pendingCourses?.includes(courseId) ? (
+               ) : !isEnrolled && userData?.pendingCourses?.some(id => (typeof id === 'string' ? id : id._id)?.toString() === courseId?.toString()) ? (
                  <button 
-                  className="flex-1 min-w-[200px] py-4 rounded-xl font-bold text-blue-600 bg-blue-50 dark:bg-blue-900/40 border border-blue-200 dark:border-blue-700 cursor-not-allowed" 
-                  disabled
+                  className="flex-1 min-w-[200px] py-4 rounded-xl font-bold text-amber-600 bg-amber-50 dark:bg-amber-900/30 border border-amber-300 dark:border-amber-700 hover:bg-amber-100 dark:hover:bg-amber-900/50 transition-all flex items-center justify-center gap-2" 
+                  onClick={handleCancelRequest}
+                  disabled={cancelLoading}
                 >
-                  Pending Approval...
+                  {cancelLoading ? (
+                    <>⏳ Cancelling...</>
+                  ) : (
+                    <>⏳ Pending Approval &mdash; <span className="underline text-sm">Click to Cancel</span></>
+                  )}
                 </button>
               ) : (
                 <>

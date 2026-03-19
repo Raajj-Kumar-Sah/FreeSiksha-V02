@@ -1,5 +1,6 @@
 import React, { useState } from 'react'
 import logo from '../assets/logo.jpg'
+import security_auth_bg from '../assets/security_auth_bg.png'
 import google from '../assets/google.jpg'
 import axios from 'axios'
 import { serverUrl } from '../App'
@@ -95,14 +96,12 @@ function Login() {
     <div className='min-h-screen bg-[var(--bg-main)] flex items-center justify-center p-4 py-12 font-sans'>
         <div className='w-full max-w-6xl bg-[var(--bg-surface)] shadow-2xl rounded-[32px] flex flex-col md:flex-row overflow-hidden border border-[var(--border-color)] min-h-[650px] relative'>
             
-            {/* Floating Back Button */}
-            <button onClick={() => navigate("/")} className="absolute top-6 left-6 sm:top-8 sm:left-8 flex items-center gap-2 text-[var(--text-muted)] hover:text-blue-600 font-bold transition-colors group z-20 bg-[var(--bg-surface)] px-4 py-2 rounded-xl shadow-sm border border-[var(--border-color)]">
-                <MdArrowBack className="w-5 h-5 group-hover:-translate-x-1 transition-transform" />
-                <span>Home</span>
-            </button>
-
             {/* Left Side: Form Section */}
-            <div className='w-full md:w-1/2 p-6 sm:p-10 lg:p-12 flex flex-col justify-center bg-[var(--bg-surface)] relative z-10 pt-20'>
+            <div className='w-full md:w-1/2 p-6 sm:p-10 lg:p-12 flex flex-col justify-center bg-[var(--bg-surface)] relative z-10'>
+                <button onClick={() => navigate("/")} className="w-fit mb-8 flex items-center gap-2 text-[var(--text-muted)] hover:text-blue-600 font-bold transition-colors group z-20 bg-[var(--bg-surface)] px-4 py-2 rounded-xl border border-[var(--border-color)] shadow-sm self-start">
+                    <MdArrowBack className="w-5 h-5 group-hover:-translate-x-1 transition-transform" />
+                    <span>Home</span>
+                </button>
                 <div className='w-full max-w-md mx-auto space-y-8'>
                     
                     {!showOtpScreen ? (
@@ -194,14 +193,12 @@ function Login() {
                 </div>
             </div>
             
-            {/* Right Side: Security & Branding Graphic */}
-            <div className='hidden md:flex w-1/2 bg-blue-600 relative flex-col items-center justify-center p-12 overflow-hidden border-l border-[var(--border-color)] dark:border-blue-800'>
-                {/* Dynamic animated backgrounds */}
-                <div className="absolute inset-0 w-full h-full overflow-hidden pointer-events-none">
-                    <div className="absolute -top-[20%] -right-[10%] w-[70%] h-[70%] rounded-full bg-blue-500 blur-3xl opacity-60 animate-pulse"></div>
-                    <div className="absolute -bottom-[20%] -left-[10%] w-[60%] h-[60%] rounded-full bg-blue-800 blur-3xl opacity-60 animate-pulse" style={{ animationDelay: '2s' }}></div>
-                    <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAiIGhlaWdodD0iMjAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGNpcmNsZSBjeD0iMiIgY3k9IjIiIHI9IjIiIGZpbGw9IiNmZmZmZmYiIGZpbGwtb3BhY2l0eT0iMC4wNSIvPjwvc3ZnPg==')] opacity-30"></div>
-                </div>
+            {/* Right Side: Security & Branding Graphic over Image */}
+            <div 
+                className='hidden md:flex w-1/2 relative flex-col items-center justify-center p-12 overflow-hidden border-l border-[var(--border-color)] dark:border-blue-800 bg-cover bg-center'
+                style={{ backgroundImage: `url(${security_auth_bg})` }}
+            >
+                <div className="absolute inset-0 bg-blue-900/70 dark:bg-black/60 backdrop-blur-[2px]"></div>
                 
                 <div className='relative z-10 w-full flex flex-col items-center text-center max-w-sm mx-auto space-y-8'>
                     {/* Floating Branding Badge */}

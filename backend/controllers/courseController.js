@@ -262,8 +262,8 @@ export const getCourseStudents = async (req, res) => {
     try {
         const { courseId } = req.params;
         const course = await Course.findById(courseId)
-            .populate('enrolledStudents', 'name email createdAt')
-            .populate('pendingStudents', 'name email createdAt');
+            .populate('enrolledStudents', 'name email phone age city qualification gender createdAt')
+            .populate('pendingStudents', 'name email phone age city qualification gender createdAt');
 
         if (!course) return res.status(404).json({ message: "Course not found" });
 
@@ -342,7 +342,7 @@ export const rejectStudent = async (req, res) => {
     }
 }
 
-// Student Unenrolls from a Course
+// Student Unenrolls / Cancels Pending Request from a Course
 export const unenrollFromCourse = async (req, res) => {
     try {
         const { courseId } = req.params;
@@ -351,18 +351,14 @@ export const unenrollFromCourse = async (req, res) => {
         const course = await Course.findById(courseId);
         if (!course) return res.status(404).json({ message: "Course not found" });
 
-        const user = await User.findById(userId);
-        if (!user) return res.status(404).json({ message: "User not found" });
+        // Use $pull to avoid re-triggering full Mongoose schema validation on save()
+        await Course.findByIdAndUpdate(courseId, {
+            $pull: { pendingStudents: userId, enrolledStudents: userId }
+        });
 
-        // Remove from both pending and enrolled arrays for safety
-        course.pendingStudents = course.pendingStudents.filter(id => id.toString() !== userId);
-        course.enrolledStudents = course.enrolledStudents.filter(id => id.toString() !== userId);
-        
-        user.pendingCourses = user.pendingCourses.filter(id => id.toString() !== courseId);
-        user.enrolledCourses = user.enrolledCourses.filter(id => id.toString() !== courseId);
-
-        await course.save();
-        await user.save();
+        await User.findByIdAndUpdate(userId, {
+            $pull: { pendingCourses: courseId, enrolledCourses: courseId }
+        });
 
         res.status(200).json({ message: "Unenrolled successfully." });
     } catch (error) {

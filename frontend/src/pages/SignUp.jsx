@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
 import logo from '../assets/logo.jpg'
 import google from '../assets/google.jpg'
+import security_auth_bg from '../assets/security_auth_bg.png'
 import axios from 'axios'
 import { serverUrl } from '../App'
 import { MdOutlineRemoveRedEye, MdRemoveRedEye, MdArrowBack } from "react-icons/md";
@@ -103,16 +104,14 @@ function SignUp() {
 
   return (
     <div className='min-h-screen bg-[var(--bg-main)] flex items-center justify-center p-4 py-12 font-sans'>
-        <div className='w-full max-w-6xl bg-[var(--bg-surface)] shadow-2xl rounded-[32px] flex flex-col md:flex-row overflow-hidden border border-[var(--border-color)] min-h-[700px] relative'>
+        <div className='w-full max-w-6xl bg-[var(--bg-surface)] shadow-2xl rounded-[32px] flex flex-col md:flex-row overflow-hidden border border-[var(--border-color)] relative my-8 lg:my-12'>
             
-            {/* Floating Back Button */}
-            <button onClick={() => navigate("/")} className="absolute top-6 left-6 sm:top-8 sm:left-8 flex items-center gap-2 text-[var(--text-muted)] hover:text-blue-600 font-bold transition-colors group z-20 bg-[var(--bg-surface)] px-4 py-2 rounded-xl shadow-sm border border-[var(--border-color)]">
-                <MdArrowBack className="w-5 h-5 group-hover:-translate-x-1 transition-transform" />
-                <span>Home</span>
-            </button>
-
             {/* Left Side: Form Section */}
-            <div className='w-full md:w-1/2 p-6 sm:p-10 lg:p-12 flex flex-col justify-center bg-[var(--bg-surface)] relative z-10 overflow-y-auto max-h-[90vh] pt-20'>
+            <div className='w-full md:w-1/2 p-6 sm:p-10 lg:p-12 flex flex-col justify-center bg-[var(--bg-surface)] relative z-10'>
+                <button onClick={() => navigate("/")} className="w-fit mb-8 flex items-center gap-2 text-[var(--text-muted)] hover:text-blue-600 font-bold transition-colors group z-20 bg-[var(--bg-surface)] px-4 py-2 rounded-xl border border-[var(--border-color)] shadow-sm self-start">
+                    <MdArrowBack className="w-5 h-5 group-hover:-translate-x-1 transition-transform" />
+                    <span>Home</span>
+                </button>
                 <div className='w-full max-w-md mx-auto space-y-8 pb-8'>
                     
                     {!showOtpScreen ? (
@@ -254,50 +253,13 @@ function SignUp() {
                 </div>
             </div>
             
-            {/* Right Side: Security & Branding Graphic */}
-            <div className='hidden md:flex w-1/2 bg-blue-600 relative flex-col items-center justify-center p-12 overflow-hidden border-l border-[var(--border-color)] dark:border-blue-800'>
-                {/* Dynamic animated backgrounds */}
-                <div className="absolute inset-0 w-full h-full overflow-hidden pointer-events-none">
-                    <div className="absolute -top-[20%] -right-[10%] w-[70%] h-[70%] rounded-full bg-blue-500 blur-3xl opacity-60 animate-pulse"></div>
-                    <div className="absolute -bottom-[20%] -left-[10%] w-[60%] h-[60%] rounded-full bg-blue-800 blur-3xl opacity-60 animate-pulse" style={{ animationDelay: '2s' }}></div>
-                    <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAiIGhlaWdodD0iMjAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGNpcmNsZSBjeD0iMiIgY3k9IjIiIHI9IjIiIGZpbGw9IiNmZmZmZmYiIGZpbGwtb3BhY2l0eT0iMC4wNSIvPjwvc3ZnPg==')] opacity-30"></div>
-                </div>
-                
-                <div className='relative z-10 w-full flex flex-col items-center text-center max-w-sm mx-auto space-y-8'>
-                    {/* Floating Branding Badge */}
-                    <div className="bg-white/10 backdrop-blur-xl border border-white/20 p-8 rounded-[32px] shadow-2xl transform transition-transform hover:scale-105 duration-500 w-full">
-                        <div className="w-20 h-20 bg-gradient-to-br from-blue-400 to-blue-600 rounded-2xl mx-auto flex items-center justify-center shadow-lg mb-6 border border-white/30">
-                            <svg xmlns="http://www.w3.org/2000/svg" className="h-10 w-10 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
-                            </svg>
-                        </div>
-                        <h2 className="text-3xl font-black text-white tracking-widest drop-shadow-md">FREESIKSHA<span className="text-blue-300">.COM</span></h2>
-                        <div className="h-1.5 w-16 bg-blue-400 mx-auto mt-6 rounded-full opacity-70"></div>
-                    </div>
-                    
-                    {/* Security Value Props */}
-                    <div className="w-full space-y-4 text-left">
-                        <div className="bg-white/10 backdrop-blur-md p-4 rounded-2xl border border-white/10 flex items-center gap-4 hover:bg-white/20 transition-colors cursor-default">
-                            <div className="bg-blue-500/40 p-3 rounded-xl text-white border border-white/20 shadow-inner">
-                                <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" /></svg>
-                            </div>
-                            <div>
-                                <h3 className="text-white font-bold tracking-wide">Secure Authentication</h3>
-                                <p className="text-blue-100 text-sm font-medium opacity-80">Enterprise-grade encryption limits</p>
-                            </div>
-                        </div>
-                        
-                        <div className="bg-white/10 backdrop-blur-md p-4 rounded-2xl border border-white/10 flex items-center gap-4 hover:bg-white/20 transition-colors cursor-default">
-                            <div className="bg-blue-500/40 p-3 rounded-xl text-white border border-white/20 shadow-inner">
-                                <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-                            </div>
-                            <div>
-                                <h3 className="text-white font-bold tracking-wide">Data Privacy Ensured</h3>
-                                <p className="text-blue-100 text-sm font-medium opacity-80">100% protection rating guaranteed</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+            {/* Right Side: Showcase Image */}
+            <div 
+                className='hidden md:flex w-1/2 relative flex-col items-center justify-center p-12 overflow-hidden border-l border-[var(--border-color)] dark:border-blue-800 bg-cover bg-center'
+                style={{ backgroundImage: `url(${security_auth_bg})` }}
+            >
+                {/* Dark overlay for better text/content blending */}
+                <div className="absolute inset-0 bg-blue-900/70 dark:bg-black/60 backdrop-blur-[2px]"></div>
             </div>
             
         </div>

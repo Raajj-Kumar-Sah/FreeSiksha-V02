@@ -10,7 +10,6 @@ import { ClipLoader } from 'react-spinners';
 
 function Enrollments() {
   const { userData } = useSelector(state => state.user);
-  const { courseData } = useSelector(state => state.course); // from our global fetch hook
   
   const [educatorCourses, setEducatorCourses] = useState([]);
   const [selectedCourse, setSelectedCourse] = useState(null);
@@ -18,18 +17,28 @@ function Enrollments() {
   const [enrolledStudents, setEnrolledStudents] = useState([]);
   const [pendingStudents, setPendingStudents] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [coursesLoading, setCoursesLoading] = useState(true);
   const [actionLoading, setActionLoading] = useState(null);
 
-  // Filter courses created by the educator
+  // Fetch ALL educator courses (including unpublished) directly from API
   useEffect(() => {
-    if (userData?._id && courseData?.length > 0) {
-      const myCourses = courseData.filter(c => c.creator === userData._id);
-      setEducatorCourses(myCourses);
-      if (myCourses.length > 0 && !selectedCourse) {
-        setSelectedCourse(myCourses[0]._id);
+    const fetchEducatorCourses = async () => {
+      setCoursesLoading(true);
+      try {
+        const { data } = await axios.get(`${serverUrl}/api/course/getcreatorcourses`, { withCredentials: true });
+        setEducatorCourses(data);
+        if (data.length > 0 && !selectedCourse) {
+          setSelectedCourse(data[0]._id);
+        }
+      } catch (error) {
+        console.error(error);
+        toast.error("Failed to load your courses");
+      } finally {
+        setCoursesLoading(false);
       }
-    }
-  }, [userData, courseData]);
+    };
+    if (userData?._id) fetchEducatorCourses();
+  }, [userData]);
 
   // Fetch students for the selected course
   const fetchStudents = async () => {
@@ -96,15 +105,13 @@ function Enrollments() {
 // Note to self: The tool replaces precisely what I input. I will replace the block from the Active students table header down to its closing tag.
 
 
-  // Export Utilities
   const exportToCSV = () => {
       const courseObj = educatorCourses.find(c => c._id === selectedCourse);
       const csvData = [
-          ["Name", "Email", "Status", "Request Date"],
-          ...pendingStudents.map(s => [s.name, s.email, "Pending", new Date(s.createdAt).toLocaleDateString()]),
-          ...enrolledStudents.map(s => [s.name, s.email, "Enrolled", new Date(s.createdAt).toLocaleDateString()])
+          ["Name", "Email", "Phone", "Age", "City", "Qualification", "Gender", "Status", "Date"],
+          ...pendingStudents.map(s => [s.name, s.email, s.phone || '-', s.age || '-', s.city || '-', s.qualification || '-', s.gender || '-', "Pending", new Date(s.createdAt).toLocaleDateString()]),
+          ...enrolledStudents.map(s => [s.name, s.email, s.phone || '-', s.age || '-', s.city || '-', s.qualification || '-', s.gender || '-', "Enrolled", new Date(s.createdAt).toLocaleDateString()])
       ];
-      
       const csvContent = csvData.map(e => e.join(",")).join("\n");
       const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
       const url = URL.createObjectURL(blob);
@@ -120,18 +127,15 @@ function Enrollments() {
       const courseObj = educatorCourses.find(c => c._id === selectedCourse);
       const doc = new jsPDF();
       doc.text(`Student Enrollments: ${courseObj?.title || 'Course'}`, 14, 15);
-      
       const tableData = [
-          ...pendingStudents.map(s => [s.name, s.email, "Pending", new Date(s.createdAt).toLocaleDateString()]),
-          ...enrolledStudents.map(s => [s.name, s.email, "Enrolled", new Date(s.createdAt).toLocaleDateString()])
+          ...pendingStudents.map(s => [s.name, s.email, s.phone || '-', s.age || '-', s.city || '-', s.qualification || '-', "Pending", new Date(s.createdAt).toLocaleDateString()]),
+          ...enrolledStudents.map(s => [s.name, s.email, s.phone || '-', s.age || '-', s.city || '-', s.qualification || '-', "Enrolled", new Date(s.createdAt).toLocaleDateString()])
       ];
-
       doc.autoTable({
           startY: 25,
-          head: [['Name', 'Email', 'Status', 'Request Date']],
+          head: [['Name', 'Email', 'Phone', 'Age', 'City', 'Qualification', 'Status', 'Date']],
           body: tableData,
       });
-
       doc.save(`Course_Enrollments_${courseObj?.title || 'Report'}.pdf`);
   };
 
@@ -194,18 +198,28 @@ function Enrollments() {
                                     <tr>
                                         <th className="px-6 py-4">Student Name</th>
                                         <th className="px-6 py-4">Email</th>
+                                        <th className="px-6 py-4">Phone</th>
+                                        <th className="px-6 py-4">Age</th>
+                                        <th className="px-6 py-4">City</th>
+                                        <th className="px-6 py-4">Qualification</th>
+                                        <th className="px-6 py-4">Gender</th>
                                         <th className="px-6 py-4">Request Date</th>
                                         <th className="px-6 py-4 text-right">Actions</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     {pendingStudents.length === 0 ? (
-                                        <tr><td colSpan="4" className="px-6 py-8 text-center text-[var(--text-muted)] font-medium">No pending requests at the moment.</td></tr>
+                                        <tr><td colSpan="9" className="px-6 py-8 text-center text-[var(--text-muted)] font-medium">No pending requests at the moment.</td></tr>
                                     ) : (
                                         pendingStudents.map(student => (
                                             <tr key={student._id} className="border-b border-[var(--border-color)] hover:bg-[var(--bg-main)]/50 transition-colors">
                                                 <td className="px-6 py-4 font-bold text-[var(--text-main)]">{student.name}</td>
                                                 <td className="px-6 py-4 text-[var(--text-muted)] text-sm">{student.email}</td>
+                                                <td className="px-6 py-4 text-[var(--text-muted)] text-sm">{student.phone || <span className="opacity-40">—</span>}</td>
+                                                <td className="px-6 py-4 text-[var(--text-muted)] text-sm">{student.age || <span className="opacity-40">—</span>}</td>
+                                                <td className="px-6 py-4 text-[var(--text-muted)] text-sm">{student.city || <span className="opacity-40">—</span>}</td>
+                                                <td className="px-6 py-4 text-[var(--text-muted)] text-sm">{student.qualification || <span className="opacity-40">—</span>}</td>
+                                                <td className="px-6 py-4 text-[var(--text-muted)] text-sm">{student.gender || <span className="opacity-40">—</span>}</td>
                                                 <td className="px-6 py-4 text-[var(--text-muted)] text-sm">{new Date(student.createdAt).toLocaleDateString()}</td>
                                                 <td className="px-6 py-4 text-right">
                                                     <div className="flex items-center justify-end gap-2">
@@ -246,21 +260,33 @@ function Enrollments() {
                                     <tr>
                                         <th className="px-6 py-4">Student Name</th>
                                         <th className="px-6 py-4">Email</th>
+                                        <th className="px-6 py-4">Phone</th>
+                                        <th className="px-6 py-4">Age</th>
+                                        <th className="px-6 py-4">City</th>
+                                        <th className="px-6 py-4">Qualification</th>
+                                        <th className="px-6 py-4">Gender</th>
                                         <th className="px-6 py-4">Enroll Date</th>
                                         <th className="px-6 py-4 text-right">Actions</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     {enrolledStudents.length === 0 ? (
-                                        <tr><td colSpan="4" className="px-6 py-8 text-center text-[var(--text-muted)] font-medium">No active students in this course yet.</td></tr>
+                                        <tr><td colSpan="9" className="px-6 py-8 text-center text-[var(--text-muted)] font-medium">No active students in this course yet.</td></tr>
                                     ) : (
                                         enrolledStudents.map(student => (
                                             <tr key={student._id} className="border-b border-[var(--border-color)] hover:bg-[var(--bg-main)]/50 transition-colors">
-                                                <td className="px-6 py-4 font-bold text-[var(--text-main)] flex items-center gap-3">
-                                                    <div className="w-8 h-8 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center font-black text-xs uppercase">{student.name.charAt(0)}</div>
-                                                    {student.name}
+                                                <td className="px-6 py-4 font-bold text-[var(--text-main)]">
+                                                    <div className="flex items-center gap-3">
+                                                        <div className="w-8 h-8 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center font-black text-xs uppercase flex-shrink-0">{student.name?.charAt(0)}</div>
+                                                        {student.name}
+                                                    </div>
                                                 </td>
                                                 <td className="px-6 py-4 text-[var(--text-muted)] text-sm">{student.email}</td>
+                                                <td className="px-6 py-4 text-[var(--text-muted)] text-sm">{student.phone || <span className="opacity-40">—</span>}</td>
+                                                <td className="px-6 py-4 text-[var(--text-muted)] text-sm">{student.age || <span className="opacity-40">—</span>}</td>
+                                                <td className="px-6 py-4 text-[var(--text-muted)] text-sm">{student.city || <span className="opacity-40">—</span>}</td>
+                                                <td className="px-6 py-4 text-[var(--text-muted)] text-sm">{student.qualification || <span className="opacity-40">—</span>}</td>
+                                                <td className="px-6 py-4 text-[var(--text-muted)] text-sm">{student.gender || <span className="opacity-40">—</span>}</td>
                                                 <td className="px-6 py-4 text-[var(--text-muted)] text-sm">{new Date(student.createdAt).toLocaleDateString()}</td>
                                                 <td className="px-6 py-4 text-right">
                                                     <button 

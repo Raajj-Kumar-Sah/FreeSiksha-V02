@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react'
+import React, { useEffect, useState } from 'react'
 
 import { FaEdit } from "react-icons/fa";
 
@@ -7,15 +7,17 @@ import { useDispatch, useSelector } from 'react-redux';
 import axios from 'axios';
 import { serverUrl } from '../../App';
 import { toast } from 'react-toastify';
-import { setCreatorCourseData } from '../../redux/courseSlice';
+import { setCreatorCourseData, setCourseData } from '../../redux/courseSlice';
 import img1 from "../../assets/empty.jpg"
 import { FaArrowLeftLong } from "react-icons/fa6";
 import Nav from "../../components/Nav";
+import { ClipLoader } from 'react-spinners';
 
 function Courses() {
 
   let navigate = useNavigate()
   let dispatch = useDispatch()
+  const [publishingId, setPublishingId] = useState(null);
 
   const { creatorCourseData, courseData } = useSelector(state => state.course)
 
@@ -39,6 +41,7 @@ function Courses() {
   }, [])
 
   const togglePublish = async (courseId, currentStatus) => {
+    setPublishingId(courseId);
     try {
       const result = await axios.post(`${serverUrl}/api/course/editcourse/${courseId}`, { isPublished: !currentStatus }, { withCredentials: true })
       
@@ -61,6 +64,8 @@ function Courses() {
     } catch (error) {
       console.error(error)
       toast.error("Failed to update status")
+    } finally {
+      setPublishingId(null);
     }
   }
 
@@ -114,9 +119,14 @@ function Courses() {
                   <td className="py-4 px-6">
                     <button 
                       onClick={() => togglePublish(course._id, course.isPublished)}
-                      className={`px-4 py-1.5 justify-center rounded-full text-xs font-bold transition-all shadow-sm ${course?.isPublished ? "text-emerald-600 bg-emerald-50 dark:bg-emerald-500/10 border border-emerald-200 dark:border-emerald-500/20 hover:bg-emerald-100 dark:hover:bg-emerald-500/20" : "text-amber-600 bg-amber-50 dark:bg-amber-500/10 border border-amber-200 dark:border-amber-500/20 hover:bg-amber-100 dark:hover:bg-amber-500/20"}`}
+                      disabled={publishingId === course._id}
+                      className={`px-4 py-1.5 justify-center rounded-full text-xs font-bold transition-all shadow-sm flex items-center gap-1 ${course?.isPublished ? "text-emerald-600 bg-emerald-50 dark:bg-emerald-500/10 border border-emerald-200 dark:border-emerald-500/20 hover:bg-emerald-100 dark:hover:bg-emerald-500/20" : "text-amber-600 bg-amber-50 dark:bg-amber-500/10 border border-amber-200 dark:border-amber-500/20 hover:bg-amber-100 dark:hover:bg-amber-500/20"} ${publishingId === course._id ? 'opacity-70 cursor-wait' : ''}`}
                     >
-                      {course?.isPublished ? "● Published" : "● Draft"}
+                      {publishingId === course._id ? (
+                          <ClipLoader size={12} color={course?.isPublished ? '#059669' : '#d97706'} />
+                      ) : (
+                          course?.isPublished ? "● Published" : "● Draft"
+                      )}
                     </button>
                   </td>
                   <td className="py-4 px-6 text-right">
@@ -158,9 +168,14 @@ function Courses() {
                   <div className="flex items-center gap-2 mt-2 pt-2 border-t border-[var(--border-color)]">
                     <button 
                         onClick={() => togglePublish(course._id, course.isPublished)}
-                        className={`px-3 py-1 flex-1 text-[10px] rounded-lg font-bold transition-colors border ${course?.isPublished ? "text-emerald-600 bg-emerald-50 dark:bg-emerald-500/10 border-emerald-200 dark:border-emerald-500/20" : "text-amber-600 bg-amber-50 dark:bg-amber-500/10 border-amber-200 dark:border-amber-500/20"}`}
+                        disabled={publishingId === course._id}
+                        className={`px-3 py-1 flex-1 text-[10px] rounded-lg font-bold transition-colors border flex justify-center items-center gap-1 ${course?.isPublished ? "text-emerald-600 bg-emerald-50 dark:bg-emerald-500/10 border-emerald-200 dark:border-emerald-500/20" : "text-amber-600 bg-amber-50 dark:bg-amber-500/10 border-amber-200 dark:border-amber-500/20"} ${publishingId === course._id ? 'opacity-70 cursor-wait' : ''}`}
                     >
-                        {course?.isPublished ? "Published" : "Draft"}
+                        {publishingId === course._id ? (
+                            <ClipLoader size={10} color={course?.isPublished ? '#059669' : '#d97706'} />
+                        ) : (
+                            course?.isPublished ? "Published" : "Draft"
+                        )}
                     </button>
                     <button 
                         onClick={() => navigate(`/addcourses/${course?._id}`)}
