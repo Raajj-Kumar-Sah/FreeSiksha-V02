@@ -11,6 +11,7 @@ import Footer from '../components/Footer';
 import CourseNotificationToast from '../components/CourseNotificationToast.jsx';
 import { useNavigate } from 'react-router-dom';
 import SEO from '../components/SEO';
+import RegistrationNotice from '../components/RegistrationNotice';
 import heroImg from '../assets/hero_students_collaboration.png' 
 import heroBgVideo from '../assets/hero_bg.mp4'
 import { motion, AnimatePresence, useMotionValue, useTransform, animate } from 'framer-motion';
@@ -102,6 +103,7 @@ function Home() {
       />
       <CourseNotificationToast course={newestOpenCourse} />
       <Nav />
+      <RegistrationNotice />
       
       {/* Hero Section */}
       <section className="relative min-h-[90vh] flex items-center pt-32 pb-16 px-4 lg:px-12">

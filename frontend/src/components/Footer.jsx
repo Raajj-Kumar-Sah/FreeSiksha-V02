@@ -3,9 +3,12 @@ import { useNavigate, Link } from "react-router-dom";
 import logo from "../assets/logo.jpg";
 import { FiTwitter, FiLinkedin } from "react-icons/fi";
 import { FaWhatsapp } from "react-icons/fa";
+import { useDispatch } from "react-redux";
+import { toggleJoinModal } from "../redux/userSlice";
 
 const Footer = () => {
   const navigate = useNavigate();
+  const dispatch = useDispatch();
   const currentYear = new Date().getFullYear();
 
   return (
@@ -35,13 +38,21 @@ const Footer = () => {
             </div>
           </div>
 
-          {/* Links Columns */}
           <div className="space-y-6">
             <h4 className="font-bold text-[var(--text-main)]">Platform</h4>
             <ul className="space-y-4 text-[14px]">
-              {["Courses", "Mentors", "Community", "Certificates"].map((link) => (
+              {["Courses", "Mentors", "Community", "Certificates", "Join Now"].map((link) => (
                 <li key={link}>
-                  <Link to={`/${link.toLowerCase()}`} className="text-[var(--text-muted)] hover:text-blue-600 transition-colors">{link}</Link>
+                  {link === "Join Now" ? (
+                    <button 
+                      onClick={() => dispatch(toggleJoinModal(true))} 
+                      className="text-[var(--text-muted)] hover:text-blue-600 transition-colors font-medium"
+                    >
+                      {link}
+                    </button>
+                  ) : (
+                    <Link to={`/${link.toLowerCase()}`} className="text-[var(--text-muted)] hover:text-blue-600 transition-colors">{link}</Link>
+                  )}
                 </li>
               ))}
             </ul>

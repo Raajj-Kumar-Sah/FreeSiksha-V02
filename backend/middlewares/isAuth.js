@@ -1,6 +1,6 @@
 
 import jwt from "jsonwebtoken"
-const isAuth=async (req,res,next)=>{
+export const isAuth = async (req,res,next)=>{
     try {
  
       let {token} = req.cookies
@@ -15,6 +15,7 @@ const isAuth=async (req,res,next)=>{
       }
   
       req.userId = verifyToken.userId
+      req.userRole = verifyToken.role
       next()
     } catch (error) {
         console.log(error)

@@ -1,5 +1,5 @@
 import express from "express";
-import { adminLogin, getPlatformStats, getAllUsers, updateUserStatus, deleteUser, getAllAdminCourses, updateCourseStatus, deleteAdminCourse, getAllEnrollments, removeEnrollment, getAllReviewsAdmin, deleteReviewAdmin } from "../controllers/adminController.js";
+import { adminLogin, getPlatformStats, getAllUsers, updateUserStatus, deleteUser, getAllAdminCourses, updateCourseStatus, deleteAdminCourse, getAllEnrollments, removeEnrollment, getAllReviewsAdmin, deleteReviewAdmin, exportMembersCSV } from "../controllers/adminController.js";
 import { isAdmin } from "../middlewares/isAuth.js";
 
 const adminRouter = express.Router();
@@ -27,6 +27,9 @@ adminRouter.delete("/enrollments/:courseId/:studentId", isAdmin, removeEnrollmen
 // Phase 8 & 9: Content Moderation
 adminRouter.get("/reviews", isAdmin, getAllReviewsAdmin);
 adminRouter.delete("/reviews/:id", isAdmin, deleteReviewAdmin);
+
+// Phase 10: Platform Data Export
+adminRouter.get("/export", isAdmin, exportMembersCSV);
 
 // Protected Verification Endpoint
 adminRouter.get("/verify", isAdmin, (req, res) => {

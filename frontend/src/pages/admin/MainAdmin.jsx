@@ -9,6 +9,9 @@ import AdminCourses from './AdminCourses';
 import AdminEnrollments from './AdminEnrollments';
 import AdminReviews from './AdminReviews';
 import AdminBlogs from './AdminBlogs';
+import AdminVolunteerApplications from './AdminVolunteerApplications';
+import VolunteerFormBuilder from './VolunteerFormBuilder';
+import { FaUsers, FaUserEdit, FaWrench, FaInbox, FaHandsHelping } from 'react-icons/fa';
 
 export default function MainAdmin() {
     const navigate = useNavigate();
@@ -49,6 +52,9 @@ export default function MainAdmin() {
         switch (activeTab) {
             case 'students': return <AdminUsers role="student" />;
             case 'teachers': return <AdminUsers role="educator" />;
+            case 'volunteers': return <AdminUsers role="volunteer" />;
+            case 'applications': return <AdminVolunteerApplications />;
+            case 'form-builder': return <VolunteerFormBuilder />;
             case 'courses': return <AdminCourses />;
             case 'enrollments': return <AdminEnrollments />;
             case 'moderation': return <AdminReviews />;
@@ -125,16 +131,35 @@ export default function MainAdmin() {
                     </button>
                     <button 
                         onClick={() => setActiveTab('students')} 
-                        className={`text-left px-4 py-3 rounded-xl font-bold transition-colors ${activeTab === 'students' ? 'bg-blue-50 text-blue-600' : 'text-gray-600 hover:bg-gray-50'}`}
+                        className={`group flex items-center gap-3 px-4 py-3 rounded-xl font-bold transition-all ${activeTab === 'students' ? 'bg-blue-50 text-blue-600 shadow-sm border-l-4 border-blue-600' : 'text-gray-600 hover:bg-gray-50'}`}
                     >
-                        Manage Students
+                        <FaUsers /> Manage Students
                     </button>
                     <button 
                         onClick={() => setActiveTab('teachers')} 
-                        className={`text-left px-4 py-3 rounded-xl font-bold transition-colors ${activeTab === 'teachers' ? 'bg-blue-50 text-blue-600' : 'text-gray-600 hover:bg-gray-50'}`}
+                        className={`group flex items-center gap-3 px-4 py-3 rounded-xl font-bold transition-all ${activeTab === 'teachers' ? 'bg-blue-50 text-blue-600 shadow-sm border-l-4 border-blue-600' : 'text-gray-600 hover:bg-gray-50'}`}
                     >
-                        Manage Teachers
+                        <FaUserEdit /> Manage Teachers
                     </button>
+                    <button 
+                        onClick={() => setActiveTab('volunteers')} 
+                        className={`group flex items-center gap-3 px-4 py-3 rounded-xl font-bold transition-all ${activeTab === 'volunteers' ? 'bg-blue-50 text-blue-600 shadow-sm border-l-4 border-blue-600' : 'text-gray-600 hover:bg-gray-50'}`}
+                    >
+                        <FaHandsHelping /> Manage Volunteers
+                    </button>
+                    <button 
+                        onClick={() => setActiveTab('applications')} 
+                        className={`group flex items-center gap-3 px-4 py-3 rounded-xl font-bold transition-all ${activeTab === 'applications' ? 'bg-blue-50 text-blue-600 shadow-sm border-l-4 border-blue-600' : 'text-gray-600 hover:bg-gray-50'}`}
+                    >
+                        <FaInbox /> Volunteer Inbox
+                    </button>
+                    <button 
+                        onClick={() => setActiveTab('form-builder')} 
+                        className={`group flex items-center gap-3 px-4 py-3 rounded-xl font-bold transition-all ${activeTab === 'form-builder' ? 'bg-blue-50 text-blue-600 shadow-sm border-l-4 border-blue-600' : 'text-gray-600 hover:bg-gray-50'}`}
+                    >
+                        <FaWrench /> Form Builder
+                    </button>
+                    <div className="h-px bg-gray-100 my-2"></div>
                     <button 
                         onClick={() => setActiveTab('courses')} 
                         className={`text-left px-4 py-3 rounded-xl font-bold transition-colors ${activeTab === 'courses' ? 'bg-blue-50 text-blue-600' : 'text-gray-600 hover:bg-gray-50'}`}

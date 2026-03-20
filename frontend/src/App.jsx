@@ -12,6 +12,9 @@ const Profile = lazy(() => import('./pages/Profile'));
 const EditProfile = lazy(() => import('./pages/EditProfile'));
 const Dashboard = lazy(() => import('./pages/admin/Dashboard'));
 const Courses = lazy(() => import('./pages/admin/Courses'));
+import JoinModal from './components/JoinModal';
+import { toggleJoinModal } from './redux/userSlice';
+import { useDispatch } from 'react-redux';
 const AllCourses = lazy(() => import('./pages/AllCourses'));
 const AddCourses = lazy(() => import('./pages/admin/AddCourses'));
 const CreateCourse = lazy(() => import('./pages/admin/CreateCourse'));
@@ -49,11 +52,16 @@ function App() {
   useGetCourseData()
   useGetCreatorCourseData()
   useGetAllReviews()
+  
+  const dispatch = useDispatch()
+  const { isJoinModalOpen } = useSelector(state => state.user)
+
   return (
     <HelmetProvider>
       {isLoading && <Loader />}
       <ToastContainer />
       <ScrollToTop/>
+      <JoinModal isOpen={isJoinModalOpen} onClose={() => dispatch(toggleJoinModal(false))} />
       <Suspense fallback={<Loader />}>
         <Routes>
           <Route path='/' element={<Home/>}/>

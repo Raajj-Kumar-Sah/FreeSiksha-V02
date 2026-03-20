@@ -13,6 +13,7 @@ import reviewRouter from "./routes/reviewRoute.js"
 import adminRouter from "./routes/adminRoute.js"
 import blogRouter from "./routes/blogRoute.js"
 import settingRouter from "./routes/settingRoute.js"
+import volunteerRouter from "./routes/volunteerRoute.js"
 dotenv.config()
 
 let port = process.env.PORT
@@ -32,6 +33,7 @@ app.use("/api/review", reviewRouter)
 app.use("/api/admin", adminRouter)
 app.use("/api/blogs", blogRouter)
 app.use("/api/settings", settingRouter)
+app.use("/api/volunteer", volunteerRouter)
 
 app.get("/" , (req,res)=>{
     res.send("Hello From Server")

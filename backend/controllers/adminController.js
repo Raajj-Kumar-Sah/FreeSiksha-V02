@@ -16,7 +16,7 @@ export const adminLogin = async (req, res) => {
         if (username === adminUsername && password === adminPassword) {
             // Sign a token explicitly marking this session with the 'admin' role
             let token = jwt.sign(
-                { userId: 'superadmin_id', role: 'admin' }, 
+                { userId: '000000000000000000000001', role: 'admin' }, 
                 process.env.JWT_SECRET, 
                 { expiresIn: "7d" }
             );
@@ -270,5 +270,35 @@ export const deleteReviewAdmin = async (req, res) => {
     } catch (error) {
         console.error("Delete review error:", error);
         res.status(500).json({ message: "Failed to delete review" });
+    }
+};
+
+// Phase 10: CSV Export & Member Management
+export const exportMembersCSV = async (req, res) => {
+    try {
+        const { role } = req.query;
+        let query = {};
+        if (role) query.role = role;
+
+        const users = await User.find(query).select("name email role createdAt").sort({ createdAt: -1 });
+
+        // Manual CSV Generation
+        const headers = ["Name", "Email", "Role", "Created At"];
+        const rows = users.map(user => [
+            `"${user.name}"`,
+            `"${user.email}"`,
+            `"${user.role}"`,
+            `"${user.createdAt.toISOString()}"`
+        ]);
+
+        const csvContent = [headers.join(","), ...rows.map(row => row.join(","))].join("\n");
+
+        res.setHeader("Content-Type", "text/csv");
+        res.setHeader("Content-Disposition", `attachment; filename=freesiksha_${role || 'members'}_export.csv`);
+        res.status(200).send(csvContent);
+
+    } catch (error) {
+        console.error("CSV Export error:", error);
+        res.status(500).json({ message: "Failed to generate CSV export" });
     }
 };

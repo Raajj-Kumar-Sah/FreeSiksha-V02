@@ -12,13 +12,15 @@ import { ClipLoader } from 'react-spinners'
 import { toast } from 'react-toastify'
 import { useDispatch } from 'react-redux'
 import { setUserData } from '../redux/userSlice'
+import { useSearchParams } from 'react-router-dom'
 
 function SignUp() {
     // Standard Auth Fields
+    const [searchParams] = useSearchParams()
     const [name,setName] = useState("")
     const [email,setEmail] = useState("")
     const [password,setPassword]= useState("")
-    const [role,setRole] = useState("student")
+    const [role,setRole] = useState(searchParams.get('role') || "student")
     
     // New Demographic Fields
     const [phone, setPhone] = useState("")

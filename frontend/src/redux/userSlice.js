@@ -4,7 +4,8 @@ const userSlice=createSlice({
     name:"user",
     initialState:{
         userData:null,
-        isLoading:true
+        isLoading:true,
+        isJoinModalOpen: false
     },//setUserData("ankush")<={payload}
     reducers:{
         setUserData:(state,action)=>{
@@ -12,9 +13,12 @@ const userSlice=createSlice({
         },
         setLoading:(state,action)=>{
             state.isLoading=action.payload
+        },
+        toggleJoinModal:(state,action)=>{
+            state.isJoinModalOpen = action.payload
         }
     }
 })
 
-export const {setUserData, setLoading}=userSlice.actions
+export const {setUserData, setLoading, toggleJoinModal}=userSlice.actions
 export default userSlice.reducer

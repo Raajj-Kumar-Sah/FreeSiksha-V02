@@ -7,6 +7,11 @@ export const createBlog = async (req, res) => {
     try {
         const { title, content, authorRole, category } = req.body;
         
+        // ADMIN RESTRICTION: Admins can moderate but NOT create
+        if (req.userRole === 'admin') {
+            return res.status(403).json({ message: "Main Admins cannot create blogs. Only Teachers/Educators are authorized." });
+        }
+        
         let thumbnailUrl = "";
         if (req.file) {
             const uploadResult = await uploadOnCloudinary(req.file.path);

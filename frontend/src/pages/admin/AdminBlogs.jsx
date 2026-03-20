@@ -88,7 +88,7 @@ export default function AdminBlogs({ userRole }) {
                     <h2 className="text-3xl font-black text-[var(--text-main)]">Manage Content</h2>
                     <p className="text-[var(--text-muted)] mt-1 font-medium italic">Write, edit, and moderate platform insights.</p>
                 </div>
-                {!isFormOpen && (
+                {!isFormOpen && userRole !== 'admin' && (
                     <button 
                         onClick={() => setIsFormOpen(true)}
                         className="btn-primary py-3.5 px-8 rounded-2xl flex items-center gap-2 shadow-lg shadow-blue-600/20 active:scale-95 transition-all text-sm"

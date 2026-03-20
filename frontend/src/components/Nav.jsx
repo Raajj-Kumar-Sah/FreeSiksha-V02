@@ -7,7 +7,7 @@ import { serverUrl } from '../App';
 import axios from 'axios';
 import { toast } from 'react-toastify';
 import { useDispatch, useSelector } from 'react-redux';
-import { setUserData } from '../redux/userSlice';
+import { setUserData, toggleJoinModal } from '../redux/userSlice';
 import { useTheme } from '../context/ThemeContext';
 import { FiSun, FiMoon } from "react-icons/fi";
 
@@ -45,34 +45,46 @@ function Nav() {
 
   return (
     <>
-    <nav className="fixed top-0 left-0 w-full z-50 glass h-[72px] flex items-center justify-between px-4 lg:px-12">
+    <nav className="fixed top-0 left-0 w-full z-50 glass h-[72px] flex items-center justify-between px-4 md:px-8 lg:px-12">
       {/* Logo Section */}
-      <div className="flex items-center gap-8">
+      <div className="flex items-center gap-4 sm:gap-8">
         <div className="flex items-center gap-2 cursor-pointer" onClick={() => navigate("/")}>
-          <img src={logo} className="w-10 h-10 rounded-lg shadow-sm" alt="FreeSiksha Logo" />
-          <span className="text-xl font-black tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-600">FreeSiksha.Com</span>
+          <img src={logo} className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg shadow-sm transition-all" alt="FreeSiksha Logo" />
+          <span className="text-lg sm:text-xl font-black tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-600 truncate max-w-[140px] sm:max-w-none">
+            FreeSiksha<span className="hidden min-[450px]:inline">.Com</span>
+          </span>
         </div>
 
         {/* Desktop Links */}
-        <div className="hidden lg:flex items-center gap-2 text-[15px] font-bold">
+        <div className="hidden lg:flex items-center gap-1 xl:gap-2 text-[14px] xl:text-[15px] font-bold">
           {[
             { name: "Home", path: "/" },
             { name: "About", path: "/about" },
             { name: "Courses", path: "/allcourses" },
-            { name: "Join", path: "/signup" },
+            { name: "Join", onClick: () => dispatch(toggleJoinModal(true)) },
             { name: "Blog", path: "/blogs" },
           ].map((link) => (
-            <Link 
-              key={link.path}
-              to={link.path} 
-              className={`px-4 py-2 rounded-xl transition-all duration-300 ${
-                isActive(link.path) 
-                  ? "text-blue-600 bg-blue-50 dark:bg-blue-900/30" 
-                  : "text-main hover:text-blue-600 transition-colors"
-              }`}
-            >
-              {link.name}
-            </Link>
+            link.path ? (
+              <Link 
+                key={link.path}
+                to={link.path} 
+                className={`px-4 py-2 rounded-xl transition-all duration-300 ${
+                  isActive(link.path) 
+                    ? "text-blue-600 bg-blue-50 dark:bg-blue-900/30" 
+                    : "text-main hover:text-blue-600 transition-colors"
+                }`}
+              >
+                {link.name}
+              </Link>
+            ) : (
+              <button 
+                key={link.name}
+                onClick={link.onClick}
+                className="px-4 py-2 rounded-xl transition-all duration-300 text-main hover:text-blue-600 transition-colors cursor-pointer font-bold"
+              >
+                {link.name}
+              </button>
+            )
           ))}
         </div>
       </div>
@@ -80,12 +92,12 @@ function Nav() {
       {/* Action Section */}
       <div className="flex items-center gap-4">
         {/* Search Bar */}
-        <div className="hidden md:flex items-center bg-[var(--bg-main)] px-4 py-2 rounded-full border border-[var(--border-color)] focus-within:border-blue-400 focus-within:ring-2 focus-within:ring-blue-100 transition-all">
+        <div className="hidden sm:flex items-center bg-[var(--bg-main)] px-3 md:px-4 py-2 rounded-full border border-[var(--border-color)] focus-within:border-blue-400 focus-within:ring-2 focus-within:ring-blue-100 transition-all">
           <IoMdSearch className="text-[var(--text-muted)] text-xl cursor-pointer" onClick={handleSearch} />
           <input 
             type="text" 
-            placeholder="Search courses..." 
-            className="bg-transparent border-none focus:outline-none ml-2 text-sm w-48 lg:w-64 text-[var(--text-main)]"
+            placeholder="Search..." 
+            className="bg-transparent border-none focus:outline-none ml-2 text-sm w-24 md:w-40 lg:w-64 text-[var(--text-main)]"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             onKeyDown={handleSearch}
@@ -93,7 +105,7 @@ function Nav() {
         </div>
 
         {/* Auth Buttons */}
-        <div className="hidden lg:flex items-center gap-3">
+        <div className="hidden md:flex items-center gap-2 lg:gap-3">
           {!userData ? (
             <>
               <button 
@@ -103,8 +115,8 @@ function Nav() {
                 Login
               </button>
               <button 
-                onClick={() => navigate("/signup")}
-                className="btn-primary px-6 py-2.5 rounded-full text-sm"
+                onClick={() => dispatch(toggleJoinModal(true))}
+                className="btn-primary px-4 lg:px-6 py-2 rounded-full text-xs lg:text-sm whitespace-nowrap"
               >
                 Register
               </button>
@@ -204,7 +216,12 @@ function Nav() {
             ))}
             
             {!userData && (
-                <Link to="/signup" onClick={() => setShowHam(false)} className="px-4 py-4 rounded-2xl font-black text-lg transition-all text-[var(--text-main)] hover:bg-blue-50 dark:hover:bg-blue-900/20 hover:text-blue-600 dark:text-white">Join FreeSiksha</Link>
+                <button 
+                  onClick={() => { dispatch(toggleJoinModal(true)); setShowHam(false); }} 
+                  className="text-left px-4 py-4 rounded-2xl font-black text-lg transition-all text-[var(--text-main)] hover:bg-blue-50 dark:hover:bg-blue-900/20 hover:text-blue-600 dark:text-white"
+                >
+                  Join FreeSiksha
+                </button>
             )}
 
             {userData && (
@@ -227,7 +244,7 @@ function Nav() {
             {!userData ? (
               <div className="flex flex-col gap-3">
                 <button onClick={() => { navigate("/login"); setShowHam(false); }} className="w-full bg-[var(--bg-surface)] border-2 border-[var(--border-color)] text-[var(--text-main)] py-4 rounded-2xl font-black text-lg">Sign In</button>
-                <button onClick={() => { navigate("/signup"); setShowHam(false); }} className="w-full bg-blue-600 text-white py-4 rounded-2xl font-black text-lg shadow-lg shadow-blue-500/30">Register Now</button>
+                <button onClick={() => { dispatch(toggleJoinModal(true)); setShowHam(false); }} className="w-full bg-blue-600 text-white py-4 rounded-2xl font-black text-lg shadow-lg shadow-blue-500/30">Register Now</button>
               </div>
             ) : (
               <button 

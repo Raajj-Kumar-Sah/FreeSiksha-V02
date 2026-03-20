@@ -144,3 +144,12 @@ body {
   position: relative;
   z-index: 2;
 }
+
+@keyframes blink-red {
+  0%, 100% { opacity: 1; color: #ef4444; }
+  50% { opacity: 0.4; color: #b91c1c; }
+}
+
+.animate-blink-red {
+  animation: blink-red 1.5s infinite;
+}
