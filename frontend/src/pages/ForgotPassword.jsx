@@ -75,7 +75,7 @@ function ForgotPassword() {
         </h2>
         <p className="text-[var(--text-muted)] text-sm text-center mb-8">No worries! Enter your email to receive an OTP.</p>
 
-          <form  className="space-y-6">
+          <form onSubmit={(e)=>e.preventDefault()} className="space-y-6">
             <div className="space-y-2">
               <label className="text-xs font-bold text-blue-600 uppercase tracking-widest ml-1">
                 Email Address
@@ -115,7 +115,7 @@ function ForgotPassword() {
         </h2>
         <p className="text-[var(--text-muted)] text-sm text-center mb-8">Enter the 4-digit code sent to your email.</p>
 
-          <form  className="space-y-6">
+          <form onSubmit={(e)=>e.preventDefault()} className="space-y-6">
             <div className="space-y-2">
               <label className="text-xs font-bold text-blue-600 uppercase tracking-widest ml-1">
                 Verification Code

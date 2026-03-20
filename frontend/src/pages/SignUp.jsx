@@ -117,6 +117,7 @@ function SignUp() {
                     {!showOtpScreen ? (
                         <>
                             <div className='space-y-2 text-center md:text-left'>
+                                <img src={logo} alt="FreeSiksha Logo" className="h-16 w-16 object-contain mx-auto md:mx-0 mb-4 rounded-2xl shadow-sm border border-[var(--border-color)] p-1 bg-white" />
                                 <h1 className='font-black text-[var(--text-main)] text-3xl md:text-4xl tracking-tight'>Let's get Started</h1>
                                 <h2 className='text-[var(--text-muted)] font-medium text-base'>Create your FreeSiksha account</h2>
                             </div>
@@ -125,19 +126,19 @@ function SignUp() {
                                 {/* Core Fields */}
                                 <div className='space-y-2'>
                                     <label htmlFor="name" className='text-xs font-bold text-[var(--text-main)] uppercase tracking-wider ml-1'>Name</label>
-                                    <input id='name' type="text" className='w-full bg-[var(--bg-main)] border border-[var(--border-color)] rounded-xl px-4 py-3 text-[var(--text-main)] placeholder-[var(--text-muted)] focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition-all font-medium shadow-sm' placeholder='John Doe' onChange={(e)=>setName(e.target.value)} value={name} />
+                                    <input id='name' type="text" className='w-full bg-[var(--bg-main)] border border-[var(--border-color)] rounded-xl px-4 py-3 text-[var(--text-main)] placeholder-[var(--text-muted)] focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition-all font-medium shadow-sm' placeholder='Amit Sharma' onChange={(e)=>setName(e.target.value)} value={name} />
                                 </div>
 
                                 <div className='space-y-2'>
                                     <label htmlFor="email" className='text-xs font-bold text-[var(--text-main)] uppercase tracking-wider ml-1'>Email Address (OTP requires active email)</label>
-                                    <input id='email' type="email" className='w-full bg-[var(--bg-main)] border border-[var(--border-color)] rounded-xl px-4 py-3 text-[var(--text-main)] placeholder-[var(--text-muted)] focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition-all font-medium shadow-sm' placeholder='name@example.com' onChange={(e)=>setEmail(e.target.value)} value={email} />
+                                    <input id='email' type="email" className='w-full bg-[var(--bg-main)] border border-[var(--border-color)] rounded-xl px-4 py-3 text-[var(--text-main)] placeholder-[var(--text-muted)] focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition-all font-medium shadow-sm' placeholder='amit.sharma@gmail.com' onChange={(e)=>setEmail(e.target.value)} value={email} />
                                 </div>
                                 
                                 {/* 2-Col Grid for Demographics */}
                                 <div className="grid grid-cols-2 gap-4">
                                     <div className='space-y-2'>
                                         <label htmlFor="phone" className='text-xs font-bold text-[var(--text-main)] uppercase tracking-wider ml-1'>Phone No.</label>
-                                        <input id='phone' type="tel" className='w-full bg-[var(--bg-main)] border border-[var(--border-color)] rounded-xl px-4 py-3 text-[var(--text-main)] placeholder-[var(--text-muted)] focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition-all font-medium shadow-sm' placeholder='10-digit number' onChange={(e)=>setPhone(e.target.value)} value={phone} />
+                                        <input id='phone' type="tel" className='w-full bg-[var(--bg-main)] border border-[var(--border-color)] rounded-xl px-4 py-3 text-[var(--text-main)] placeholder-[var(--text-muted)] focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition-all font-medium shadow-sm' placeholder='e.g. 9876543210' onChange={(e)=>setPhone(e.target.value)} value={phone} />
                                     </div>
                                     <div className='space-y-2'>
                                         <label htmlFor="age" className='text-xs font-bold text-[var(--text-main)] uppercase tracking-wider ml-1'>Age</label>
@@ -165,7 +166,7 @@ function SignUp() {
 
                                     <div className='space-y-2 col-span-2'>
                                         <label htmlFor="city" className='text-xs font-bold text-[var(--text-main)] uppercase tracking-wider ml-1'>City</label>
-                                        <input id='city' type="text" className='w-full bg-[var(--bg-main)] border border-[var(--border-color)] rounded-xl px-4 py-3 text-[var(--text-main)] placeholder-[var(--text-muted)] focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition-all font-medium shadow-sm' placeholder='Mumbai, New Delhi...' onChange={(e)=>setCity(e.target.value)} value={city} />
+                                        <input id='city' type="text" className='w-full bg-[var(--bg-main)] border border-[var(--border-color)] rounded-xl px-4 py-3 text-[var(--text-main)] placeholder-[var(--text-muted)] focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition-all font-medium shadow-sm' placeholder='Mumbai, Maharashtra' onChange={(e)=>setCity(e.target.value)} value={city} />
                                     </div>
                                 </div>
 

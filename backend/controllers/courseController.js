@@ -2,6 +2,8 @@ import uploadOnCloudinary from "../configs/cloudinary.js"
 import Course from "../models/courseModel.js"
 import Lecture from "../models/lectureModel.js"
 import User from "../models/userModel.js"
+import bcrypt from "bcryptjs"
+import { sendApprovalEmail } from "../configs/Mail.js"
 
 // create Courses
 export const createCourse = async (req,res) => {
@@ -58,21 +60,45 @@ export const getCreatorCourses = async (req,res) => {
 export const editCourse = async (req,res) => {
     try {
         const {courseId} = req.params;
-        let {title , subTitle , description , category , level , price , isPublished, zoomLink } = req.body;
+        let {title , subTitle , description , category , level , price , isPublished, zoomLink, registrationDeadline, formSchema } = req.body;
         if(isPublished !== undefined){
             isPublished = isPublished === "true" || isPublished === true;
         }
+        // Validate deadline is in future if provided
+        if(registrationDeadline && new Date(registrationDeadline) <= new Date()){
+            return res.status(400).json({message:"Registration deadline must be a future date"})
+        }
         let thumbnail
-         if(req.file){
-            thumbnail =await uploadOnCloudinary(req.file.path)
-                }
+        if(req.file){
+            thumbnail = await uploadOnCloudinary(req.file.path)
+        }
         let course = await Course.findById(courseId)
         if(!course){
             return res.status(404).json({message:"Course not found"})
         }
-        const updateData = {title , subTitle , description , category , level , price , isPublished ,thumbnail, zoomLink}
-
-        course = await Course.findByIdAndUpdate(courseId , updateData , {new:true})
+        // Auto-generate courseUniqueId when publishing for the first time
+        let courseUniqueId = course.courseUniqueId;
+        if(isPublished && !courseUniqueId){
+            const year = new Date().getFullYear();
+            const letter = (title || course.title || 'X').charAt(0).toUpperCase();
+            // Count existing courseUniqueIds for this year to get sequence
+            const count = await Course.countDocuments({ courseUniqueId: { $regex: `^FS-${year}-` } });
+            const seq = String(count + 1).padStart(2, '0');
+            courseUniqueId = `FS-${year}-${letter}-${seq}`;
+        }
+        // Parse formSchema if sent as string (multipart)
+        let parsedFormSchema = formSchema;
+        if(typeof formSchema === 'string'){
+            try { parsedFormSchema = JSON.parse(formSchema); } catch(e) { parsedFormSchema = undefined; }
+        }
+        const updateData = {title, subTitle, description, category, level, price, isPublished, thumbnail, zoomLink, courseUniqueId}
+        if(registrationDeadline) updateData.registrationDeadline = new Date(registrationDeadline);
+        if(parsedFormSchema !== undefined) {
+            updateData.formSchema = Array.isArray(parsedFormSchema) 
+                ? parsedFormSchema.filter(f => f.label && f.label.trim() !== "") 
+                : parsedFormSchema;
+        }
+        course = await Course.findByIdAndUpdate(courseId, updateData, {new:true})
         return res.status(201).json(course)
     } catch (error) {
         return res.status(500).json({message:`Failed to update course ${error}`})
@@ -91,6 +117,59 @@ export const getCourseById = async (req,res) => {
         
     } catch (error) {
         return res.status(500).json({message:`Failed to get course ${error}`})
+    }
+}
+
+export const manualEnroll = async (req, res) => {
+    try {
+        const { courseId } = req.params;
+        const { name, email, phone, age, city, qualification, gender } = req.body;
+        
+        let course = await Course.findById(courseId);
+        if(!course) return res.status(404).json({message: "Course not found"});
+
+        let user = await User.findOne({ email });
+        
+        if (!user) {
+            let phoneUser = await User.findOne({ phone });
+            if (phoneUser) {
+                return res.status(400).json({message: "A user with this phone number already exists under a different email."});
+            }
+
+            const year = new Date().getFullYear();
+            const count = await User.countDocuments({ role: "student" });
+            const seq = String(count + 1).padStart(4, '0');
+            const studentId = `FS-STU-${year}-${seq}`;
+
+            const rawPassword = Math.random().toString(36).slice(-8);
+            const hashPassword = await bcrypt.hash(rawPassword, 10);
+
+            user = await User.create({
+                name, email, phone, age, city, qualification, gender,
+                role: "student",
+                studentId,
+                password: hashPassword,
+                isOtpVerifed: true
+            });
+        }
+
+        if (course.enrolledStudents.includes(user._id)) {
+            return res.status(400).json({message: "User is already enrolled in this course."});
+        }
+
+        await Course.findByIdAndUpdate(courseId, {
+            $addToSet: { enrolledStudents: user._id },
+            $pull: { pendingStudents: user._id }
+        });
+
+        await User.findByIdAndUpdate(user._id, {
+            $addToSet: { enrolledCourses: courseId },
+            $pull: { pendingCourses: courseId }
+        });
+
+        return res.status(200).json({ message: "Student successfully enrolled!", user });
+    } catch (error) {
+        return res.status(500).json({message: `Failed to manually enroll student: ${error}`});
     }
 }
 export const removeCourse = async (req, res) => {
@@ -123,13 +202,12 @@ export const createLecture = async (req,res) => {
              return res.status(400).json({message:"Lecture Title required"})
         }
         const lecture = await Lecture.create({lectureTitle})
-        const course = await Course.findById(courseId)
-        if(course){
-            course.lectures.push(lecture._id)
-            
-        }
-        await course.populate("lectures")
-        await course.save()
+        const course = await Course.findByIdAndUpdate(
+            courseId,
+            { $push: { lectures: lecture._id } },
+            { new: true, runValidators: false }
+        ).populate("lectures");
+        
         return res.status(201).json({lecture,course})
         
     } catch (error) {
@@ -141,12 +219,10 @@ export const createLecture = async (req,res) => {
 export const getCourseLecture = async (req,res) => {
     try {
         const {courseId} = req.params
-        const course = await Course.findById(courseId)
+        const course = await Course.findById(courseId).populate("lectures")
         if(!course){
             return res.status(404).json({message:"Course not found"})
         }
-        await course.populate("lectures")
-        await course.save()
         return res.status(200).json(course)
     } catch (error) {
         return res.status(500).json({message:`Failed to get Lectures ${error}`})
@@ -229,9 +305,15 @@ export const enrollInFreeCourse = async (req, res) => {
   try {
     const { courseId } = req.params;
     const userId = req.userId;
+    const { formResponses } = req.body;
 
     const course = await Course.findById(courseId);
     if (!course) return res.status(404).json({ message: "Course not found" });
+
+    // Block enrollment if registration deadline has passed
+    if(course.registrationDeadline && new Date() > new Date(course.registrationDeadline)){
+        return res.status(400).json({ message: "Registration is closed for this course. The deadline has passed." });
+    }
 
     const user = await User.findById(userId);
     if (!user) return res.status(404).json({ message: "User not found" });
@@ -243,9 +325,15 @@ export const enrollInFreeCourse = async (req, res) => {
       return res.status(400).json({ message: "Enrollment request already pending" });
     }
 
-    // Add to pending queues instead of directly enrolling
+    // Add to pending queues
     user.pendingCourses.push(courseId);
-    await user.save();
+    // Store form responses if provided
+    if(formResponses && Object.keys(formResponses).length > 0){
+        if(!user.formResponsesMap) user.formResponsesMap = {};
+        user.formResponsesMap[courseId] = formResponses;
+        user.markModified('formResponsesMap');
+    }
+    await user.save({ validateBeforeSave: false });
 
     course.pendingStudents.push(userId);
     await course.save();
@@ -306,6 +394,12 @@ export const approveStudent = async (req, res) => {
 
         await course.save();
         await user.save();
+
+        try {
+            await sendApprovalEmail(user.email, course.title, user.name);
+        } catch (mailError) {
+            console.error("Failed to send approval email:", mailError);
+        }
 
         res.status(200).json({ message: "Student approved successfully." });
     } catch (error) {
@@ -394,6 +488,83 @@ export const removeCourseStudent = async (req, res) => {
     }
 }
 
+// Reopen Registration Date
+export const reopenRegistration = async (req, res) => {
+    try {
+        const { courseId } = req.params;
+        const { newDeadline } = req.body;
+        const userId = req.userId; // Teacher ID
 
+        if (!newDeadline) return res.status(400).json({ message: "New deadline is required" });
+        if (new Date(newDeadline) <= new Date()) return res.status(400).json({ message: "Deadline must be in the future" });
 
+        const course = await Course.findById(courseId);
+        if (!course) return res.status(404).json({ message: "Course not found" });
+
+        // Security check
+        if (course.creator.toString() !== userId.toString()) {
+            return res.status(403).json({ message: "Only the course creator can modify deadlines" });
+        }
+
+        course.registrationDeadline = new Date(newDeadline);
+        await course.save();
+
+        res.status(200).json({ message: "Registration reopened successfully", deadline: course.registrationDeadline });
+    } catch (error) {
+        console.error("Reopen registration error:", error);
+        res.status(500).json({ message: "Failed to reopen registration" });
+    }
+};
+
+// Get Course Analytics
+export const getEnrollmentAnalytics = async (req, res) => {
+    try {
+        const { courseId } = req.params;
+        const userId = req.userId;
+
+        const course = await Course.findById(courseId).populate('enrolledStudents', 'gender createdAt');
+        if (!course) return res.status(404).json({ message: "Course not found" });
+
+        if (course.creator.toString() !== userId.toString()) {
+            return res.status(403).json({ message: "Unauthorized access" });
+        }
+
+        const enrollments = course.enrolledStudents;
+        const total = enrollments.length;
+        const pending = course.pendingStudents.length;
+
+        // Group by Gender
+        const genderStats = Object.values(enrollments.reduce((acc, user) => {
+            const gender = user.gender || 'Other';
+            if (!acc[gender]) acc[gender] = { name: gender, value: 0 };
+            acc[gender].value++;
+            return acc;
+        }, {}));
+
+        // Group by Growth (daily)
+        let enrollmentTrends = [];
+        enrollments.forEach(u => {
+            if(!u.createdAt) return;
+            const date = new Date(u.createdAt);
+            date.setHours(0,0,0,0);
+            enrollmentTrends.push(date.toISOString().split('T')[0]);
+        });
+
+        const trendCount = enrollmentTrends.reduce((acc, date) => {
+            acc[date] = (acc[date] || 0) + 1;
+            return acc;
+        }, {});
+
+        // Convert to array sorted by date
+        const sortedTrends = Object.keys(trendCount).sort().map(date => ({
+            date,
+            students: trendCount[date]
+        }));
+
+        res.status(200).json({ total, pending, genderStats, enrollmentTrends: sortedTrends });
+    } catch (error) {
+        console.error("Analytics error:", error);
+        res.status(500).json({ message: "Failed to fetch analytics" });
+    }
+};
 

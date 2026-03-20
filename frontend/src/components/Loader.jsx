@@ -32,7 +32,7 @@ const Loader = () => {
           width: 0;
           animation: 
             typing 2s steps(12,end) forwards,
-            blink 0.5s step-end infinite;
+            blink 0.2s step-end infinite;
           text-shadow: 0 0 10px rgba(59, 130, 246, 0.5);
         }
 

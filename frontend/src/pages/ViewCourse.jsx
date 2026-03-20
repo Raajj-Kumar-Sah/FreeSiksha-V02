@@ -11,7 +11,9 @@ import { FaLock, FaPlayCircle } from "react-icons/fa";
 import { toast } from 'react-toastify';
 import { FaStar } from "react-icons/fa6";
 import Nav from '../components/Nav';
+import SEO from '../components/SEO';
 import { setUserData } from '../redux/userSlice';
+import Breadcrumbs from '../components/Breadcrumbs';
 
 
 function ViewCourse() {
@@ -91,6 +93,23 @@ console.log("Average Rating:", avgRating);
     checkEnrollment()
   }, [courseId,courseData,lectureData])
 
+  const courseSchema = selectedCourseData ? {
+    "@context": "https://schema.org",
+    "@type": "Course",
+    "name": selectedCourseData.title,
+    "description": selectedCourseData.description,
+    "publisher": {
+      "@type": "Organization",
+      "name": "FreeSiksha",
+      "url": "http://localhost:5173"
+    },
+    "provider": {
+      "@type": "Organization",
+      "name": "FreeSiksha",
+      "sameAs": "http://localhost:5173"
+    }
+  } : null;
+
 
     // Fetch creator info once course data is available
   useEffect(() => {
@@ -131,9 +150,30 @@ console.log("Average Rating:", avgRating);
 }, [creatorData, courseData]);
 
  
-const handleEnroll = async (courseId, userId) => {
+const [showEnrollModal, setShowEnrollModal] = useState(false);
+const [formResponses, setFormResponses] = useState({});
+
+const isDeadlinePassed = selectedCourseData?.registrationDeadline && new Date() > new Date(selectedCourseData.registrationDeadline);
+const getDaysLeft = () => {
+  if (!selectedCourseData?.registrationDeadline) return null;
+  const diff = new Date(selectedCourseData.registrationDeadline) - new Date();
+  if (diff <= 0) return 0;
+  return Math.ceil(diff / (1000 * 60 * 60 * 24));
+};
+const daysLeft = getDaysLeft();
+
+const handleEnrollSubmit = async () => {
+  // Validate required fields
+  if (selectedCourseData?.formSchema) {
+    for (let field of selectedCourseData.formSchema) {
+      if (field.required && !formResponses[field.label]) {
+        return toast.error(`Please provide an answer for: ${field.label}`);
+      }
+    }
+  }
+
   try {
-    const response = await axios.post(`${serverUrl}/api/course/enroll/${courseId}`, {}, { withCredentials: true });
+    const response = await axios.post(`${serverUrl}/api/course/enroll/${courseId}`, { formResponses }, { withCredentials: true });
     
     // Update local redux state to reflect the new pending request immediately
     const updatedUser = {
@@ -143,6 +183,7 @@ const handleEnroll = async (courseId, userId) => {
     dispatch(setUserData(updatedUser));
     
     toast.success(response.data.message || "Enrollment requested successfully!");
+    setShowEnrollModal(false);
 
   } catch (err) {
     toast.error(err.response?.data?.message || "Something went wrong while enrolling.");
@@ -176,9 +217,28 @@ const handleCancelRequest = async () => {
 };
 
   return (
-     <div className="min-h-screen bg-[var(--bg-main)] p-6">
-      <Nav />
+     <div className="bg-[var(--bg-main)] min-h-screen text-[var(--text-main)]">
+            <SEO 
+                title={selectedCourseData?.title}
+                description={selectedCourseData?.description?.substring(0, 160)}
+                ogImage={selectedCourseData?.thumbnail}
+                keywords={`${selectedCourseData?.category}, free course, edtech, ${selectedCourseData?.title}`}
+            />
+            {courseSchema && (
+                <script type="application/ld+json">
+                    {JSON.stringify(courseSchema)}
+                </script>
+            )}
+            <Nav />
       <div className="max-w-6xl mx-auto bg-[var(--bg-surface)] shadow-md border border-[var(--border-color)] rounded-xl p-6 mt-[72px] space-y-6 relative">
+        {selectedCourseData && (
+          <Breadcrumbs 
+            items={[
+              { label: 'All Courses', path: '/allcourses' },
+              { label: selectedCourseData.title, path: `/viewcourse/${courseId}` }
+            ]} 
+          />
+        )}
 
         {/* Top Section */}
         <div className="flex flex-col md:flex-row gap-8">
@@ -218,6 +278,14 @@ const handleCancelRequest = async () => {
               <span className="text-[var(--text-muted)] text-sm">Enrolled by 5k+ students</span>
             </div>
 
+            {/* Deadline Notification */}
+            {selectedCourseData?.registrationDeadline && (
+              <div className={`mt-2 inline-flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-bold ${isDeadlinePassed ? 'bg-red-50 dark:bg-red-500/10 text-red-600 border border-red-200 dark:border-red-500/30' : 'bg-amber-50 dark:bg-amber-500/10 text-amber-600 border border-amber-200 dark:border-amber-500/30'}`}>
+                <span className="text-lg">⏳</span>
+                {isDeadlinePassed ? "Registration Closed" : `Registration closes in ${daysLeft} days (${new Date(selectedCourseData.registrationDeadline).toLocaleDateString()})`}
+              </div>
+            )}
+
             {/* Highlights */}
             <div className="grid grid-cols-2 gap-4 py-4 border-y border-[var(--border-color)]">
               <div className="flex items-center gap-2 text-sm text-[var(--text-main)]">
@@ -236,12 +304,19 @@ const handleCancelRequest = async () => {
 
             {/* Enroll / Watch / Join Buttons */}
             <div className="flex flex-wrap gap-4 mt-6">
-              {!isEnrolled && !userData?.pendingCourses?.includes(courseId) ? (
+              {!isEnrolled && !userData?.pendingCourses?.some(id => (typeof id === 'string' ? id : id._id)?.toString() === courseId?.toString()) ? (
                 <button 
-                  className="btn-primary flex-1 min-w-[200px] py-4 rounded-xl font-bold shadow-lg shadow-blue-500/20" 
-                  onClick={() => handleEnroll(courseId, userData._id)}
+                  className={`flex-1 min-w-[200px] py-4 rounded-xl font-bold transition-all ${isDeadlinePassed ? 'bg-gray-100 dark:bg-white/5 text-gray-400 dark:text-gray-500 cursor-not-allowed shadow-none border border-gray-200 dark:border-gray-800' : 'btn-primary shadow-lg shadow-blue-500/20'}`} 
+                  onClick={() => {
+                    if (selectedCourseData?.formSchema && selectedCourseData.formSchema.length > 0) {
+                      setShowEnrollModal(true);
+                    } else {
+                      handleEnrollSubmit();
+                    }
+                  }}
+                  disabled={isDeadlinePassed}
                 >
-                  Request to Join
+                  {isDeadlinePassed ? "Registration Closed" : "Request to Join"}
                 </button>
                ) : !isEnrolled && userData?.pendingCourses?.some(id => (typeof id === 'string' ? id : id._id)?.toString() === courseId?.toString()) ? (
                  <button 
@@ -426,7 +501,60 @@ const handleCancelRequest = async () => {
             </div>
           )}
         </div>
-      </div>
+        </div>
+
+
+      {/* Dynamic Enrollment Form Modal */}
+      {showEnrollModal && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="bg-[var(--bg-surface)] w-full max-w-lg rounded-3xl shadow-2xl border border-[var(--border-color)] overflow-hidden flex flex-col max-h-[90vh]">
+            <div className="p-6 border-b border-[var(--border-color)] flex items-center justify-between bg-blue-50/50 dark:bg-blue-900/10">
+              <div>
+                <h3 className="text-xl font-black text-[var(--text-main)]">Enrollment Questionnaire</h3>
+                <p className="text-sm text-[var(--text-muted)] mt-1">Please answer a few questions to join {selectedCourseData?.title}</p>
+              </div>
+              <button onClick={() => setShowEnrollModal(false)} className="w-8 h-8 rounded-full bg-[var(--bg-surface)] border border-[var(--border-color)] flex items-center justify-center text-[var(--text-muted)] hover:text-red-500 hover:border-red-200 transition-colors">✕</button>
+            </div>
+            <div className="p-6 overflow-y-auto flex-1 space-y-6">
+              {selectedCourseData?.formSchema?.map((field, idx) => (
+                <div key={idx} className="space-y-2">
+                  <label className="text-sm font-bold text-[var(--text-main)]">
+                    {field.label} {field.required && <span className="text-red-500">*</span>}
+                  </label>
+                  {field.type === 'dropdown' ? (
+                    <select 
+                      value={formResponses[field.label] || ''}
+                      onChange={(e) => setFormResponses({...formResponses, [field.label]: e.target.value})}
+                      className="w-full bg-[var(--bg-main)] border border-[var(--border-color)] rounded-xl px-4 py-3 text-[var(--text-main)] focus:ring-2 focus:ring-blue-100 transition-all appearance-none"
+                    >
+                      <option value="">Select an option...</option>
+                      {field.options?.map((opt, i) => <option key={i} value={opt}>{opt}</option>)}
+                    </select>
+                  ) : field.type === 'file' ? (
+                    <div className="border-2 border-dashed border-[var(--border-color)] rounded-xl p-4 text-center">
+                       <input type="file" className="text-sm object-cover file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-bold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 cursor-pointer" />
+                       <p className="text-xs text-[var(--text-muted)] mt-2">File upload visualization</p>
+                    </div>
+                  ) : (
+                    <input 
+                      type={field.type} 
+                      placeholder={`Enter ${field.label.toLowerCase()}...`}
+                      value={formResponses[field.label] || ''}
+                      onChange={(e) => setFormResponses({...formResponses, [field.label]: e.target.value})}
+                      className="w-full bg-[var(--bg-main)] border border-[var(--border-color)] rounded-xl px-4 py-3 text-[var(--text-main)] focus:ring-2 focus:ring-blue-100 transition-all font-medium"
+                    />
+                  )}
+                </div>
+              ))}
+            </div>
+            <div className="p-6 border-t border-[var(--border-color)] bg-[var(--bg-main)] flex justify-end gap-4">
+              <button onClick={() => setShowEnrollModal(false)} className="px-6 py-3 rounded-xl font-bold bg-[var(--bg-surface)] text-[var(--text-main)] border border-[var(--border-color)] hover:bg-gray-50 dark:hover:bg-white/5 transition-colors">Cancel</button>
+              <button onClick={handleEnrollSubmit} className="btn-primary px-8 py-3 rounded-xl font-bold shadow-lg shadow-blue-500/20">Submit Request</button>
+            </div>
+          </div>
+        </div>
+      )}
+
     </div>
   )
 }

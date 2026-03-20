@@ -5,6 +5,11 @@ const userSchema = new mongoose.Schema(
       type: String,
       required: true
     },
+    studentId: {
+      type: String,
+      unique: true,
+      sparse: true
+    },
     email: {
       type: String,
       required: true,
@@ -19,8 +24,13 @@ const userSchema = new mongoose.Schema(
     },
     role: {
       type: String,
-      enum: ["educator", "student"],
+      enum: ["educator", "student", "admin"],
       required: true
+    },
+    status: {
+      type: String,
+      enum: ["active", "suspended", "banned"],
+      default: "active"
     },
     age: {
       type: Number,
@@ -64,6 +74,11 @@ const userSchema = new mongoose.Schema(
     isOtpVerifed:{
       type:Boolean,
       default:false
+    },
+    formResponsesMap: {
+      type: Map,
+      of: mongoose.Schema.Types.Mixed, // stores dynamic JSON schema answers mapped by courseId
+      default: {}
     }
     
   },

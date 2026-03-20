@@ -114,7 +114,7 @@ function Login() {
                             <form className='space-y-5' onSubmit={(e)=>e.preventDefault()}>
                                 <div className='space-y-2'>
                                     <label htmlFor="identifier" className='text-xs font-bold text-[var(--text-main)] uppercase tracking-wider ml-1'>Email Address or Phone Number</label>
-                                    <input id='identifier' type="text" className='w-full bg-[var(--bg-main)] border border-[var(--border-color)] rounded-xl px-4 py-3.5 text-[var(--text-main)] placeholder-[var(--text-muted)] focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition-all font-medium shadow-sm' placeholder='name@example.com or 9876543210' onChange={(e)=>setIdentifier(e.target.value)} value={identifier} />
+                                    <input id='identifier' type="text" className='w-full bg-[var(--bg-main)] border border-[var(--border-color)] rounded-xl px-4 py-3.5 text-[var(--text-main)] placeholder-[var(--text-muted)] focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition-all font-medium shadow-sm' placeholder='amit.sharma@gmail.com or 9876543210' onChange={(e)=>setIdentifier(e.target.value)} value={identifier} />
                                 </div>
                                 
                                 <div className='space-y-2 relative'>
@@ -198,22 +198,18 @@ function Login() {
                 className='hidden md:flex w-1/2 relative flex-col items-center justify-center p-12 overflow-hidden border-l border-[var(--border-color)] dark:border-blue-800 bg-cover bg-center'
                 style={{ backgroundImage: `url(${security_auth_bg})` }}
             >
-                <div className="absolute inset-0 bg-blue-900/70 dark:bg-black/60 backdrop-blur-[2px]"></div>
+                <div className="absolute inset-0 bg-blue-600/20 backdrop-blur-[2px]"></div>
                 
-                <div className='relative z-10 w-full flex flex-col items-center text-center max-w-sm mx-auto space-y-8'>
-                    {/* Floating Branding Badge */}
-                    <div className="bg-white/10 backdrop-blur-xl border border-white/20 p-8 rounded-[32px] shadow-2xl transform transition-transform hover:scale-105 duration-500 w-full">
-                        <div className="w-20 h-20 bg-gradient-to-br from-blue-400 to-blue-600 rounded-2xl mx-auto flex items-center justify-center shadow-lg mb-6 border border-white/30">
-                            <svg xmlns="http://www.w3.org/2000/svg" className="h-10 w-10 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
-                            </svg>
-                        </div>
-                        <h2 className="text-3xl font-black text-white tracking-widest drop-shadow-md">FREESIKSHA<span className="text-blue-300">.COM</span></h2>
-                        <div className="h-1.5 w-16 bg-blue-400 mx-auto mt-6 rounded-full opacity-70"></div>
-                    </div>
+                <div className="relative z-10 flex flex-col items-center justify-center h-full text-center px-12">
+                    <img src={logo} alt="FreeSiksha Logo" className="w-24 h-24 object-contain mb-6 drop-shadow-2xl rounded-2xl bg-white p-2" />
+                    <h2 className="text-3xl font-black text-white tracking-widest drop-shadow-md">FREESIKSHA<span className="text-blue-300">.COM</span></h2>
+                    <span className="h-1 w-24 bg-blue-400 rounded-full mt-4 mb-8"></span>
+                    <p className="text-blue-100 text-lg font-medium leading-relaxed max-w-sm">
+                        Access world-class education for free. Join thousands of dedicated learners today and start building your future.
+                    </p>
                     
                     {/* Security Value Props */}
-                    <div className="w-full space-y-4 text-left">
+                    <div className="w-full space-y-4 text-left mt-8">
                         <div className="bg-white/10 backdrop-blur-md p-4 rounded-2xl border border-white/10 flex items-center gap-4 hover:bg-white/20 transition-colors cursor-default">
                             <div className="bg-blue-500/40 p-3 rounded-xl text-white border border-white/20 shadow-inner">
                                 <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" /></svg>

@@ -1,3 +1,4 @@
+console.log("INDEX.JS TOP");
 import express from "express"
 import dotenv from "dotenv"
 import connectDb from "./configs/db.js"
@@ -9,6 +10,9 @@ import courseRouter from "./routes/courseRoute.js"
 import paymentRouter from "./routes/paymentRoute.js"
 import aiRouter from "./routes/aiRoute.js"
 import reviewRouter from "./routes/reviewRoute.js"
+import adminRouter from "./routes/adminRoute.js"
+import blogRouter from "./routes/blogRoute.js"
+import settingRouter from "./routes/settingRoute.js"
 dotenv.config()
 
 let port = process.env.PORT
@@ -25,7 +29,9 @@ app.use("/api/course", courseRouter)
 app.use("/api/payment", paymentRouter)
 app.use("/api/ai", aiRouter)
 app.use("/api/review", reviewRouter)
-
+app.use("/api/admin", adminRouter)
+app.use("/api/blogs", blogRouter)
+app.use("/api/settings", settingRouter)
 
 app.get("/" , (req,res)=>{
     res.send("Hello From Server")

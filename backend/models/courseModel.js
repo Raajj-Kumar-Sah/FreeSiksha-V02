@@ -51,7 +51,21 @@ const courseSchema = new mongoose.Schema({
         }],
     zoomLink:{
         type:String
-    }
+    },
+    registrationDeadline:{
+        type:Date
+    },
+    courseUniqueId:{
+        type:String,
+        unique:true,
+        sparse:true  // sparse so null/undefined doesn't violate uniqueness
+    },
+    formSchema:[{
+        label:{ type:String, required:true },
+        type:{ type:String, enum:['text','number','email','dropdown','file'], default:'text' },
+        options:[String],  // for dropdown
+        required:{ type:Boolean, default:false }
+    }]
 },{timestamps:true})
 
 const Course = mongoose.model("Course",courseSchema)

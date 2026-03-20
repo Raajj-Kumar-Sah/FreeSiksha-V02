@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react'
+import { useSelector } from 'react-redux';
 import Nav from '../components/Nav'
 import Logos from '../components/Logos';
 import Cardspage from '../components/Cardspage';
@@ -7,17 +8,48 @@ import About from '../components/About.jsx';
 import ReviewPage from '../components/ReviewPage';
 import Contact from '../components/Contact';
 import Footer from '../components/Footer';
+import CourseNotificationToast from '../components/CourseNotificationToast.jsx';
 import { useNavigate } from 'react-router-dom';
-import heroImg from '../assets/hero_students_collaboration.png' // This will be the generated image
-import { motion, AnimatePresence } from 'framer-motion';
+import SEO from '../components/SEO';
+import heroImg from '../assets/hero_students_collaboration.png' 
+import heroBgVideo from '../assets/hero_bg.mp4'
+import { motion, AnimatePresence, useMotionValue, useTransform, animate } from 'framer-motion';
+import axios from 'axios';
+import { serverUrl } from '../App';
 
 function Home() {
   const navigate = useNavigate()
+  const {courseData} = useSelector(state => state.course);
+  const {userData} = useSelector(state => state.user);
+  const [newestOpenCourse, setNewestOpenCourse] = useState(null);
   
   const words = ["Education","Skills","Growth","Future","Success"];
   const [index, setIndex] = useState(0);
   const [subIndex, setSubIndex] = useState(0);
   const [reverse, setReverse] = useState(false);
+  const [recentStudents, setRecentStudents] = useState([]);
+
+  // Social Proof animation counter
+  const countV = useMotionValue(0);
+  const roundedCount = useTransform(countV, (v) => Math.round(v));
+
+  useEffect(() => {
+    let target = parseInt(localStorage.getItem('socialCount') || '1200', 10);
+    target += 1;
+    if (target > 1500) {
+      target = 1200;
+    }
+    localStorage.setItem('socialCount', target.toString());
+    
+    const controls = animate(countV, target, { duration: 2.5, ease: "easeOut" });
+    return controls.stop;
+  }, []);
+
+  useEffect(() => {
+    axios.get(`${serverUrl}/api/auth/recent-students`)
+      .then(res => setRecentStudents(res.data))
+      .catch(err => console.error("Failed to fetch recent students", err));
+  }, []);
 
   // Typewriter effect
   useEffect(() => {
@@ -39,8 +71,36 @@ function Home() {
     return () => clearTimeout(timeout);
   }, [subIndex, index, reverse]);
 
+  useEffect(() => {
+    if (courseData && courseData.length > 0) {
+      const openCourses = courseData.filter(course => {
+        if (!course.isPublished) return false;
+        if (!course.registrationDeadline) return false;
+        if (new Date(course.registrationDeadline) <= new Date()) return false;
+        // Check if already enrolled or pending
+        if (userData) {
+          if (userData.enrolledCourses?.some(id => (typeof id === 'string' ? id : id._id)?.toString() === course._id.toString())) return false;
+          if (userData.pendingCourses?.some(id => (typeof id === 'string' ? id : id._id)?.toString() === course._id.toString())) return false;
+        }
+        return true;
+      });
+      
+      // Sort to get newest (assuming createdAt exists)
+      if (openCourses.length > 0) {
+         openCourses.sort((a,b) => new Date(b.createdAt) - new Date(a.createdAt));
+         setNewestOpenCourse(openCourses[0]);
+      }
+    }
+  }, [courseData, userData]);
+
   return (
     <div className="w-full bg-[var(--bg-main)] text-[var(--text-main)] overflow-hidden">
+      <SEO 
+        title="Free & Quality Education for All"
+        description="Freesiksha is India's leading free EdTech platform offering professional courses in Web Dev, AI, Data Science and more with industry certificates."
+        keywords="free online courses India, EdTech platform students, skill development free, freesiksha, learn coding free"
+      />
+      <CourseNotificationToast course={newestOpenCourse} />
       <Nav />
       
       {/* Hero Section */}
@@ -54,7 +114,7 @@ function Home() {
             playsInline 
             className="hero-video"
           >
-            <source src="https://assets.mixkit.co/videos/preview/mixkit-coding-on-a-computer-screen-in-close-up-9004-large.mp4" type="video/mp4" />
+            <source src={heroBgVideo} type="video/mp4" />
             Your browser does not support the video tag.
           </video>
           <div className="hero-overlay"></div>
@@ -102,12 +162,20 @@ function Home() {
               {/* Social Proof */}
               <div className="flex items-center gap-4 pt-4">
                 <div className="flex -space-x-3">
-                  {[1, 2, 3].map((i) => (
-                    <div key={i} className="w-10 h-10 rounded-full border-2 border-[var(--bg-main)] bg-slate-200"></div>
-                  ))}
+                  {recentStudents.length > 0 ? (
+                    recentStudents.map((student, i) => (
+                      <div key={i} className="w-10 h-10 rounded-full border-2 border-[var(--bg-main)] bg-slate-200 overflow-hidden shadow-sm relative group z-10 hover:z-20 transition-all hover:scale-110">
+                        <img src={student.photoUrl} alt={student.name} className="w-full h-full object-cover" />
+                      </div>
+                    ))
+                  ) : (
+                    [1, 2, 3].map((i) => (
+                      <div key={i} className="w-10 h-10 rounded-full border-2 border-[var(--bg-main)] bg-slate-200 z-10 shadow-sm"></div>
+                    ))
+                  )}
                 </div>
                 <p className="text-sm text-[var(--text-muted)]">
-                  <span className="font-bold text-[var(--text-main)]">12,000+</span> seekers joined this month
+                  <span className="font-bold text-[var(--text-main)] overflow-hidden inline-flex"><motion.span>{roundedCount}</motion.span>+</span> seekers joined this month
                 </p>
               </div>
             </div>

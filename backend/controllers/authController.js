@@ -28,8 +28,17 @@ export const signUp=async (req,res)=>{
         }
         
         let hashPassword = await bcrypt.hash(password,10)
+        
+        // Generate FS-ID
+        const year = new Date().getFullYear();
+        const prefix = role === "educator" ? "FS-EDU" : "FS-STU";
+        const count = await User.countDocuments({ role });
+        const seq = String(count + 1).padStart(4, '0');
+        const studentId = `${prefix}-${year}-${seq}`;
+
         let user = await User.create({
             name, email, password: hashPassword, role, age, city, qualification, phone, gender,
+            studentId,
             isOtpVerifed: false
         })
 
@@ -219,5 +228,17 @@ export const resetPassword = async (req,res) => {
         return res.status(200).json({message:"Password Reset Successfully"})
     } catch (error) {
         return res.status(500).json({message:`Reset Password error ${error}`})
+    }
+}
+
+export const getRecentStudents = async (req, res) => {
+    try {
+        const students = await User.find({ role: 'student', photoUrl: { $ne: "" } })
+            .sort({ createdAt: -1 })
+            .limit(3)
+            .select('photoUrl name');
+        return res.status(200).json(students);
+    } catch (error) {
+        return res.status(500).json({message:`Failed to get recent students: ${error}`});
     }
 }

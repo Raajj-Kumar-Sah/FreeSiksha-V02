@@ -1,0 +1,36 @@
+import express from "express";
+import { adminLogin, getPlatformStats, getAllUsers, updateUserStatus, deleteUser, getAllAdminCourses, updateCourseStatus, deleteAdminCourse, getAllEnrollments, removeEnrollment, getAllReviewsAdmin, deleteReviewAdmin } from "../controllers/adminController.js";
+import { isAdmin } from "../middlewares/isAuth.js";
+
+const adminRouter = express.Router();
+
+// Phase 1: Admin Authentication
+adminRouter.post("/login", adminLogin);
+
+// Phase 2: Overview Stats
+adminRouter.get("/stats", isAdmin, getPlatformStats);
+
+// Phase 3 & 4: User Management
+adminRouter.get("/users", isAdmin, getAllUsers);
+adminRouter.put("/users/:id/status", isAdmin, updateUserStatus);
+adminRouter.delete("/users/:id", isAdmin, deleteUser);
+
+// Phase 5: Course Management
+adminRouter.get("/courses", isAdmin, getAllAdminCourses);
+adminRouter.put("/courses/:id/status", isAdmin, updateCourseStatus);
+adminRouter.delete("/courses/:id", isAdmin, deleteAdminCourse);
+
+// Phase 6 & 7: Enrollment Management
+adminRouter.get("/enrollments", isAdmin, getAllEnrollments);
+adminRouter.delete("/enrollments/:courseId/:studentId", isAdmin, removeEnrollment);
+
+// Phase 8 & 9: Content Moderation
+adminRouter.get("/reviews", isAdmin, getAllReviewsAdmin);
+adminRouter.delete("/reviews/:id", isAdmin, deleteReviewAdmin);
+
+// Protected Verification Endpoint
+adminRouter.get("/verify", isAdmin, (req, res) => {
+    res.status(200).json({ message: "Admin token is strictly verified.", role: req.userRole });
+});
+
+export default adminRouter;

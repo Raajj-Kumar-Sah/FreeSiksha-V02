@@ -2,7 +2,7 @@ import React, { useState } from 'react'
 import logo from "../assets/logo.jpg"
 import { IoMdPerson, IoMdSearch } from "react-icons/io";
 import { GiHamburgerMenu, GiSplitCross } from "react-icons/gi";
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate, Link, useLocation } from 'react-router-dom';
 import { serverUrl } from '../App';
 import axios from 'axios';
 import { toast } from 'react-toastify';
@@ -19,6 +19,9 @@ function Nav() {
   const dispatch = useDispatch()
   const { userData } = useSelector(state => state.user)
   const { isDarkMode, toggleTheme } = useTheme()
+  const location = useLocation()
+
+  const isActive = (path) => location.pathname === path;
 
   const handleLogout = async () => {
     try {
@@ -47,16 +50,30 @@ function Nav() {
       <div className="flex items-center gap-8">
         <div className="flex items-center gap-2 cursor-pointer" onClick={() => navigate("/")}>
           <img src={logo} className="w-10 h-10 rounded-lg shadow-sm" alt="FreeSiksha Logo" />
-          <span className="text-xl font-bold tracking-tight text-blue-600">FreeSiksha</span>
+          <span className="text-xl font-black tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-600">FreeSiksha.Com</span>
         </div>
 
         {/* Desktop Links */}
-        <div className="hidden lg:flex items-center gap-6 text-[15px] font-medium text-[var(--text-muted)]">
-          <Link to="/" className="hover:text-blue-600 transition-colors">Home</Link>
-          <Link to="/about" className="hover:text-blue-600 transition-colors">About</Link>
-          <Link to="/allcourses" className="hover:text-blue-600 transition-colors">Courses</Link>
-          <Link to="/signup" className="hover:text-blue-600 transition-colors">Join</Link>
-          <Link to="/#blog" className="hover:text-blue-600 transition-colors">Blog</Link>
+        <div className="hidden lg:flex items-center gap-2 text-[15px] font-bold">
+          {[
+            { name: "Home", path: "/" },
+            { name: "About", path: "/about" },
+            { name: "Courses", path: "/allcourses" },
+            { name: "Join", path: "/signup" },
+            { name: "Blog", path: "/blogs" },
+          ].map((link) => (
+            <Link 
+              key={link.path}
+              to={link.path} 
+              className={`px-4 py-2 rounded-xl transition-all duration-300 ${
+                isActive(link.path) 
+                  ? "text-blue-600 bg-blue-50 dark:bg-blue-900/30" 
+                  : "text-main hover:text-blue-600 transition-colors"
+              }`}
+            >
+              {link.name}
+            </Link>
+          ))}
         </div>
       </div>
 
@@ -122,7 +139,10 @@ function Nav() {
                     <button onClick={() => { navigate("/profile"); setShowPro(false); }} className="w-full text-left px-4 py-2 hover:bg-[var(--bg-main)] text-[var(--text-main)]">My Profile</button>
                     <button onClick={() => { navigate("/enrolledcourses"); setShowPro(false); }} className="w-full text-left px-4 py-2 hover:bg-[var(--bg-main)] text-[var(--text-main)]">My Courses</button>
                     {userData.role === "educator" && (
-                        <button onClick={() => { navigate("/enrollments"); setShowPro(false); }} className="w-full text-left px-4 py-2 hover:bg-[var(--bg-main)] text-[var(--text-main)]">Manage Enrollments</button>
+                        <>
+                            <button onClick={() => { navigate("/enrollments"); setShowPro(false); }} className="w-full text-left px-4 py-2 hover:bg-[var(--bg-main)] text-[var(--text-main)]">Manage Enrollments</button>
+                            <button onClick={() => { navigate("/manage-blogs"); setShowPro(false); }} className="w-full text-left px-4 py-2 hover:bg-[var(--bg-main)] text-[var(--text-main)]">Manage Blogs</button>
+                        </>
                     )}
                     <hr className="my-1 border-[var(--border-color)]" />
                     <button onClick={handleLogout} className="w-full text-left px-4 py-2 hover:bg-red-500/10 text-red-600 dark:text-red-400">Logout</button>
@@ -161,15 +181,30 @@ function Nav() {
                 <GiSplitCross className="text-2xl" />
             </button>
           </div>
-
-          <div className="flex flex-col gap-6 text-xl font-bold text-[var(--text-main)] mb-8 px-2">
-            <Link to="/" onClick={() => setShowHam(false)} className="hover:text-blue-600 transition-colors">Home</Link>
-            <Link to="/about" onClick={() => setShowHam(false)} className="hover:text-blue-600 transition-colors">About</Link>
-            <Link to="/allcourses" onClick={() => setShowHam(false)} className="hover:text-blue-600 transition-colors">Courses</Link>
-            <Link to="/#blog" onClick={() => setShowHam(false)} className="hover:text-blue-600 transition-colors">Blog</Link>
+          {/* Sidebar Links */}
+          <div className="flex flex-col gap-2 pt-8">
+            {[
+              { name: "Home", path: "/" },
+              { name: "About", path: "/about" },
+              { name: "Courses", path: "/allcourses" },
+              { name: "Blog", path: "/blogs" },
+            ].map((link) => (
+              <Link 
+                key={link.path}
+                to={link.path} 
+                onClick={() => setShowHam(false)} 
+                className={`px-4 py-4 rounded-2xl font-black text-lg transition-all ${
+                  isActive(link.path)
+                    ? "bg-blue-600 text-white shadow-lg shadow-blue-500/30"
+                    : "text-[var(--text-main)] hover:bg-blue-50 dark:hover:bg-blue-900/20 hover:text-blue-600 dark:text-white"
+                }`}
+              >
+                {link.name}
+              </Link>
+            ))}
             
             {!userData && (
-                <Link to="/signup" onClick={() => setShowHam(false)} className="hover:text-blue-600 transition-colors">Join FreeSiksha</Link>
+                <Link to="/signup" onClick={() => setShowHam(false)} className="px-4 py-4 rounded-2xl font-black text-lg transition-all text-[var(--text-main)] hover:bg-blue-50 dark:hover:bg-blue-900/20 hover:text-blue-600 dark:text-white">Join FreeSiksha</Link>
             )}
 
             {userData && (
@@ -209,4 +244,4 @@ function Nav() {
   )
 }
 
-export default Nav
+export default Nav

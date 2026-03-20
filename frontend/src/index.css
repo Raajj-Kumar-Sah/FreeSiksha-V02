@@ -1,6 +1,15 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@300;400;500;600;700;800;900&display=swap');
 @import "tailwindcss";
 
+@theme {
+  --color-primary: var(--primary);
+  --color-main: var(--text-main);
+  --color-muted: var(--text-muted);
+  --color-border: var(--border-color);
+  --color-surface: var(--bg-surface);
+  --shadow-premium: var(--shadow-premium);
+}
+
 :root {
   /* Fonts */
   --font-inter: "Inter", sans-serif;
@@ -18,13 +27,6 @@
   --border-radius: 16px;
   --shadow-premium: 0 10px 25px -5px rgba(0, 0, 0, 0.3), 0 8px 10px -6px rgba(0, 0, 0, 0.3);
   --hero-overlay: rgba(15, 23, 42, 0.85);
-
-  /* Functional Color Wrappers (Tailwind Support) */
-  --color-main: var(--text-main);
-  --color-muted: var(--text-muted);
-  --background-main: var(--bg-main);
-  --background-surface: var(--bg-surface);
-  --color-border: var(--border-color);
 }
 
 .light-mode {
@@ -32,7 +34,7 @@
   --primary-hover: #1d4ed8;
   --bg-main: #ffffff;
   --bg-surface: #f8fafc;
-  --text-main: #0f172a;
+  --text-main: #000000;
   --text-muted: #64748b;
   --border-color: #f1f5f9;
   --glass-bg: rgba(255, 255, 255, 0.7);

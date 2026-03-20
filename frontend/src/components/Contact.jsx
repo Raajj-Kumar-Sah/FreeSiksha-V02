@@ -12,14 +12,13 @@ function Contact() {
     e.preventDefault();
     setLoading(true);
 
-    // IMPORTANT: Replace these placeholders with your actual EmailJS credentials
-    // You can get these from your EmailJS dashboard: https://dashboard.emailjs.com/
-    const serviceId = 'YOUR_SERVICE_ID'; // e.g., 'service_abc123'
-    const templateId = 'YOUR_TEMPLATE_ID'; // e.g., 'template_xyz456'
-    const publicKey = 'YOUR_PUBLIC_KEY'; // e.g., 'user_def789'
+    // Securely pulling from the frontend environment variables
+    const serviceId = import.meta.env.VITE_EMAILJS_SERVICE_ID;
+    const templateId = import.meta.env.VITE_EMAILJS_TEMPLATE_ID;
+    const publicKey = import.meta.env.VITE_EMAILJS_PUBLIC_KEY;
 
-    if (serviceId === 'YOUR_SERVICE_ID' || templateId === 'YOUR_TEMPLATE_ID' || publicKey === 'YOUR_PUBLIC_KEY') {
-      toast.warning("EmailJS is not configured. Please add your credentials in Contact.jsx.");
+    if (!serviceId || !templateId || !publicKey) {
+      toast.warning("EmailJS is not configured. Please add your credentials in your frontend .env file.");
       setLoading(false);
       return;
     }
@@ -50,7 +49,7 @@ function Contact() {
             Get in <br /> Touch
           </h2>
           
-          <div className="flex items-center gap-4 group cursor-pointer w-fit">
+          <a href="mailto:support@freesiksha.org" className="flex items-center gap-4 group cursor-pointer w-fit hover:opacity-80 transition-opacity">
             <div className="w-12 h-12 bg-white/10 backdrop-blur-md rounded-2xl flex items-center justify-center border border-white/20 group-hover:bg-white/20 transition-all">
               <FiMail className="text-white text-xl" />
             </div>
@@ -58,7 +57,7 @@ function Contact() {
               <p className="text-blue-100 text-sm font-medium">Email us at</p>
               <p className="text-white font-bold text-lg">support@freesiksha.org</p>
             </div>
-          </div>
+          </a>
         </div>
 
         {/* Right Form */}
@@ -72,7 +71,7 @@ function Contact() {
                     type="text" 
                     name="user_name"
                     required
-                    placeholder="John Doe"
+                    placeholder="Amit Sharma"
                     className="w-full bg-[var(--bg-main)] border border-border rounded-2xl px-5 py-3.5 focus:outline-none focus:ring-2 focus:ring-blue-100 focus:bg-surface transition-all text-sm text-main"
                   />
                 </div>
@@ -82,7 +81,7 @@ function Contact() {
                     type="email" 
                     name="user_email"
                     required
-                    placeholder="john@example.com"
+                    placeholder="amit.sharma@gmail.com"
                     className="w-full bg-[var(--bg-main)] border border-border rounded-2xl px-5 py-3.5 focus:outline-none focus:ring-2 focus:ring-blue-100 focus:bg-surface transition-all text-sm text-main"
                   />
                 </div>
@@ -93,7 +92,7 @@ function Contact() {
                 <textarea 
                   name="message"
                   required
-                  placeholder="How can we help you?"
+                  placeholder="I'm interested in the Full Stack Web Development course. Could you share the syllabus?"
                   rows="4"
                   className="w-full bg-[var(--bg-main)] border border-border rounded-2xl px-5 py-3.5 focus:outline-none focus:ring-2 focus:ring-blue-100 focus:bg-surface transition-all text-sm text-main resize-none"
                 ></textarea>

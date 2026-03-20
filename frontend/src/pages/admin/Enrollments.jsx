@@ -7,6 +7,8 @@ import { serverUrl } from '../../App';
 import { jsPDF } from "jspdf";
 import "jspdf-autotable";
 import { ClipLoader } from 'react-spinners';
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar } from 'recharts';
+import { FaSearch, FaPlus, FaTimes } from 'react-icons/fa';
 
 function Enrollments() {
   const { userData } = useSelector(state => state.user);
@@ -19,6 +21,21 @@ function Enrollments() {
   const [loading, setLoading] = useState(false);
   const [coursesLoading, setCoursesLoading] = useState(true);
   const [actionLoading, setActionLoading] = useState(null);
+  const [analytics, setAnalytics] = useState(null);
+
+  const [searchTerm, setSearchTerm] = useState('');
+  const [showManualModal, setShowManualModal] = useState(false);
+  const [manualForm, setManualForm] = useState({
+      name: '', email: '', phone: '', age: '', city: '', qualification: '', gender: ''
+  });
+  const [manualLoading, setManualLoading] = useState(false);
+
+  const filteredEnrolledStudents = enrolledStudents.filter(student => 
+      (student.name?.toLowerCase().includes(searchTerm.toLowerCase())) ||
+      (student.email?.toLowerCase().includes(searchTerm.toLowerCase())) ||
+      (student.phone?.includes(searchTerm)) ||
+      (student.studentId?.toLowerCase().includes(searchTerm.toLowerCase()))
+  );
 
   // Fetch ALL educator courses (including unpublished) directly from API
   useEffect(() => {
@@ -56,8 +73,19 @@ function Enrollments() {
     }
   };
 
+  const fetchAnalytics = async () => {
+    if (!selectedCourse) return;
+    try {
+      const { data } = await axios.get(`${serverUrl}/api/course/${selectedCourse}/analytics`, { withCredentials: true });
+      setAnalytics(data);
+    } catch (error) {
+       console.error("Failed to load analytics", error);
+    }
+  };
+
   useEffect(() => {
     fetchStudents();
+    fetchAnalytics();
   }, [selectedCourse]);
 
   const handleApprove = async (studentId) => {
@@ -100,6 +128,23 @@ function Enrollments() {
       }
   };
 
+  const handleManualEnroll = async (e) => {
+      e.preventDefault();
+      setManualLoading(true);
+      try {
+          await axios.post(`${serverUrl}/api/course/${selectedCourse}/manual-enroll`, manualForm, { withCredentials: true });
+          toast.success("Student successfully added and enrolled!");
+          setShowManualModal(false);
+          setManualForm({ name: '', email: '', phone: '', age: '', city: '', qualification: '', gender: '' });
+          fetchStudents(); // Refresh tables and charts
+          fetchAnalytics();
+      } catch (error) {
+          toast.error(error.response?.data?.message || "Failed to manually enroll student");
+      } finally {
+          setManualLoading(false);
+      }
+  };
+
 // ... inside the table rendering logic for Active Students...
 // But wait, it's easier to inject inside the component instead of replacing 150 lines. Let me just replace the whole Active Students table structure.
 // Note to self: The tool replaces precisely what I input. I will replace the block from the Active students table header down to its closing tag.
@@ -107,10 +152,15 @@ function Enrollments() {
 
   const exportToCSV = () => {
       const courseObj = educatorCourses.find(c => c._id === selectedCourse);
+      const uniqueId = courseObj?.courseUniqueId || 'N/A';
+      const deadline = courseObj?.registrationDeadline ? new Date(courseObj.registrationDeadline).toLocaleDateString() : 'None';
+      
       const csvData = [
-          ["Name", "Email", "Phone", "Age", "City", "Qualification", "Gender", "Status", "Date"],
-          ...pendingStudents.map(s => [s.name, s.email, s.phone || '-', s.age || '-', s.city || '-', s.qualification || '-', s.gender || '-', "Pending", new Date(s.createdAt).toLocaleDateString()]),
-          ...enrolledStudents.map(s => [s.name, s.email, s.phone || '-', s.age || '-', s.city || '-', s.qualification || '-', s.gender || '-', "Enrolled", new Date(s.createdAt).toLocaleDateString()])
+          [`Course: ${courseObj?.title || 'Unknown'}`, `ID: ${uniqueId}`, `Deadline: ${deadline}`],
+          [],
+          ["FS-ID", "Name", "Email", "Phone", "Age", "City", "Qualification", "Gender", "Status", "Date"],
+          ...pendingStudents.map(s => [s.studentId || '-', s.name, s.email, s.phone || '-', s.age || '-', s.city || '-', s.qualification || '-', s.gender || '-', "Pending", new Date(s.createdAt).toLocaleDateString()]),
+          ...enrolledStudents.map(s => [s.studentId || '-', s.name, s.email, s.phone || '-', s.age || '-', s.city || '-', s.qualification || '-', s.gender || '-', "Enrolled", new Date(s.createdAt).toLocaleDateString()])
       ];
       const csvContent = csvData.map(e => e.join(",")).join("\n");
       const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
@@ -125,15 +175,23 @@ function Enrollments() {
 
   const exportToPDF = () => {
       const courseObj = educatorCourses.find(c => c._id === selectedCourse);
+      const uniqueId = courseObj?.courseUniqueId || 'N/A';
+      const deadline = courseObj?.registrationDeadline ? new Date(courseObj.registrationDeadline).toLocaleDateString() : 'None';
+      
       const doc = new jsPDF();
+      doc.setFontSize(16);
       doc.text(`Student Enrollments: ${courseObj?.title || 'Course'}`, 14, 15);
+      doc.setFontSize(10);
+      doc.setTextColor(100);
+      doc.text(`Course ID: ${uniqueId} | Registration Deadline: ${deadline}`, 14, 22);
+      
       const tableData = [
-          ...pendingStudents.map(s => [s.name, s.email, s.phone || '-', s.age || '-', s.city || '-', s.qualification || '-', "Pending", new Date(s.createdAt).toLocaleDateString()]),
-          ...enrolledStudents.map(s => [s.name, s.email, s.phone || '-', s.age || '-', s.city || '-', s.qualification || '-', "Enrolled", new Date(s.createdAt).toLocaleDateString()])
+          ...pendingStudents.map(s => [s.studentId || '-', s.name, s.email, s.phone || '-', s.age || '-', s.city || '-', s.qualification || '-', "Pending", new Date(s.createdAt).toLocaleDateString()]),
+          ...enrolledStudents.map(s => [s.studentId || '-', s.name, s.email, s.phone || '-', s.age || '-', s.city || '-', s.qualification || '-', "Enrolled", new Date(s.createdAt).toLocaleDateString()])
       ];
       doc.autoTable({
-          startY: 25,
-          head: [['Name', 'Email', 'Phone', 'Age', 'City', 'Qualification', 'Status', 'Date']],
+          startY: 28,
+          head: [['FS-ID', 'Name', 'Email', 'Phone', 'Age', 'City', 'Qualification', 'Status', 'Date']],
           body: tableData,
       });
       doc.save(`Course_Enrollments_${courseObj?.title || 'Report'}.pdf`);
@@ -185,6 +243,51 @@ function Enrollments() {
                  </div>
             ) : (
                 <div className="space-y-8">
+                    {/* Analytics Section */}
+                    {analytics && (
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                        {/* Daily Growth Line Chart */}
+                        <div className="bg-[var(--bg-surface)] p-6 rounded-[24px] border border-[var(--border-color)] shadow-sm">
+                          <h3 className="text-lg font-black text-[var(--text-main)] mb-6">Enrollment Trend</h3>
+                          <div className="h-64">
+                            {analytics.enrollmentTrends?.length > 0 ? (
+                              <ResponsiveContainer width="100%" height="100%">
+                                <LineChart data={analytics.enrollmentTrends}>
+                                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--border-color)" />
+                                  <XAxis dataKey="date" stroke="var(--text-muted)" fontSize={12} tickMargin={10} axisLine={false} tickLine={false} />
+                                  <YAxis stroke="var(--text-muted)" fontSize={12} axisLine={false} tickLine={false} allowDecimals={false} />
+                                  <Tooltip contentStyle={{ borderRadius: '16px', border: '1px solid var(--border-color)', backgroundColor: 'var(--bg-surface)', fontWeight: 'bold' }} />
+                                  <Line type="monotone" dataKey="students" name="Students" stroke="#2563eb" strokeWidth={4} dot={{ r: 4, fill: '#2563eb', strokeWidth: 2, stroke: 'var(--bg-surface)' }} activeDot={{ r: 6 }} />
+                                </LineChart>
+                              </ResponsiveContainer>
+                            ) : (
+                              <div className="h-full flex items-center justify-center text-[var(--text-muted)] text-sm font-medium border-2 border-dashed border-[var(--border-color)] rounded-xl">No trend data available</div>
+                            )}
+                          </div>
+                        </div>
+
+                        {/* Gender/Demographics Bar Chart */}
+                        <div className="bg-[var(--bg-surface)] p-6 rounded-[24px] border border-[var(--border-color)] shadow-sm">
+                          <h3 className="text-lg font-black text-[var(--text-main)] mb-6">Demographics (Gender)</h3>
+                          <div className="h-64">
+                            {analytics.genderStats?.length > 0 ? (
+                              <ResponsiveContainer width="100%" height="100%">
+                                <BarChart data={analytics.genderStats}>
+                                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--border-color)" />
+                                  <XAxis dataKey="name" stroke="var(--text-muted)" fontSize={12} tickMargin={10} axisLine={false} tickLine={false} />
+                                  <YAxis stroke="var(--text-muted)" fontSize={12} axisLine={false} tickLine={false} allowDecimals={false} />
+                                  <Tooltip cursor={{ fill: 'var(--bg-main)' }} contentStyle={{ borderRadius: '16px', border: '1px solid var(--border-color)', backgroundColor: 'var(--bg-surface)', fontWeight: 'bold' }} />
+                                  <Bar dataKey="value" name="Students" fill="#10b981" radius={[8, 8, 0, 0]} barSize={48} />
+                                </BarChart>
+                              </ResponsiveContainer>
+                            ) : (
+                              <div className="h-full flex items-center justify-center text-[var(--text-muted)] text-sm font-medium border-2 border-dashed border-[var(--border-color)] rounded-xl">No demographic data available</div>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    )}
+
                     {/* Pending Approvals Table */}
                     <div className="bg-[var(--bg-surface)] rounded-[24px] shadow-sm border border-[var(--border-color)] overflow-hidden">
                         <div className="px-6 py-5 border-b border-[var(--border-color)] bg-blue-50/50 dark:bg-blue-900/10 flex justify-between items-center">
@@ -196,6 +299,7 @@ function Enrollments() {
                             <table className="w-full text-left">
                                 <thead className="bg-[var(--bg-main)] text-[var(--text-muted)] text-xs uppercase font-bold">
                                     <tr>
+                                        <th className="px-6 py-4">FS-ID</th>
                                         <th className="px-6 py-4">Student Name</th>
                                         <th className="px-6 py-4">Email</th>
                                         <th className="px-6 py-4">Phone</th>
@@ -213,6 +317,7 @@ function Enrollments() {
                                     ) : (
                                         pendingStudents.map(student => (
                                             <tr key={student._id} className="border-b border-[var(--border-color)] hover:bg-[var(--bg-main)]/50 transition-colors">
+                                                <td className="px-6 py-4 font-bold text-blue-600 dark:text-blue-400 whitespace-nowrap">{student.studentId || <span className="opacity-40">—</span>}</td>
                                                 <td className="px-6 py-4 font-bold text-[var(--text-main)]">{student.name}</td>
                                                 <td className="px-6 py-4 text-[var(--text-muted)] text-sm">{student.email}</td>
                                                 <td className="px-6 py-4 text-[var(--text-muted)] text-sm">{student.phone || <span className="opacity-40">—</span>}</td>
@@ -249,15 +354,37 @@ function Enrollments() {
 
                     {/* Enrolled Students Table */}
                     <div className="bg-[var(--bg-surface)] rounded-[24px] shadow-sm border border-[var(--border-color)] overflow-hidden">
-                        <div className="px-6 py-5 border-b border-[var(--border-color)] flex justify-between items-center">
-                            <h2 className="text-lg font-bold text-[var(--text-main)]">Active Students</h2>
-                            <span className="bg-emerald-100 text-emerald-700 px-3 py-1 rounded-full text-xs font-bold">{enrolledStudents.length}</span>
+                        <div className="px-6 py-5 border-b border-[var(--border-color)] flex flex-wrap justify-between items-center gap-4">
+                            <div className="flex items-center gap-3">
+                                <h2 className="text-lg font-bold text-[var(--text-main)]">Active Students</h2>
+                                <span className="bg-emerald-100 text-emerald-700 px-3 py-1 rounded-full text-xs font-bold">{filteredEnrolledStudents.length}</span>
+                            </div>
+                            <div className="flex items-center gap-3 w-full sm:w-auto">
+                                <div className="relative flex-1 sm:w-64">
+                                    <FaSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--border-color)]" />
+                                    <input 
+                                        type="text" 
+                                        placeholder="Search name, phone, email..." 
+                                        value={searchTerm}
+                                        onChange={(e) => setSearchTerm(e.target.value)}
+                                        className="w-full bg-[var(--bg-main)] border border-[var(--border-color)] rounded-xl pl-10 pr-4 py-2 text-sm text-[var(--text-main)] focus:outline-none focus:ring-2 focus:ring-blue-100 transition-all font-medium"
+                                    />
+                                </div>
+                                <button 
+                                    onClick={() => setShowManualModal(true)}
+                                    className="bg-blue-600 hover:bg-blue-700 text-white p-2.5 rounded-xl transition-colors shadow-md flex-shrink-0"
+                                    title="Manually Add Student"
+                                >
+                                    <FaPlus />
+                                </button>
+                            </div>
                         </div>
                         
                         <div className="overflow-x-auto">
                             <table className="w-full text-left">
                                 <thead className="bg-[var(--bg-main)] text-[var(--text-muted)] text-xs uppercase font-bold">
                                     <tr>
+                                        <th className="px-6 py-4">FS-ID</th>
                                         <th className="px-6 py-4">Student Name</th>
                                         <th className="px-6 py-4">Email</th>
                                         <th className="px-6 py-4">Phone</th>
@@ -270,14 +397,15 @@ function Enrollments() {
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {enrolledStudents.length === 0 ? (
-                                        <tr><td colSpan="9" className="px-6 py-8 text-center text-[var(--text-muted)] font-medium">No active students in this course yet.</td></tr>
+                                    {filteredEnrolledStudents.length === 0 ? (
+                                        <tr><td colSpan="9" className="px-6 py-8 text-center text-[var(--text-muted)] font-medium">No active students found.</td></tr>
                                     ) : (
-                                        enrolledStudents.map(student => (
+                                        filteredEnrolledStudents.map(student => (
                                             <tr key={student._id} className="border-b border-[var(--border-color)] hover:bg-[var(--bg-main)]/50 transition-colors">
+                                                <td className="px-6 py-4 font-bold text-blue-600 dark:text-blue-400 whitespace-nowrap">{student.studentId || <span className="opacity-40">—</span>}</td>
                                                 <td className="px-6 py-4 font-bold text-[var(--text-main)]">
                                                     <div className="flex items-center gap-3">
-                                                        <div className="w-8 h-8 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center font-black text-xs uppercase flex-shrink-0">{student.name?.charAt(0)}</div>
+                                                        <div className="w-8 h-8 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center font-black text-xs uppercase flex-shrink-0">{student.name?.charAt(0)}</div>
                                                         {student.name}
                                                     </div>
                                                 </td>
@@ -308,6 +436,47 @@ function Enrollments() {
                 </div>
             )}
         </div>
+
+      {/* Manual Enroll Modal */}
+      {showManualModal && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="bg-[var(--bg-surface)] w-full max-w-lg rounded-3xl shadow-2xl border border-[var(--border-color)] overflow-hidden flex flex-col max-h-[90vh]">
+            <div className="p-6 border-b border-[var(--border-color)] flex items-center justify-between bg-blue-50/50 dark:bg-blue-900/10">
+              <div>
+                <h3 className="text-xl font-black text-[var(--text-main)]">Manual Enrollment</h3>
+                <p className="text-sm text-[var(--text-muted)] mt-1">Add a student directly to this course.</p>
+              </div>
+              <button 
+                onClick={() => setShowManualModal(false)} 
+                className="w-8 h-8 rounded-full bg-[var(--bg-surface)] border border-[var(--border-color)] flex items-center justify-center text-[var(--text-muted)] hover:text-red-500 hover:border-red-200 transition-colors"
+               >
+                <FaTimes />
+              </button>
+            </div>
+            <form onSubmit={handleManualEnroll} className="p-6 overflow-y-auto flex-1 space-y-4">
+                <div className="grid grid-cols-2 gap-4">
+                    <input required type="text" placeholder="Full Name" value={manualForm.name} onChange={e=>setManualForm({...manualForm, name: e.target.value})} className="col-span-2 w-full bg-[var(--bg-main)] border border-[var(--border-color)] rounded-xl px-4 py-3 text-[var(--text-main)] focus:ring-2 focus:ring-blue-100 transition-all font-medium" />
+                    <input required type="email" placeholder="Email Address" value={manualForm.email} onChange={e=>setManualForm({...manualForm, email: e.target.value})} className="col-span-2 w-full bg-[var(--bg-main)] border border-[var(--border-color)] rounded-xl px-4 py-3 text-[var(--text-main)] focus:ring-2 focus:ring-blue-100 transition-all font-medium" />
+                    <input required type="text" placeholder="Phone Number" value={manualForm.phone} onChange={e=>setManualForm({...manualForm, phone: e.target.value})} className="w-full bg-[var(--bg-main)] border border-[var(--border-color)] rounded-xl px-4 py-3 text-[var(--text-main)] focus:ring-2 focus:ring-blue-100 transition-all font-medium" />
+                    <input required type="number" placeholder="Age" value={manualForm.age} onChange={e=>setManualForm({...manualForm, age: e.target.value})} className="w-full bg-[var(--bg-main)] border border-[var(--border-color)] rounded-xl px-4 py-3 text-[var(--text-main)] focus:ring-2 focus:ring-blue-100 transition-all font-medium" />
+                    <input required type="text" placeholder="City" value={manualForm.city} onChange={e=>setManualForm({...manualForm, city: e.target.value})} className="col-span-2 md:col-span-1 w-full bg-[var(--bg-main)] border border-[var(--border-color)] rounded-xl px-4 py-3 text-[var(--text-main)] focus:ring-2 focus:ring-blue-100 transition-all font-medium" />
+                    <input required type="text" placeholder="Qualification" value={manualForm.qualification} onChange={e=>setManualForm({...manualForm, qualification: e.target.value})} className="col-span-2 md:col-span-1 w-full bg-[var(--bg-main)] border border-[var(--border-color)] rounded-xl px-4 py-3 text-[var(--text-main)] focus:ring-2 focus:ring-blue-100 transition-all font-medium" />
+                    <select required value={manualForm.gender} onChange={e=>setManualForm({...manualForm, gender: e.target.value})} className="col-span-2 w-full bg-[var(--bg-main)] border border-[var(--border-color)] rounded-xl px-4 py-3 text-[var(--text-main)] focus:ring-2 focus:ring-blue-100 transition-all font-medium appearance-none">
+                        <option value="">Select Gender...</option>
+                        <option value="Male">Male</option>
+                        <option value="Female">Female</option>
+                        <option value="Other">Other</option>
+                    </select>
+                </div>
+                <div className="pt-6 flex justify-end gap-4 mt-2">
+                   <button type="button" onClick={() => setShowManualModal(false)} className="px-6 py-3 rounded-xl font-bold bg-[var(--bg-main)] text-[var(--text-main)] border border-[var(--border-color)] hover:bg-gray-50 dark:hover:bg-white/5 transition-colors">Cancel</button>
+                   <button type="submit" disabled={manualLoading} className="btn-primary px-8 py-3 rounded-xl font-bold shadow-lg shadow-blue-500/20 disabled:opacity-50">{manualLoading ? "Saving..." : "Enroll Student"}</button>
+                </div>
+            </form>
+          </div>
+        </div>
+      )}
+
     </div>
   );
 }

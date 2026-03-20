@@ -1,6 +1,6 @@
 import express from "express"
 import isAuth from "../middlewares/isAuth.js"
-import { approveStudent, createCourse, createLecture, editCourse, editLecture, enrollInFreeCourse, getCourseById, getCourseLecture, getCourseStudents, getCreatorById, getCreatorCourses, getPublishedCourses, rejectStudent, removeCourse, removeLecture, unenrollFromCourse, removeCourseStudent } from "../controllers/courseController.js"
+import { approveStudent, createCourse, createLecture, editCourse, editLecture, enrollInFreeCourse, getCourseById, getCourseLecture, getCourseStudents, getCreatorById, getCreatorCourses, getPublishedCourses, rejectStudent, removeCourse, removeLecture, unenrollFromCourse, removeCourseStudent, reopenRegistration, getEnrollmentAnalytics, manualEnroll } from "../controllers/courseController.js"
 import upload from "../middlewares/multer.js"
 
 let courseRouter = express.Router()
@@ -24,5 +24,9 @@ courseRouter.post("/:courseId/reject/:studentId", isAuth, rejectStudent);
 
 courseRouter.post("/:courseId/unenroll", isAuth, unenrollFromCourse);
 courseRouter.post("/:courseId/removestudent/:studentId", isAuth, removeCourseStudent);
+
+// new lifecycle routes
+courseRouter.post("/:courseId/reopen", isAuth, reopenRegistration);
+courseRouter.get("/:courseId/analytics", isAuth, getEnrollmentAnalytics);
 
 export default courseRouter

@@ -25,5 +25,21 @@ const sendMail=async (to,otp) => {
     })
 }
 
+export const sendApprovalEmail = async (to, courseTitle, studentName) => {
+    transporter.sendMail({
+        from:process.env.EMAIL,
+        to:to,
+        subject:`Enrollment Approved: ${courseTitle}`,
+        html:`<div style="font-family: Arial, sans-serif; padding: 20px;">
+                <h2 style="color: #10B981;">Enrollment Approved!</h2>
+                <p>Hello <b>${studentName}</b>,</p>
+                <p>Great news! Your enrollment request for the course <b>${courseTitle}</b> has been approved by the instructor.</p>
+                <p>You can now log in and access the course materials from your dashboard.</p>
+                <br/>
+                <p>Happy Learning,</p>
+                <p><b>FreeSiksha Team</b></p>
+              </div>`
+    })
+}
 
 export default sendMail
