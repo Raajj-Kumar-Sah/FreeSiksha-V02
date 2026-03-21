@@ -46,7 +46,11 @@ function Login() {
                 setShowOtpScreen(true);
                 toast.success(result.data.message || "OTP sent to your registered email!");
             } else {
-                dispatch(setUserData(result.data));
+                // Store token for Hybrid Auth fallback
+                if (result.data.token) {
+                    localStorage.setItem('token', result.data.token);
+                }
+                dispatch(setUserData(result.data.user || result.data));
                 navigate("/");
                 toast.success("Login Successfully");
             }

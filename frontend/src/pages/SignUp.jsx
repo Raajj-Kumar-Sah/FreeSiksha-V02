@@ -65,8 +65,11 @@ function SignUp() {
                 setShowOtpScreen(true);
                 toast.success(result.data.message || (role === 'trainer' ? "Application submitted! Waiting for approval." : "OTP sent to your email!"));
             } else {
-                // If backend decides not to trigger OTP for some reason
-                dispatch(setUserData(result.data));
+                // Store token for Hybrid Auth fallback
+                if (result.data.token) {
+                    localStorage.setItem('token', result.data.token);
+                }
+                dispatch(setUserData(result.data.user || result.data));
                 navigate("/");
                 toast.success("SignUp Successfully");
             }
