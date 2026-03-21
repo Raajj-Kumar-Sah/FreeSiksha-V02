@@ -15,6 +15,16 @@ export const createCourse = async (req,res) => {
         if(!title || !category){
             return res.status(400).json({message:"title and category is required"})
         }
+
+        const user = await User.findById(req.userId);
+        if(!user || (user.role !== "trainer" && user.role !== "admin")){
+            return res.status(403).json({message:"Only trainers and admins can create courses"})
+        }
+
+        if(user.role === "trainer" && user.status === "pending"){
+            return res.status(403).json({message:"Your trainer profile is still under review. You can create courses once approved."})
+        }
+
         const course = await Course.create({
             title,
             category,

@@ -82,8 +82,8 @@ export const login = async (req, res, next) => {
             await sendMail(user.email, otp);
             return res.status(200).json({ message: "OTP sent to your registered email.", requireOtp: true, email: user.email });
         }
-        if (user.status === "pending" && user.role !== "student") {
-            return res.status(401).json({ message: "Your account is under review." });
+        if (user.status === "suspended" || user.status === "banned") {
+            return res.status(401).json({ message: `Your account is ${user.status}.` });
         }
         if (!user.password) {
             return res.status(401).json({ message: "Account not activated. Check your email for the activation link." });
