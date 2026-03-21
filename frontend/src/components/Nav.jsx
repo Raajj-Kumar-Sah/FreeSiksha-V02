@@ -98,7 +98,7 @@ function Nav() {
           <input 
             type="text" 
             placeholder="Search..." 
-            className="bg-transparent border-none focus:outline-none ml-2 text-sm w-24 md:w-40 lg:w-64 text-[var(--text-main)]"
+            className="bg-transparent border-none focus:outline-none ml-2 text-sm w-24 md:w-40 lg:w-64 text-main"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             onKeyDown={handleSearch}
@@ -111,7 +111,7 @@ function Nav() {
             <>
               <button 
                 onClick={() => navigate("/login")}
-                className="text-[var(--text-main)] font-medium px-4 py-2 hover:text-blue-600 transition-colors"
+                className="text-main font-medium px-4 py-2 hover:text-blue-600 transition-colors"
               >
                 Login
               </button>
@@ -149,12 +149,12 @@ function Nav() {
                 {/* Profile Dropdown */}
                 {showPro && (
                   <div className="absolute top-14 right-0 w-48 bg-[var(--bg-surface)] rounded-2xl shadow-xl border border-[var(--border-color)] py-2 animate-in fade-in slide-in-from-top-2 duration-200">
-                    <button onClick={() => { navigate("/profile"); setShowPro(false); }} className="w-full text-left px-4 py-2 hover:bg-[var(--bg-main)] text-[var(--text-main)]">My Profile</button>
-                    <button onClick={() => { navigate("/enrolledcourses"); setShowPro(false); }} className="w-full text-left px-4 py-2 hover:bg-[var(--bg-main)] text-[var(--text-main)]">My Courses</button>
+                    <button onClick={() => { navigate("/profile"); setShowPro(false); }} className="w-full text-left px-4 py-2 hover:bg-[var(--bg-main)] text-main">My Profile</button>
+                    <button onClick={() => { navigate("/enrolledcourses"); setShowPro(false); }} className="w-full text-left px-4 py-2 hover:bg-[var(--bg-main)] text-main">My Courses</button>
                     {userData.role === "trainer" && (
                         <>
-                            <button onClick={() => { navigate("/enrollments"); setShowPro(false); }} className="w-full text-left px-4 py-2 hover:bg-[var(--bg-main)] text-[var(--text-main)]">Manage Enrollments</button>
-                            <button onClick={() => { navigate("/manage-blogs"); setShowPro(false); }} className="w-full text-left px-4 py-2 hover:bg-[var(--bg-main)] text-[var(--text-main)]">Manage Blogs</button>
+                            <button onClick={() => { navigate("/enrollments"); setShowPro(false); }} className="w-full text-left px-4 py-2 hover:bg-[var(--bg-main)] text-main">Manage Enrollments</button>
+                            <button onClick={() => { navigate("/manage-blogs"); setShowPro(false); }} className="w-full text-left px-4 py-2 hover:bg-[var(--bg-main)] text-main">Manage Blogs</button>
                         </>
                     )}
                     <hr className="my-1 border-[var(--border-color)]" />
@@ -176,7 +176,7 @@ function Nav() {
         </button>
 
         {/* Mobile Menu Toggle */}
-        <button className="lg:hidden p-2 text-[var(--text-main)]" onClick={() => setShowHam(!showHam)}>
+        <button className="lg:hidden p-2 text-main" onClick={() => setShowHam(!showHam)}>
           {showHam ? <GiSplitCross className="text-2xl" /> : <GiHamburgerMenu className="text-2xl" />}
         </button>
       </div>
@@ -190,7 +190,7 @@ function Nav() {
                 <img src={logo} className="w-8 h-8 rounded-md" alt="Logo" />
                 <span className="text-xl font-bold text-blue-600">FreeSiksha</span>
             </div>
-            <button onClick={() => setShowHam(false)} className="p-2 text-[var(--text-main)] bg-[var(--bg-surface)] rounded-full hover:bg-gray-200 dark:hover:bg-gray-800 transition-colors">
+            <button onClick={() => setShowHam(false)} className="p-2 text-main bg-[var(--bg-surface)] rounded-full hover:bg-gray-200 dark:hover:bg-gray-800 transition-colors">
                 <GiSplitCross className="text-2xl" />
             </button>
           </div>
@@ -209,7 +209,7 @@ function Nav() {
                 className={`px-4 py-4 rounded-2xl font-black text-lg transition-all ${
                   isActive(link.path)
                     ? "bg-blue-600 text-white shadow-lg shadow-blue-500/30"
-                    : "text-[var(--text-main)] hover:bg-blue-50 dark:hover:bg-blue-900/20 hover:text-blue-600 dark:text-white"
+                    : "text-main hover:bg-blue-50 dark:hover:bg-blue-900/20 hover:text-blue-600 dark:text-white"
                 }`}
               >
                 {link.name}
@@ -219,7 +219,7 @@ function Nav() {
             {!userData && (
                 <button 
                   onClick={() => { dispatch(toggleJoinModal(true)); setShowHam(false); }} 
-                  className="text-left px-4 py-4 rounded-2xl font-black text-lg transition-all text-[var(--text-main)] hover:bg-blue-50 dark:hover:bg-blue-900/20 hover:text-blue-600 dark:text-white"
+                  className="text-left px-4 py-4 rounded-2xl font-black text-lg transition-all text-main hover:bg-blue-50 dark:hover:bg-blue-900/20 hover:text-blue-600 dark:text-white"
                 >
                   Join FreeSiksha
                 </button>
@@ -227,7 +227,7 @@ function Nav() {
 
             {userData && (
                 <div className="pt-4 border-t border-[var(--border-color)] flex flex-col gap-6 mt-2">
-                    <span className="text-sm uppercase tracking-widest text-[var(--text-muted)] font-black">Account</span>
+                    <span className="text-sm uppercase tracking-widest text-muted font-black">Account</span>
                     <Link to="/profile" onClick={() => setShowHam(false)} className="hover:text-blue-600 transition-colors">My Profile</Link>
                     <Link to="/enrolledcourses" onClick={() => setShowHam(false)} className="hover:text-blue-600 transition-colors">My Enrolled Courses</Link>
                     
@@ -244,7 +244,7 @@ function Nav() {
           <div className="mt-auto space-y-4 pt-8">
             {!userData ? (
               <div className="flex flex-col gap-3">
-                <button onClick={() => { navigate("/login"); setShowHam(false); }} className="w-full bg-[var(--bg-surface)] border-2 border-[var(--border-color)] text-[var(--text-main)] py-4 rounded-2xl font-black text-lg">Sign In</button>
+                <button onClick={() => { navigate("/login"); setShowHam(false); }} className="w-full bg-[var(--bg-surface)] border-2 border-[var(--border-color)] text-main py-4 rounded-2xl font-black text-lg">Sign In</button>
                 <button onClick={() => { dispatch(toggleJoinModal(true)); setShowHam(false); }} className="w-full bg-blue-600 text-white py-4 rounded-2xl font-black text-lg shadow-lg shadow-blue-500/30">Register Now</button>
               </div>
             ) : (
