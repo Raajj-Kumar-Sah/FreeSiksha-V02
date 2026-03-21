@@ -32,6 +32,9 @@ cloudinary.config({
 const app = express();
 const port = process.env.PORT || 5000;
 
+// ✅ Trust Proxy (CRITICAL for Render + Rate Limiting)
+app.set("trust proxy", 1);
+
 // URL Normalizer: Express 5 is strict with paths. This cleans `//api/...` to `/api/...` before routing.
 app.use((req, res, next) => {
   if (req.url.includes('//')) {
