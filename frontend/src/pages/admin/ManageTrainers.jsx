@@ -6,7 +6,7 @@ import { ClipLoader } from 'react-spinners';
 import { 
     FaUserShield, FaBan, FaCheckCircle, FaTrash, FaFileExport, 
     FaSearch, FaKey, FaSave, FaTimes, FaChalkboardTeacher, 
-    FaIdCard, FaHistory, FaExternalLinkAlt, FaPlus
+    FaIdCard, FaHistory, FaExternalLinkAlt, FaPlus, FaEnvelope
 } from 'react-icons/fa';
 
 export default function ManageTrainers() {
@@ -193,7 +193,7 @@ export default function ManageTrainers() {
                             <div className="flex-1 flex flex-col md:flex-row md:items-center gap-8">
                                 <div className="relative">
                                     <div className="w-20 h-20 rounded-[28px] bg-gradient-to-br from-blue-50 to-indigo-50 text-blue-600 flex items-center justify-center font-black text-3xl border-2 border-white shadow-xl">
-                                        {t.name.charAt(0).toUpperCase()}
+                                        {(t.name || "?").charAt(0).toUpperCase()}
                                     </div>
                                     <div className={`absolute -bottom-1 -right-1 w-6 h-6 rounded-full border-4 border-white ${
                                         t.status === 'active' || !t.status ? 'bg-emerald-500' : 'bg-red-500'
@@ -348,7 +348,7 @@ export default function ManageTrainers() {
                         <div className="bg-gray-50 p-10 border-b border-gray-100 flex justify-between items-start">
                             <div className="flex items-center gap-6">
                                 <div className="w-24 h-24 rounded-[32px] bg-white border border-gray-200 flex items-center justify-center text-gray-400 font-black text-4xl shadow-sm">
-                                    {selectedTrainer?.name.charAt(0).toUpperCase()}
+                                    {(selectedTrainer?.name || "?").charAt(0).toUpperCase()}
                                 </div>
                                 <div>
                                     <h3 className="text-3xl font-black text-gray-900">{selectedTrainer?.name}</h3>

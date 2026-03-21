@@ -4,7 +4,7 @@ import TrainerApplication from "../models/trainerApplicationModel.js";
 import User from "../models/userModel.js";
 import uploadOnCloudinary from "../configs/cloudinary.js";
 import bcrypt from "bcryptjs";
-import { sendSetPasswordEmail, sendTrainerRejectionEmail, sendApplicationReceivedEmail } from "../configs/Mail.js";
+import { sendSetPasswordEmail, sendTrainerRejectionEmail, sendApplicationReceivedEmail, sendManualTrainerCredentials } from "../configs/Mail.js";
 import crypto from "crypto";
 
 // GET /api/trainer/form
@@ -146,15 +146,14 @@ export const approveTrainerApplication = async (req, res) => {
         const user = await User.findById(application.userId);
         if (!user) return res.status(404).json({ message: "User account not found" });
 
-        // Generate Activation Token
-        const activationToken = crypto.randomBytes(32).toString("hex");
-        const activationExpires = Date.now() + 15 * 60 * 1000; // 15 minutes
+        // Generate a random 8-character password for immediate access
+        const tempPassword = Math.random().toString(36).slice(-8);
+        const hashedPass = await bcrypt.hash(tempPassword, 10);
 
-        // Update user status and tokens (clear password to ensure they must set it)
-        user.status = "approved";
-        user.password = undefined; 
-        user.activationToken = activationToken;
-        user.activationExpires = activationExpires;
+        // Update user status and roles (Active immediately)
+        user.status = "active";
+        user.password = hashedPass;
+        user.isOtpVerifed = true; 
         
         // Generate Trainer ID if not already generated
         if (!user.studentId || !user.studentId.startsWith("FS-TRA")) {
@@ -169,11 +168,14 @@ export const approveTrainerApplication = async (req, res) => {
         application.status = "approved";
         await application.save();
 
-        // Send Email with secure link
-        const setPasswordLink = `${process.env.FRONTEND_URL || 'http://localhost:5173'}/set-password/${activationToken}`;
-        await sendSetPasswordEmail(application.email, user.name, setPasswordLink);
+        // Send Email with credentials (using the working manual trainer template)
+        try {
+            await sendManualTrainerCredentials(application.email, user.name, tempPassword);
+        } catch (mailError) {
+            console.error(`[ApproveTrainer] Email notification failed for ${application.email}:`, mailError.message);
+        }
 
-        res.status(200).json({ message: "Application approved. Activation link sent to trainer.", application });
+        res.status(200).json({ message: "Application approved! Trainer is now active and credentials have been emailed.", application });
     } catch (error) {
         console.error("Approve trainer error:", error);
         res.status(500).json({ message: "Server Error", error: error.message });

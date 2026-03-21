@@ -6,12 +6,17 @@ import dotenv from 'dotenv';
 dotenv.config();
 
 // Configure Brevo API Client
-const defaultClient = SibApiV3Sdk.ApiClient.instance;
-const apiKey = defaultClient.authentications['api-key'];
-apiKey.apiKey = process.env.BREVO_API_KEY;
-
 const apiInstance = new SibApiV3Sdk.TransactionalEmailsApi();
 const sender = { email: process.env.EMAIL || "no-reply@freesiksha.com", name: "FreeSiksha" };
+
+// Utility to ensure API key is applied (useful for serverless/cold starts)
+const syncApiKey = () => {
+    const defaultClient = SibApiV3Sdk.ApiClient.instance;
+    const apiKey = defaultClient.authentications['api-key'];
+    if (!apiKey.apiKey || apiKey.apiKey !== process.env.BREVO_API_KEY) {
+        apiKey.apiKey = process.env.BREVO_API_KEY;
+    }
+};
 
 if (!process.env.BREVO_API_KEY) {
     console.warn("[Brevo Warning] BREVO_API_KEY is missing in .env!");
@@ -19,6 +24,7 @@ if (!process.env.BREVO_API_KEY) {
 
 const sendMail = async (to, otp) => {
     try {
+        syncApiKey();
         const sendSmtpEmail = new SibApiV3Sdk.SendSmtpEmail();
         sendSmtpEmail.subject = "FreeSiksha Authentication Code";
         sendSmtpEmail.htmlContent = `<div style="font-family: Arial, sans-serif; padding: 20px;">
@@ -39,6 +45,7 @@ const sendMail = async (to, otp) => {
 
 export const sendApprovalEmail = async (to, courseTitle, studentName, studentId) => {
     try {
+        syncApiKey();
         const sendSmtpEmail = new SibApiV3Sdk.SendSmtpEmail();
         sendSmtpEmail.subject = `🎉 Enrollment Approved: ${courseTitle}`;
         sendSmtpEmail.htmlContent = `
@@ -74,6 +81,7 @@ export const sendApprovalEmail = async (to, courseTitle, studentName, studentId)
 
 export const sendApplicationReceivedEmail = async (email, name) => {
     try {
+        syncApiKey();
         const sendSmtpEmail = new SibApiV3Sdk.SendSmtpEmail();
         sendSmtpEmail.subject = "🚀 Application Received - FreeSiksha Trainer Role";
         sendSmtpEmail.htmlContent = `
@@ -101,6 +109,7 @@ export const sendApplicationReceivedEmail = async (email, name) => {
 
 export const sendSetPasswordEmail = async (email, name, setPasswordLink) => {
     try {
+        syncApiKey();
         const sendSmtpEmail = new SibApiV3Sdk.SendSmtpEmail();
         sendSmtpEmail.subject = "🎉 Congratulations! Your Trainer Account is Approved";
         sendSmtpEmail.htmlContent = `
@@ -134,6 +143,7 @@ export const sendSetPasswordEmail = async (email, name, setPasswordLink) => {
 
 export const sendTrainerRejectionEmail = async (email, reason, name) => {
     try {
+        syncApiKey();
         const sendSmtpEmail = new SibApiV3Sdk.SendSmtpEmail();
         sendSmtpEmail.subject = "FreeSiksha - Trainer Application Update";
         sendSmtpEmail.htmlContent = `
@@ -160,6 +170,7 @@ export const sendTrainerRejectionEmail = async (email, reason, name) => {
 
 export const sendVolunteerSubmissionEmail = async (email, name) => {
     try {
+        syncApiKey();
         const sendSmtpEmail = new SibApiV3Sdk.SendSmtpEmail();
         sendSmtpEmail.subject = "Volunteer Application Submitted ✅";
         sendSmtpEmail.htmlContent = `
@@ -187,6 +198,7 @@ export const sendVolunteerSubmissionEmail = async (email, name) => {
 
 export const sendVolunteerApprovalEmail = async (email, name) => {
     try {
+        syncApiKey();
         const sendSmtpEmail = new SibApiV3Sdk.SendSmtpEmail();
         sendSmtpEmail.subject = "Congratulations! You're Approved as a Volunteer 🎉";
         sendSmtpEmail.htmlContent = `
@@ -213,6 +225,7 @@ export const sendVolunteerApprovalEmail = async (email, name) => {
 
 export const sendManualTrainerCredentials = async (email, name, password) => {
     try {
+        syncApiKey();
         const sendSmtpEmail = new SibApiV3Sdk.SendSmtpEmail();
         sendSmtpEmail.subject = "🚀 Welcome to the FreeSiksha Educator Network";
         sendSmtpEmail.htmlContent = `

@@ -50,8 +50,17 @@ const Footer = () => {
                     >
                       {link}
                     </button>
+                  ) : link === "Community" ? (
+                    <a 
+                      href="https://whatsapp.com/channel/0029VbBuNq75Ui2UCeXRjd0I" 
+                      target="_blank" 
+                      rel="noopener noreferrer" 
+                      className="text-[var(--text-muted)] hover:text-blue-600 transition-colors"
+                    >
+                      {link}
+                    </a>
                   ) : (
-                    <Link to={`/${link.toLowerCase()}`} className="text-[var(--text-muted)] hover:text-blue-600 transition-colors">{link}</Link>
+                    <Link to={link === "Courses" ? "/allcourses" : "/"} className="text-[var(--text-muted)] hover:text-blue-600 transition-colors">{link}</Link>
                   )}
                 </li>
               ))}
@@ -77,7 +86,7 @@ const Footer = () => {
                   );
                 }
                 
-                const target = link === "About Us" ? "/about" : link === "Blog" ? "/blogs" : `/#${link.toLowerCase().replace(' ', '')}`;
+                const target = link === "About Us" ? "/about" : link === "Blog" ? "/blogs" : "/";
                 
                 return (
                   <li key={link}>
@@ -93,7 +102,7 @@ const Footer = () => {
             <ul className="space-y-4 text-[14px]">
               {["Help Center", "Privacy Policy", "Terms of Use", "Donate"].map((link) => (
                 <li key={link}>
-                  <Link to={`/#${link.toLowerCase().replace(' ', '')}`} className="text-[var(--text-muted)] hover:text-blue-600 transition-colors">{link}</Link>
+                  <Link to="/" className="text-[var(--text-muted)] hover:text-blue-600 transition-colors">{link}</Link>
                 </li>
               ))}
             </ul>

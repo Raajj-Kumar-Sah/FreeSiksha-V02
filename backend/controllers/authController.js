@@ -48,14 +48,8 @@ export const signUp = async (req, res, next) => {
         let user = await User.create({
             name, email, password: hashPassword, role, age, city,
             qualification, phone, gender, studentId, 
-            isOtpVerifed: role === "student" ? true : false
+            isOtpVerifed: false // Everyone must verify via OTP now
         });
-
-        if (role === "student") {
-            let token = await genToken(user._id, user.role);
-            res.cookie("token", token, cookieOptions);
-            return res.status(201).json({ message: "Student account created successfully", token, user });
-        }
 
         const otp = generateOtp();
         user.resetOtp = otp;
@@ -83,7 +77,7 @@ export const login = async (req, res, next) => {
         if (!user) {
             return res.status(400).json({ message: "User does not exist" });
         }
-        if (!user.isOtpVerifed && user.role !== "student") {
+        if (!user.isOtpVerifed) {
             const otp = generateOtp();
             user.resetOtp = otp;
             user.otpExpires = Date.now() + 5 * 60 * 1000;
