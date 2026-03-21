@@ -6,6 +6,9 @@ import { FaArrowLeftLong } from "react-icons/fa6";
 function Profile() {
   let {userData} = useSelector(state=>state.user)
   let navigate = useNavigate()
+
+  if (!userData) return null;
+
   return (
     <div className="min-h-screen bg-[var(--bg-main)] px-4 py-10 flex items-center justify-center">
       <div className="bg-[var(--bg-surface)] shadow-lg border border-[var(--border-color)] rounded-3xl p-10 max-w-xl w-full relative overflow-hidden group">
@@ -19,7 +22,7 @@ function Profile() {
         {/* Profile Header */}
         <div className="flex flex-col items-center text-center">
           <div className="relative">
-            {userData.photoUrl ? (
+            {userData?.photoUrl ? (
               <img src={userData.photoUrl} alt="Profile" className="w-28 h-28 rounded-3xl object-cover border-4 border-[var(--bg-surface)] shadow-xl" />
             ) : (
               <div className="w-28 h-28 rounded-3xl bg-blue-600 text-white flex items-center justify-center text-4xl font-black border-4 border-[var(--bg-surface)] shadow-xl">
@@ -29,7 +32,7 @@ function Profile() {
             <div className="absolute -bottom-2 -right-2 w-8 h-8 bg-emerald-500 border-4 border-[var(--bg-surface)] rounded-full shadow-lg"></div>
           </div>
           
-          <h2 className="text-3xl font-black mt-6 text-[var(--text-main)]">{userData.name}</h2>
+          <h2 className="text-3xl font-black mt-6 text-[var(--text-main)]">{userData?.name || "User"}</h2>
           <div className="inline-flex items-center px-4 py-1 rounded-full bg-blue-50 dark:bg-blue-900/30 text-blue-600 text-[10px] font-bold tracking-widest uppercase mt-2">
             {userData.role}
           </div>
@@ -39,18 +42,18 @@ function Profile() {
         <div className="mt-10 space-y-6">
           <div className="p-4 bg-[var(--bg-main)] rounded-2xl border border-[var(--border-color)]">
             <p className="text-[10px] font-bold text-blue-600 uppercase tracking-widest mb-1">Email Address</p>
-            <p className="text-[var(--text-main)] font-medium">{userData.email}</p>
+            <p className="text-[var(--text-main)] font-medium">{userData?.email || "N/A"}</p>
           </div>
 
           <div className="p-4 bg-[var(--bg-main)] rounded-2xl border border-[var(--border-color)]">
             <p className="text-[10px] font-bold text-blue-600 uppercase tracking-widest mb-1">About Me</p>
-            <p className="text-[var(--text-main)] leading-relaxed italic">"{userData.description || "No bio added yet."}"</p>
+            <p className="text-[var(--text-main)] leading-relaxed italic">"{userData?.description || "No bio added yet."}"</p>
           </div>
 
           <div className="grid grid-cols-2 gap-4">
             <div className="p-4 bg-[var(--bg-main)] rounded-2xl border border-[var(--border-color)] text-center">
               <p className="text-[10px] font-bold text-blue-600 uppercase tracking-widest mb-1">Courses</p>
-              <p className="text-2xl font-black text-[var(--text-main)]">{userData.enrolledCourses.length}</p>
+              <p className="text-2xl font-black text-[var(--text-main)]">{userData?.enrolledCourses?.length || 0}</p>
             </div>
             <div className="p-4 bg-[var(--bg-main)] rounded-2xl border border-[var(--border-color)] text-center">
               <p className="text-[10px] font-bold text-blue-600 uppercase tracking-widest mb-1">Certificates</p>

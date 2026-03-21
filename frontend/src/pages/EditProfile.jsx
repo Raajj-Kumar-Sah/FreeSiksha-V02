@@ -9,13 +9,23 @@ import { useNavigate } from 'react-router-dom'
 import { FaArrowLeftLong } from "react-icons/fa6";
 
 function EditProfile() {
-     let {userData} = useSelector(state=>state.user)
-     let [name,setName] = useState(userData.name || "")
-     let [description,setDescription] = useState(userData.description || "")
-     let [photoUrl,setPhotoUrl] = useState(null)
-     let dispatch = useDispatch()
-     let [loading,setLoading] = useState(false)
-     let navigate = useNavigate()
+  let {userData} = useSelector(state=>state.user)
+  let [name,setName] = useState("")
+  let [description,setDescription] = useState("")
+  let [photoUrl,setPhotoUrl] = useState(null)
+  let dispatch = useDispatch()
+  let [loading,setLoading] = useState(false)
+  let navigate = useNavigate()
+
+  // Sync state once userData is available
+  React.useEffect(() => {
+    if (userData) {
+      setName(userData.name || "");
+      setDescription(userData.description || "");
+    }
+  }, [userData]);
+
+  if (!userData) return null;
 
       const formData = new FormData()
       formData.append("name",name)
@@ -60,11 +70,11 @@ function EditProfile() {
           {/* Profile Photo Preview */}
           <div className="flex flex-col items-center text-center">
             <div className="relative group">
-              {userData.photoUrl ? (
+              {userData?.photoUrl ? (
                 <img src={userData.photoUrl} alt="Preview" className="w-24 h-24 rounded-3xl object-cover border-4 border-blue-600 shadow-lg" />
               ) : (
                 <div className="w-24 h-24 rounded-3xl bg-blue-600 text-white flex items-center justify-center text-3xl font-black border-4 border-[var(--bg-surface)] shadow-lg">
-                  {userData?.name?.charAt(0).toUpperCase()}
+                  {userData?.name?.charAt(0).toUpperCase() || "?"}
                 </div>
               )}
               <div className="absolute inset-0 bg-black/40 rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center pointer-events-none">
@@ -90,7 +100,7 @@ function EditProfile() {
               type="text"
               name="name"
               className="w-full px-5 py-3.5 bg-[var(--bg-main)] border border-[var(--border-color)] rounded-2xl text-[var(--text-main)] focus:outline-none focus:ring-2 focus:ring-blue-100 transition-all font-medium"
-              placeholder={userData.name}
+              placeholder={userData?.name || "Name"}
               onChange={(e)=>setName(e.target.value)}
               value={name}
             />
@@ -104,7 +114,7 @@ function EditProfile() {
               readOnly
               disabled
               className="w-full px-5 py-3.5 bg-[var(--bg-surface)] border border-[var(--border-color)] rounded-2xl text-[var(--text-muted)] cursor-not-allowed font-medium"
-              placeholder={userData.email}
+              placeholder={userData?.email || "Email"}
             />
           </div>
 
