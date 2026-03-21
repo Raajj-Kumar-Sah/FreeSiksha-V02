@@ -1,24 +1,19 @@
-import nodemailer from "nodemailer"
-import dotenv from "dotenv"
-dotenv.config()
-const transporter = nodemailer.createTransport({
-  host: "smtp.gmail.com",
-  port: 587,
-  secure: false, // true for 465, false for other ports (like 587)
-  requireTLS: true,
-  auth: {
-    user: process.env.EMAIL,
-    pass: process.env.EMAIL_PASS,
-  },
-});
+import { Resend } from "resend";
+import dotenv from "dotenv";
+dotenv.config();
 
+// Initialize Resend with the provided key or environment variable
+const resend = new Resend(process.env.RESEND_API_KEY || "re_EthHoBPm_2bKasJChYNjGafviFCXsngjK");
+
+// Note: On Resend's Free Tier (unverified domain), you MUST use "onboarding@resend.dev"
+const fromEmail = "onboarding@resend.dev";
 
 const sendMail = async (to, otp) => {
-    await transporter.sendMail({
-        from:process.env.EMAIL,
-        to:to,
-        subject:"FreeSiksha Authentication Code",
-        html:`<div style="font-family: Arial, sans-serif; padding: 20px;">
+    await resend.emails.send({
+        from: fromEmail,
+        to: to,
+        subject: "FreeSiksha Authentication Code",
+        html: `<div style="font-family: Arial, sans-serif; padding: 20px;">
                 <h2 style="color: #2563EB;">Welcome to FreeSiksha</h2>
                 <p>Your one-time verification code is <b><span style="font-size: 24px;">${otp}</span></b>.</p>
                 <p>It will expire in 5 minutes. Do not share this code with anyone.</p>
@@ -28,8 +23,8 @@ const sendMail = async (to, otp) => {
 
 
 export const sendApprovalEmail = async (to, courseTitle, studentName, studentId) => {
-    await transporter.sendMail({
-        from: process.env.EMAIL,
+    await resend.emails.send({
+        from: fromEmail,
         to: to,
         subject: `🎉 Enrollment Approved: ${courseTitle}`,
         html: `
@@ -56,8 +51,8 @@ export const sendApprovalEmail = async (to, courseTitle, studentName, studentId)
 };
 
 export const sendApplicationReceivedEmail = async (email, name) => {
-    const mailOptions = {
-        from: process.env.EMAIL,
+    await resend.emails.send({
+        from: fromEmail,
         to: email,
         subject: "🚀 Application Received - FreeSiksha Trainer Role",
         html: `
@@ -72,13 +67,12 @@ export const sendApplicationReceivedEmail = async (email, name) => {
                 <p style="font-size: 11px; color: #9ca3af; text-align: center;">This is an automated confirmation of your application submission.</p>
             </div>
         `
-    };
-    await transporter.sendMail(mailOptions);
+    });
 };
 
 export const sendSetPasswordEmail = async (email, name, setPasswordLink) => {
-    const mailOptions = {
-        from: process.env.EMAIL,
+    await resend.emails.send({
+        from: fromEmail,
         to: email,
         subject: "🎉 Congratulations! Your Trainer Account is Approved",
         html: `
@@ -99,13 +93,12 @@ export const sendSetPasswordEmail = async (email, name, setPasswordLink) => {
                 <p>Best Regards,<br/><strong>FreeSiksha Team</strong></p>
             </div>
         `
-    };
-    await transporter.sendMail(mailOptions);
+    });
 };
 
 export const sendTrainerRejectionEmail = async (email, reason, name) => {
-    const mailOptions = {
-        from: process.env.EMAIL,
+    await resend.emails.send({
+        from: fromEmail,
         to: email,
         subject: "FreeSiksha - Trainer Application Update",
         html: `
@@ -119,13 +112,12 @@ export const sendTrainerRejectionEmail = async (email, reason, name) => {
                 <p>Best Regards,<br/><strong>FreeSiksha Team</strong></p>
             </div>
         `
-    };
-    await transporter.sendMail(mailOptions);
+    });
 };
 
 export const sendVolunteerSubmissionEmail = async (email, name) => {
-    const mailOptions = {
-        from: process.env.EMAIL,
+    await resend.emails.send({
+        from: fromEmail,
         to: email,
         subject: "Volunteer Application Submitted ✅",
         html: `
@@ -140,13 +132,12 @@ export const sendVolunteerSubmissionEmail = async (email, name) => {
                 <p style="font-size: 11px; color: #9ca3af; text-align: center;">This is an automated confirmation of your application submission.</p>
             </div>
         `
-    };
-    await transporter.sendMail(mailOptions);
+    });
 };
 
 export const sendVolunteerApprovalEmail = async (email, name) => {
-    const mailOptions = {
-        from: process.env.EMAIL,
+    await resend.emails.send({
+        from: fromEmail,
         to: email,
         subject: "Congratulations! You're Approved as a Volunteer 🎉",
         html: `
@@ -160,8 +151,7 @@ export const sendVolunteerApprovalEmail = async (email, name) => {
                 <p>Best regards,<br/><strong>Team FreeSiksha</strong></p>
             </div>
         `
-    };
-    await transporter.sendMail(mailOptions);
+    });
 };
 
 export default sendMail;
