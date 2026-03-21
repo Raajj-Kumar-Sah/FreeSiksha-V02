@@ -9,7 +9,8 @@ const cookieOptions = {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
     sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
-    maxAge: 7 * 24 * 60 * 60 * 1000
+    maxAge: 7 * 24 * 60 * 60 * 1000,
+    path: "/"
 };
 
 const generateOtp = () => Math.floor(100000 + Math.random() * 900000).toString(); // 6-digit
