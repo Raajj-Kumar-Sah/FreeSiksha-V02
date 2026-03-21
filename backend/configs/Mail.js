@@ -1,6 +1,8 @@
-import * as SibApiV3Sdk from 'sib-api-v3-sdk';
-import dotenv from 'dotenv';
+import { createRequire } from 'module';
+const require = createRequire(import.meta.url);
+const SibApiV3Sdk = require('sib-api-v3-sdk');
 
+import dotenv from 'dotenv';
 dotenv.config();
 
 // Configure Brevo API Client
