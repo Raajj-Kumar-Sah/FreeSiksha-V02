@@ -122,11 +122,13 @@ export default function MainAdmin() {
     const handleLogout = async () => {
         try {
             await axios.get(`${serverUrl}/api/auth/logout`, { withCredentials: true });
+            localStorage.removeItem('token');
             localStorage.setItem('auth_event', Date.now());
             toast.success("Admin Session Terminated");
             navigate("/");
         } catch (error) {
             console.error("Logout failed:", error);
+            localStorage.removeItem('token');
             navigate("/");
         }
     };

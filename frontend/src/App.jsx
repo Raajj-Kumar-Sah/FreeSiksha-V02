@@ -46,6 +46,20 @@ import { HelmetProvider } from 'react-helmet-async';
 import { serverUrl } from './config'
 export { serverUrl }
 
+// Global Axios Interceptor for Hybrid Auth (Cookie + Header fallback)
+axios.interceptors.request.use(
+  (config) => {
+    const token = localStorage.getItem('token');
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+    return config;
+  },
+  (error) => {
+    return Promise.reject(error);
+  }
+);
+
 function App() {
   
   let {userData, isLoading} = useSelector(state=>state.user)

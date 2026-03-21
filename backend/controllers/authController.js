@@ -127,7 +127,7 @@ export const verifyAuthOtp = async (req, res, next) => {
 
         let token = await genToken(user._id, user.role);
         res.cookie("token", token, cookieOptions);
-        return res.status(200).json(user);
+        return res.status(200).json({ token, user });
 
     } catch (error) {
         console.error("verifyAuthOtp error:", error);
@@ -164,7 +164,7 @@ export const googleSignup = async (req, res, next) => {
 
         let token = await genToken(user._id, user.role);
         res.cookie("token", token, cookieOptions);
-        return res.status(200).json(user);
+        return res.status(200).json({ token, user });
 
     } catch (error) {
         console.error("googleSignup error:", error);

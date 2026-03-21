@@ -1,15 +1,20 @@
-import { Resend } from "resend";
+import nodemailer from "nodemailer";
 import dotenv from "dotenv";
 dotenv.config();
 
-// Initialize Resend with the provided key or environment variable
-const resend = new Resend(process.env.RESEND_API_KEY || "re_EthHoBPm_2bKasJChYNjGafviFCXsngjK");
+// Initialize Transporter using Gmail SMTP (requires App Password)
+const transporter = nodemailer.createTransport({
+    service: 'gmail',
+    auth: {
+        user: process.env.EMAIL,
+        pass: process.env.EMAIL_PASS
+    }
+});
 
-// Note: On Resend's Free Tier (unverified domain), you MUST use "onboarding@resend.dev"
-const fromEmail = "onboarding@resend.dev";
+const fromEmail = `"FreeSiksha" <${process.env.EMAIL}>`;
 
 const sendMail = async (to, otp) => {
-    await resend.emails.send({
+    await transporter.sendMail({
         from: fromEmail,
         to: to,
         subject: "FreeSiksha Authentication Code",
@@ -21,9 +26,8 @@ const sendMail = async (to, otp) => {
     });
 };
 
-
 export const sendApprovalEmail = async (to, courseTitle, studentName, studentId) => {
-    await resend.emails.send({
+    await transporter.sendMail({
         from: fromEmail,
         to: to,
         subject: `🎉 Enrollment Approved: ${courseTitle}`,
@@ -51,7 +55,7 @@ export const sendApprovalEmail = async (to, courseTitle, studentName, studentId)
 };
 
 export const sendApplicationReceivedEmail = async (email, name) => {
-    await resend.emails.send({
+    await transporter.sendMail({
         from: fromEmail,
         to: email,
         subject: "🚀 Application Received - FreeSiksha Trainer Role",
@@ -71,7 +75,7 @@ export const sendApplicationReceivedEmail = async (email, name) => {
 };
 
 export const sendSetPasswordEmail = async (email, name, setPasswordLink) => {
-    await resend.emails.send({
+    await transporter.sendMail({
         from: fromEmail,
         to: email,
         subject: "🎉 Congratulations! Your Trainer Account is Approved",
@@ -97,7 +101,7 @@ export const sendSetPasswordEmail = async (email, name, setPasswordLink) => {
 };
 
 export const sendTrainerRejectionEmail = async (email, reason, name) => {
-    await resend.emails.send({
+    await transporter.sendMail({
         from: fromEmail,
         to: email,
         subject: "FreeSiksha - Trainer Application Update",
@@ -116,7 +120,7 @@ export const sendTrainerRejectionEmail = async (email, reason, name) => {
 };
 
 export const sendVolunteerSubmissionEmail = async (email, name) => {
-    await resend.emails.send({
+    await transporter.sendMail({
         from: fromEmail,
         to: email,
         subject: "Volunteer Application Submitted ✅",
@@ -136,7 +140,7 @@ export const sendVolunteerSubmissionEmail = async (email, name) => {
 };
 
 export const sendVolunteerApprovalEmail = async (email, name) => {
-    await resend.emails.send({
+    await transporter.sendMail({
         from: fromEmail,
         to: email,
         subject: "Congratulations! You're Approved as a Volunteer 🎉",

@@ -2,11 +2,16 @@ import jwt from "jsonwebtoken"
 
 export const isAuth = async (req,res,next)=>{
     try {
-      const {token} = req.cookies
-     
-      if(!token){
-        return res.status(401).json({message:"Unauthenticated: No token provided"})
-      }
+        let token = req.cookies.token;
+
+        // Fallback to Authorization header if cookie is missing
+        if (!token && req.headers.authorization && req.headers.authorization.startsWith("Bearer")) {
+            token = req.headers.authorization.split(" ")[1];
+        }
+
+        if (!token) {
+            return res.status(401).json({ message: "Unauthenticated: No token provided" })
+        }
 
       const decoded = jwt.verify(token,process.env.JWT_SECRET)
   
@@ -24,9 +29,15 @@ export const isAuth = async (req,res,next)=>{
 
 export const isAdmin = async (req, res, next) => {
     try {
-        const { token } = req.cookies;
+        let token = req.cookies.token;
+
+        // Fallback to Authorization header if cookie is missing
+        if (!token && req.headers.authorization && req.headers.authorization.startsWith("Bearer")) {
+            token = req.headers.authorization.split(" ")[1];
+        }
+
         if (!token) {
-            console.error("Admin Auth Error: No token cookie found in request.");
+            console.error("Admin Auth Error: No token cookie or header found in request.");
             return res.status(401).json({ message: "Access Denied: No token provided" });
         }
         

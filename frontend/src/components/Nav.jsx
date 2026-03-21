@@ -26,11 +26,13 @@ function Nav() {
   const handleLogout = async () => {
     try {
       await axios.post(serverUrl + "/api/auth/logout", {}, { withCredentials: true })
+      localStorage.removeItem('token');
       localStorage.setItem('auth_event', Date.now());
       dispatch(setUserData(null))
       toast.success("Logged out successfully")
     } catch (error) {
       console.error(error)
+      localStorage.removeItem('token');
       toast.error("Logout failed")
     }
   }

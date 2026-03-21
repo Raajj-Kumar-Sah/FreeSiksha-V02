@@ -70,7 +70,13 @@ function Login() {
         setLoading(true)
         try {
             const result = await axios.post(serverUrl + "/api/auth/verify-auth-otp", { email: otpEmail, otp }, {withCredentials:true});
-            dispatch(setUserData(result.data));
+            
+            // Hybrid Auth storage
+            if (result.data.token) {
+                localStorage.setItem('token', result.data.token);
+            }
+            
+            dispatch(setUserData(result.data.user || result.data));
             navigate("/");
             toast.success("Account Verified & Logged In!");
             setLoading(false)
@@ -90,7 +96,13 @@ function Login() {
             let role=""
             
             const result = await axios.post(serverUrl + "/api/auth/googlesignup" , {name , email , role}, {withCredentials:true} )
-            dispatch(setUserData(result.data))
+            
+            // Hybrid Auth storage
+            if (result.data.token) {
+                localStorage.setItem('token', result.data.token);
+            }
+            
+            dispatch(setUserData(result.data.user || result.data))
             navigate("/");
             toast.success("Login Successfully")
         } catch (error) {

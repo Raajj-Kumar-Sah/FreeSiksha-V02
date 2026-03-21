@@ -28,8 +28,13 @@ export default function AdminLogin() {
         e.preventDefault();
         setLoading(true);
         try {
-            await axios.post(`${serverUrl}/api/admin/login`, { username, password }, { withCredentials: true });
+            const res = await axios.post(`${serverUrl}/api/admin/login`, { username, password }, { withCredentials: true });
             
+            // Store token for Hybrid Auth fallback
+            if (res.data.token) {
+                localStorage.setItem('token', res.data.token);
+            }
+
             // Cookie is now set — fetch the actual admin user object into Redux
             const userRes = await axios.get(`${serverUrl}/api/user/currentuser`, { withCredentials: true });
             dispatch(setUserData(userRes.data));
