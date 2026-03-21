@@ -2,10 +2,28 @@ import React from 'react'
 import { useSelector } from 'react-redux'
 import { useNavigate } from 'react-router-dom'
 import { FaArrowLeftLong } from "react-icons/fa6";
+import { ClipLoader } from 'react-spinners'
+import { toast } from 'react-toastify'
 
 function Profile() {
-  let {userData} = useSelector(state=>state.user)
-  let navigate = useNavigate()
+  const { userData, isLoading } = useSelector(state => state.user)
+  const navigate = useNavigate()
+
+  React.useEffect(() => {
+    if (!isLoading && !userData) {
+      toast.info("Please login to view your profile");
+      navigate("/login");
+    }
+  }, [userData, isLoading, navigate]);
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-[var(--bg-main)] flex flex-col items-center justify-center p-4">
+        <ClipLoader color="var(--primary)" size={40} />
+        <p className="mt-4 text-[var(--text-muted)] font-bold animate-pulse">Loading Profile...</p>
+      </div>
+    );
+  }
 
   if (!userData) return null;
 

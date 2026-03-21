@@ -12,16 +12,12 @@ const useGetCurrentUser = () => {
             try {
                 const result = await axios.get(serverUrl + "/api/user/currentuser", { withCredentials: true })
                 dispatch(setUserData(result.data))
-                setTimeout(() => {
-                    dispatch(setLoading(false))
-                }, 1000)
+                dispatch(setLoading(false))
 
             } catch (error) {
                 console.log(error)
                 dispatch(setUserData(null))
-                setTimeout(() => {
-                    dispatch(setLoading(false))
-                }, 1000)
+                dispatch(setLoading(false))
             }
         }
         fetchUser()

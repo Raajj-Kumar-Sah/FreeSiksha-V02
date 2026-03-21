@@ -284,17 +284,17 @@ export default function ManageTrainers() {
             {/* Credential Edit Modal */}
             {editMode && (
                 <div className="fixed inset-0 bg-gray-900/80 backdrop-blur-md z-[100] flex items-center justify-center p-4 animate-in fade-in duration-300">
-                    <div className="bg-white rounded-[48px] w-full max-w-md shadow-2xl border border-gray-100 overflow-hidden">
-                        <div className="bg-gray-950 p-10 text-white relative">
+                    <div className="bg-white rounded-[32px] sm:rounded-[48px] w-full max-w-md shadow-2xl border border-gray-100 overflow-hidden">
+                        <div className="bg-gray-950 p-6 sm:p-10 text-white relative">
                             <div className="absolute top-0 right-0 w-32 h-32 bg-blue-600/10 rounded-full blur-3xl -mr-10 -mt-10"></div>
-                            <h3 className="text-3xl font-black tracking-tight leading-tight">{selectedTrainer?.name}</h3>
+                            <h3 className="text-2xl sm:text-3xl font-black tracking-tight leading-tight pr-8">{selectedTrainer?.name}</h3>
                             <p className="text-blue-400 text-[10px] font-black uppercase tracking-[0.2em] mt-2">Security Adjustments</p>
-                            <button onClick={() => setEditMode(false)} className="absolute top-10 right-10 text-gray-500 hover:text-white transition-colors">
+                            <button onClick={() => setEditMode(false)} className="absolute top-6 right-6 sm:top-10 sm:right-10 text-gray-500 hover:text-white transition-colors">
                                 <FaTimes size={24} />
                             </button>
                         </div>
                         
-                        <div className="p-10 space-y-8">
+                        <div className="p-6 sm:p-10 space-y-6 sm:space-y-8">
                             <div className="space-y-3">
                                 <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest pl-2">Assigned Email</label>
                                 <input 
@@ -332,7 +332,7 @@ export default function ManageTrainers() {
 
                             <button 
                                 onClick={handleUpdateCredentials}
-                                className="w-full bg-blue-600 hover:bg-blue-700 text-white py-5 rounded-[32px] font-black shadow-2xl shadow-blue-500/20 transition-all hover:-translate-y-1 active:translate-y-0.5 flex items-center justify-center gap-3 text-lg"
+                                className="w-full bg-blue-600 hover:bg-blue-700 text-white py-4 sm:py-5 rounded-[24px] sm:rounded-[32px] font-black shadow-2xl shadow-blue-500/20 transition-all hover:-translate-y-1 active:translate-y-0.5 flex items-center justify-center gap-3 text-base sm:text-lg"
                             >
                                 <FaSave /> Update Trainer Security
                             </button>
@@ -344,15 +344,15 @@ export default function ManageTrainers() {
             {/* Profile View Modal */}
             {viewMode && (
                 <div className="fixed inset-0 bg-gray-900/80 backdrop-blur-md z-[100] flex items-center justify-center p-4 animate-in fade-in duration-300">
-                    <div className="bg-white rounded-[48px] w-full max-w-2xl shadow-2xl border border-gray-100 overflow-hidden flex flex-col max-h-[90vh]">
-                        <div className="bg-gray-50 p-10 border-b border-gray-100 flex justify-between items-start">
-                            <div className="flex items-center gap-6">
-                                <div className="w-24 h-24 rounded-[32px] bg-white border border-gray-200 flex items-center justify-center text-gray-400 font-black text-4xl shadow-sm">
+                    <div className="bg-white rounded-[32px] sm:rounded-[48px] w-full max-w-2xl shadow-2xl border border-gray-100 overflow-hidden flex flex-col max-h-[90vh]">
+                        <div className="bg-gray-50 p-6 sm:p-10 border-b border-gray-100 flex justify-between items-start">
+                            <div className="flex items-center gap-4 sm:gap-6">
+                                <div className="w-16 h-16 sm:w-24 sm:h-24 rounded-2xl sm:rounded-[32px] bg-white border border-gray-200 flex items-center justify-center text-gray-400 font-black text-2xl sm:text-4xl shadow-sm">
                                     {(selectedTrainer?.name || "?").charAt(0).toUpperCase()}
                                 </div>
                                 <div>
-                                    <h3 className="text-3xl font-black text-gray-900">{selectedTrainer?.name}</h3>
-                                    <p className="text-blue-600 font-black text-sm tracking-wider uppercase">{selectedTrainer?.studentId}</p>
+                                    <h3 className="text-xl sm:text-3xl font-black text-gray-900">{selectedTrainer?.name}</h3>
+                                    <p className="text-blue-600 font-black text-xs sm:text-sm tracking-wider uppercase">{selectedTrainer?.studentId}</p>
                                     <div className="mt-2 flex gap-2">
                                         <span className={`text-[10px] font-black px-3 py-1 rounded-lg uppercase tracking-widest border ${
                                             selectedTrainer?.status === 'active' || !selectedTrainer?.status ? 'bg-emerald-50 text-emerald-700 border-emerald-100' : 'bg-red-50 text-red-700 border-red-100'
@@ -362,13 +362,13 @@ export default function ManageTrainers() {
                                     </div>
                                 </div>
                             </div>
-                            <button onClick={() => setViewMode(false)} className="p-3 hover:bg-white rounded-2xl text-gray-400 border border-transparent hover:border-gray-100 transition-all">
-                                <FaTimes size={24} />
+                            <button onClick={() => setViewMode(false)} className="p-2 sm:p-3 hover:bg-white rounded-2xl text-gray-400 border border-transparent hover:border-gray-100 transition-all">
+                                <FaTimes size={20} className="sm:w-6 sm:h-6" />
                             </button>
                         </div>
                         
-                        <div className="p-10 overflow-y-auto space-y-10 custom-scrollbar">
-                            <div className="grid grid-cols-2 gap-8">
+                        <div className="p-6 sm:p-10 overflow-y-auto space-y-8 sm:space-y-10 custom-scrollbar">
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 sm:gap-8">
                                 <div className="space-y-1">
                                     <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Email Address</span>
                                     <p className="font-bold text-gray-900 break-words">{selectedTrainer?.email}</p>
@@ -428,19 +428,19 @@ export default function ManageTrainers() {
             {/* Add Trainer Modal */}
             {addMode && (
                 <div className="fixed inset-0 bg-gray-900/80 backdrop-blur-md z-[100] flex items-center justify-center p-4 animate-in zoom-in duration-300">
-                    <div className="bg-white rounded-[48px] w-full max-w-lg shadow-2xl border border-gray-100 overflow-hidden">
-                        <div className="bg-blue-600 p-10 text-white relative">
+                    <div className="bg-white rounded-[32px] sm:rounded-[48px] w-full max-w-lg shadow-2xl border border-gray-100 overflow-hidden">
+                        <div className="bg-blue-600 p-6 sm:p-10 text-white relative">
                             <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full blur-3xl -mr-10 -mt-10"></div>
-                            <h3 className="text-3xl font-black tracking-tight leading-tight flex items-center gap-3">
+                            <h3 className="text-2xl sm:text-3xl font-black tracking-tight leading-tight flex items-center gap-3 pr-8">
                                 <FaPlus /> Add New Trainer
                             </h3>
                             <p className="text-blue-100 text-[10px] font-black uppercase tracking-[0.2em] mt-2">Manual Account Creation</p>
-                            <button onClick={() => setAddMode(false)} className="absolute top-10 right-10 text-blue-200 hover:text-white transition-colors">
+                            <button onClick={() => setAddMode(false)} className="absolute top-6 right-6 sm:top-10 sm:right-10 text-blue-200 hover:text-white transition-colors">
                                 <FaTimes size={24} />
                             </button>
                         </div>
                         
-                        <form onSubmit={handleAddTrainer} className="p-10 space-y-8">
+                        <form onSubmit={handleAddTrainer} className="p-6 sm:p-10 space-y-6 sm:space-y-8">
                             <div className="space-y-3">
                                 <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest pl-2">Full Name</label>
                                 <input 

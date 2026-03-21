@@ -71,7 +71,11 @@ export const login = async (req, res, next) => {
         const normalizedIdentifier = identifier?.toLowerCase();
 
         let user = await User.findOne({
-            $or: [{ email: normalizedIdentifier }, { phone: identifier }]
+            $or: [
+                { email: normalizedIdentifier }, 
+                { phone: identifier },
+                { studentId: identifier } // FS-ID Login Support
+            ]
         });
 
         if (!user) {

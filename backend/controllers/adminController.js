@@ -357,6 +357,7 @@ export const updateUserCredentials = async (req, res) => {
             user.password = hashPassword;
         }
 
+        user.isOtpVerifed = true; // Admin managed accounts bypass initial OTP
         await user.save();
 
         // Log the action for Phase 12 auditing

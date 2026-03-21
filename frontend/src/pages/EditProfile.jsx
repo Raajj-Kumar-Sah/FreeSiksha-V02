@@ -27,33 +27,29 @@ function EditProfile() {
 
   if (!userData) return null;
 
+  const updateProfile = async () => {
+    setLoading(true)
+    try {
       const formData = new FormData()
-      formData.append("name",name)
-      formData.append("description",description)
-      formData.append("photoUrl",photoUrl)
-
-
-
-     const updateProfile = async () => {
-      setLoading(true)
-      try {
-        const result = await axios.post(serverUrl + "/api/user/updateprofile" ,formData , {withCredentials:true} )
-        console.log(result.data)
-        dispatch(setUserData(result.data))
-        navigate("/")
-        setLoading(false)
+      formData.append("name", name)
+      formData.append("description", description)
       
-        toast.success("Profile Update Successfully")
-        
-
-        
-      } catch (error) {
-        console.log(error)
-        toast.error("Profile Update Error")
-        setLoading(false)
+      // Only append if a new file is selected
+      if (photoUrl) {
+        formData.append("photoUrl", photoUrl)
       }
-      
-     }
+
+      const result = await axios.post(serverUrl + "/api/user/updateprofile", formData, { withCredentials: true })
+      dispatch(setUserData(result.data))
+      toast.success("Profile Updated Successfully")
+      navigate("/profile")
+    } catch (error) {
+      console.error(error)
+      toast.error(error.response?.data?.message || "Profile Update Error")
+    } finally {
+      setLoading(false)
+    }
+  }
   return (
     <div className="min-h-screen flex items-center justify-center bg-[var(--bg-main)] px-4 py-10">
       <div className="bg-[var(--bg-surface)] rounded-3xl shadow-xl border border-[var(--border-color)] p-10 max-w-xl w-full relative overflow-hidden">
