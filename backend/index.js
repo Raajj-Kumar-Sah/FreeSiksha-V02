@@ -49,13 +49,15 @@ const allowedOrigins = [
   process.env.FRONTEND_URL,
   "http://localhost:5173",
   "http://localhost:3000",
+  "http://localhost:3001",
+  "http://localhost:3002",
   "https://freesiksha.vercel.app"
-].filter(Boolean);
+].filter(Boolean).map(url => url.endsWith('/') ? url.slice(0, -1) : url);
 
 app.use(
   cors({
     origin: (origin, callback) => {
-      if (!origin || allowedOrigins.includes(origin)) {
+      if (!origin || allowedOrigins.includes(origin) || (origin && origin.includes('freesiksha') && origin.endsWith('.onrender.com'))) {
         callback(null, true);
       } else {
         callback(new Error("Not allowed by CORS"));
