@@ -3,6 +3,7 @@ import validator from "validator"
 import bcrypt from "bcryptjs"
 import User from "../models/userModel.js"
 import sendMail from "../configs/Mail.js"
+import crypto from "crypto"
 
 const cookieOptions = {
     httpOnly: true,
