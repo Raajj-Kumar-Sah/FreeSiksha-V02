@@ -95,6 +95,7 @@ function Login() {
         try {
             const response = await signInWithPopup(auth,provider)
             let user = response.user
+            let name = user.displayName;
             let email = user.email;
             let photoUrl = user.photoURL;
             let role = "";
