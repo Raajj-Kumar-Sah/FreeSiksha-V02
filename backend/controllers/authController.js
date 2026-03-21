@@ -162,26 +162,84 @@ export const logOut = async (req, res, next) => {
 
 export const googleSignup = async (req, res, next) => {
     try {
-        let { name, email } = req.body;
+        let { name, email, photoUrl } = req.body;
         email = email?.toLowerCase();
-        // ✅ HIGH FIX: Always assign "student" — never trust role from client
-        const role = "student";
+        
+        // 1. Initial Protection
+        if (!email) {
+            return res.status(400).json({ message: "Google account email is required" });
+        }
 
         let user = await User.findOne({ email });
 
         if (!user) {
+            // New User Creation
             const year = new Date().getFullYear();
             const studentId = `FS-STU-${year}-${crypto.randomUUID().slice(0, 8).toUpperCase()}`;
 
             user = await User.create({
-                name, email, role, studentId,
-                isOtpVerifed: true
+                name, 
+                email, 
+                role: "student", // Always default to student for auto-creation
+                studentId,
+                isOtpVerifed: true,
+                status: "active", // Google users are pre-verified
+                photoUrl: photoUrl || ""
             });
+        } else {
+            // 2. Security Check for existing users
+            if (user.status === "suspended" || user.status === "banned") {
+                return res.status(401).json({ 
+                    message: `Login blocked. Your account is currently ${user.status}. Please contact support for assistance.` 
+                });
+            }
+
+            // 3. Data Enhancement for existing users
+            let updated = false;
+
+            // Mark as verified since Google is a trusted identity provider
+            if (!user.isOtpVerifed) {
+                user.isOtpVerifed = true;
+                updated = true;
+            }
+
+            // Update photo if missing or outdated
+            if (photoUrl && !user.photoUrl) {
+                user.photoUrl = photoUrl;
+                updated = true;
+            }
+
+            // Retroactively assign Student ID if missing
+            if (!user.studentId && user.role === 'student') {
+                const year = new Date().getFullYear();
+                user.studentId = `FS-STU-${year}-${crypto.randomUUID().slice(0, 8).toUpperCase()}`;
+                updated = true;
+            }
+
+            // Force Active status for legacy students if they were stuck in pending
+            if (user.role === 'student' && user.status === 'pending') {
+                user.status = 'active';
+                updated = true;
+            }
+
+            if (updated) await user.save();
         }
 
-        let token = await genToken(user._id, user.role);
+        const token = await genToken(user._id, user.role);
         res.cookie("token", token, cookieOptions);
-        return res.status(200).json({ token, user });
+        
+        return res.status(200).json({ 
+            token, 
+            user: {
+                _id: user._id,
+                name: user.name,
+                email: user.email,
+                role: user.role,
+                status: user.status,
+                photoUrl: user.photoUrl,
+                studentId: user.studentId
+            } 
+        });
 
     } catch (error) {
         console.error("googleSignup error:", error);
