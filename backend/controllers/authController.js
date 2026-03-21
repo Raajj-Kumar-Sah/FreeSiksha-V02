@@ -18,6 +18,7 @@ const generateOtp = () => Math.floor(100000 + Math.random() * 900000).toString()
 export const signUp = async (req, res, next) => {
     try {
         let { name, email, password, roleValue, age, city, qualification, phone, gender } = req.body;
+        email = email?.toLowerCase();
         const role = roleValue === "trainer" ? "trainer" : "student";
 
         // ✅ CRITICAL FIX: Validate BEFORE touching DB
@@ -73,9 +74,10 @@ export const signUp = async (req, res, next) => {
 export const login = async (req, res, next) => {
     try {
         let { identifier, password } = req.body;
+        const normalizedIdentifier = identifier?.toLowerCase();
 
         let user = await User.findOne({
-            $or: [{ email: identifier }, { phone: identifier }]
+            $or: [{ email: normalizedIdentifier }, { phone: identifier }]
         });
 
         if (!user) {
@@ -93,7 +95,9 @@ export const login = async (req, res, next) => {
             return res.status(401).json({ message: `Your account is ${user.status}.` });
         }
         if (!user.password) {
-            return res.status(401).json({ message: "Account not activated. Check your email for the activation link." });
+            return res.status(401).json({ 
+                message: "This account uses Google Sign-In. Please click 'Sign in with Google' to continue." 
+            });
         }
 
         let isMatch = await bcrypt.compare(password, user.password);
@@ -160,7 +164,8 @@ export const logOut = async (req, res, next) => {
 
 export const googleSignup = async (req, res, next) => {
     try {
-        const { name, email } = req.body;
+        let { name, email } = req.body;
+        email = email?.toLowerCase();
         // ✅ HIGH FIX: Always assign "student" — never trust role from client
         const role = "student";
 
@@ -188,7 +193,8 @@ export const googleSignup = async (req, res, next) => {
 
 export const sendOtp = async (req, res, next) => {
     try {
-        const { email } = req.body;
+        let { email } = req.body;
+        email = email?.toLowerCase();
         const user = await User.findOne({ email });
         if (!user) {
             return res.status(404).json({ message: "User not found" });
@@ -210,7 +216,8 @@ export const sendOtp = async (req, res, next) => {
 
 export const verifyOtp = async (req, res, next) => {
     try {
-        const { email, otp } = req.body;
+        let { email, otp } = req.body;
+        email = email?.toLowerCase();
         const user = await User.findOne({ email });
         if (!user || user.resetOtp !== otp || user.otpExpires < Date.now()) {
             return res.status(400).json({ message: "Invalid or expired OTP" });
@@ -229,8 +236,9 @@ export const verifyOtp = async (req, res, next) => {
 
 export const resetPassword = async (req, res, next) => {
     try {
-        const { email, password } = req.body;
-
+        let { email, password } = req.body;
+        email = email?.toLowerCase();
+        
         // ✅ MEDIUM FIX: Password strength validation
         if (!password || password.length < 8 || !/[0-9]/.test(password) || !/[a-zA-Z]/.test(password)) {
             return res.status(400).json({ message: "Password must be at least 8 characters with at least 1 letter and 1 number" });

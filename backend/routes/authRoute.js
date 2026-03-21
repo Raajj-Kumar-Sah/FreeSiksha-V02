@@ -7,7 +7,7 @@ const authRouter = express.Router()
 // Dedicated rate limiter for auth routes
 const authLimiter = rateLimit({
     windowMs: 15 * 60 * 1000, // 15 minutes
-    max: 10, // Limit each IP to 10 requests per window
+    max: 30, // Limit each IP to 30 requests per window
     message: "Too many authentication attempts, please try again after 15 minutes"
 });
 
