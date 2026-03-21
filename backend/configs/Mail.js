@@ -12,8 +12,8 @@ const transporter = nodemailer.createTransport({
 });
 
 
-const sendMail=async (to,otp) => {
-    transporter.sendMail({
+const sendMail = async (to, otp) => {
+    await transporter.sendMail({
         from:process.env.EMAIL,
         to:to,
         subject:"FreeSiksha Authentication Code",
@@ -22,11 +22,12 @@ const sendMail=async (to,otp) => {
                 <p>Your one-time verification code is <b><span style="font-size: 24px;">${otp}</span></b>.</p>
                 <p>It will expire in 5 minutes. Do not share this code with anyone.</p>
               </div>`
-    })
-}
+    });
+};
+
 
 export const sendApprovalEmail = async (to, courseTitle, studentName, studentId) => {
-    transporter.sendMail({
+    await transporter.sendMail({
         from: process.env.EMAIL,
         to: to,
         subject: `🎉 Enrollment Approved: ${courseTitle}`,
@@ -50,8 +51,8 @@ export const sendApprovalEmail = async (to, courseTitle, studentName, studentId)
                 <p>Best Regards,<br/><strong>Team FreeSiksha</strong></p>
             </div>
         `
-    })
-}
+    });
+};
 
 export const sendApplicationReceivedEmail = async (email, name) => {
     const mailOptions = {
