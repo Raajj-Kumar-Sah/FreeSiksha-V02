@@ -141,7 +141,7 @@ function Nav() {
                     <img src={userData.photoUrl} className="w-full h-full rounded-full object-cover" alt="User Profile" />
                   ) : (
                     <div className="w-full h-full rounded-full bg-blue-600 text-white flex items-center justify-center font-bold">
-                      {userData?.name?.charAt(0).toUpperCase()}
+                      {userData?.name ? userData.name.charAt(0).toUpperCase() : "U"}
                     </div>
                   )}
                 </div>
