@@ -74,7 +74,7 @@ function Nav() {
                 className={`px-4 py-2 rounded-xl transition-all duration-300 ${
                   isActive(link.path) 
                     ? "text-blue-600 bg-blue-50 dark:bg-blue-900/30" 
-                    : "text-main hover:text-blue-600 transition-colors"
+                    : "text-main hover:text-blue-600"
                 }`}
               >
                 {link.name}
@@ -83,7 +83,7 @@ function Nav() {
               <button 
                 key={link.name}
                 onClick={link.onClick}
-                className="px-4 py-2 rounded-xl transition-all duration-300 text-main hover:text-blue-600 transition-colors cursor-pointer font-bold"
+                className="px-4 py-2 rounded-xl transition-all duration-300 text-main hover:text-blue-600 cursor-pointer font-bold"
               >
                 {link.name}
               </button>
@@ -160,7 +160,7 @@ function Nav() {
                         </>
                     )}
                     <hr className="my-1 border-[var(--border-color)]" />
-                    <button onClick={handleLogout} className="w-full text-left px-4 py-2 hover:bg-red-500/10 text-red-600 dark:text-red-400">Logout</button>
+                    <button onClick={handleLogout} className="w-full text-left px-4 py-2 hover:bg-red-500/10 text-red-600">Logout</button>
                   </div>
                 )}
               </div>
@@ -211,7 +211,7 @@ function Nav() {
                 className={`px-4 py-4 rounded-2xl font-black text-lg transition-all ${
                   isActive(link.path)
                     ? "bg-blue-600 text-white shadow-lg shadow-blue-500/30"
-                    : "text-main hover:bg-blue-50 dark:hover:bg-blue-900/20 hover:text-blue-600 dark:text-white"
+                    : "text-main hover:bg-blue-50 dark:hover:bg-blue-900/20 hover:text-blue-600"
                 }`}
               >
                 {link.name}
@@ -221,7 +221,7 @@ function Nav() {
             {!userData && (
                 <button 
                   onClick={() => { dispatch(toggleJoinModal(true)); setShowHam(false); }} 
-                  className="text-left px-4 py-4 rounded-2xl font-black text-lg transition-all text-main hover:bg-blue-50 dark:hover:bg-blue-900/20 hover:text-blue-600 dark:text-white"
+                  className="text-left px-4 py-4 rounded-2xl font-black text-lg transition-all text-main hover:bg-blue-50 dark:hover:bg-blue-900/20 hover:text-blue-600"
                 >
                   Join FreeSiksha
                 </button>
@@ -230,13 +230,13 @@ function Nav() {
             {userData && (
                 <div className="pt-4 border-t border-[var(--border-color)] flex flex-col gap-6 mt-2">
                     <span className="text-sm uppercase tracking-widest text-muted font-black">Account</span>
-                    <Link to="/profile" onClick={() => setShowHam(false)} className="hover:text-blue-600 transition-colors">My Profile</Link>
-                    <Link to="/enrolledcourses" onClick={() => setShowHam(false)} className="hover:text-blue-600 transition-colors">My Enrolled Courses</Link>
+                    <Link to="/profile" onClick={() => setShowHam(false)} className="text-main hover:text-blue-600 transition-colors">My Profile</Link>
+                    <Link to="/enrolledcourses" onClick={() => setShowHam(false)} className="text-main hover:text-blue-600 transition-colors">My Enrolled Courses</Link>
                     
                     {userData.role === "trainer" && (
                         <>
-                           <Link to="/dashboard" onClick={() => setShowHam(false)} className="hover:text-blue-600 transition-colors text-blue-500">Trainer Dashboard</Link>
-                           <Link to="/enrollments" onClick={() => setShowHam(false)} className="hover:text-blue-600 transition-colors">Manage Enrollments</Link>
+                           <Link to="/dashboard" onClick={() => setShowHam(false)} className="text-blue-500 hover:text-blue-600 transition-colors font-bold">Trainer Dashboard</Link>
+                           <Link to="/enrollments" onClick={() => setShowHam(false)} className="text-main hover:text-blue-600 transition-colors">Manage Enrollments</Link>
                         </>
                     )}
                 </div>

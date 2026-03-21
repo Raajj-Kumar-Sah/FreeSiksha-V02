@@ -35,9 +35,10 @@ export default function AdminLogin() {
                 localStorage.setItem('token', res.data.token);
             }
 
-            // Cookie is now set — fetch the actual admin user object into Redux
-            const userRes = await axios.get(`${serverUrl}/api/user/currentuser`, { withCredentials: true });
-            dispatch(setUserData(userRes.data));
+            // Set user data directly from login response to avoid race conditions
+            if (res.data.admin) {
+                dispatch(setUserData(res.data.admin));
+            }
             
             navigate("/admin");
             
