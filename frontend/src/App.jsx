@@ -1,4 +1,5 @@
 import React, { Suspense, lazy, useEffect } from 'react'
+import axios from 'axios'
 import { Navigate, Route, Routes } from 'react-router-dom'
 import Home from './pages/Home'
 import { ToastContainer } from 'react-toastify';
