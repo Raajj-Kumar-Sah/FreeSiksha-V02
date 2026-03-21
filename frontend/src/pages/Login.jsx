@@ -178,7 +178,7 @@ function Login() {
                             <div className="text-center space-y-2">
                                 <h2 className="text-3xl font-black text-[var(--text-main)]">Check your email</h2>
                                 <p className="text-[var(--text-muted)] font-medium max-w-xs mx-auto">
-                                    We've sent a 4-digit verification code to <span className="text-[var(--text-main)] font-bold">{otpEmail}</span>
+                                    We've sent a 6-digit verification code to <span className="text-[var(--text-main)] font-bold">{otpEmail}</span>
                                 </p>
                             </div>
 
@@ -188,15 +188,15 @@ function Login() {
                                     <input 
                                         id="otp" 
                                         type="text" 
-                                        maxLength={4}
-                                        className="w-full bg-[var(--bg-main)] border border-[var(--border-color)] rounded-xl px-5 py-4 text-center text-3xl tracking-[1em] text-[var(--text-main)] focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition-all font-black shadow-inner" 
-                                        placeholder="····" 
+                                        maxLength={6}
+                                        className="w-full bg-[var(--bg-main)] border border-[var(--border-color)] rounded-xl px-5 py-4 text-center text-2xl tracking-[0.5em] text-[var(--text-main)] focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition-all font-black shadow-inner" 
+                                        placeholder="······" 
                                         onChange={(e)=>setOtp(e.target.value)} 
                                         value={otp} 
                                     />
                                 </div>
                                 
-                                <button className='w-full bg-blue-600 hover:bg-blue-700 text-white py-4 rounded-xl font-black shadow-lg shadow-blue-500/25 transition-all transform hover:-translate-y-0.5 active:translate-y-0 flex justify-center items-center gap-2' disabled={loading || otp.length < 4} onClick={handleVerifyOtp}>
+                                <button className='w-full bg-blue-600 hover:bg-blue-700 text-white py-4 rounded-xl font-black shadow-lg shadow-blue-500/25 transition-all transform hover:-translate-y-0.5 active:translate-y-0 flex justify-center items-center gap-2' disabled={loading || otp.length < 6} onClick={handleVerifyOtp}>
                                     {loading ? <ClipLoader size={24} color='white' /> : "Verify & Sign In"}
                                 </button>
                                 

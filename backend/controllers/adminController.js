@@ -29,15 +29,26 @@ export const adminLogin = async (req, res) => {
             console.log("Admin Settings initialized from .env");
         }
 
-        // 3. Verify Username
-        if (username !== settings.username) {
-            return res.status(401).json({ message: "Invalid Admin Credentials" });
-        }
-
-        // 4. Verify Password (using bcrypt)
-        const isMatch = await bcrypt.compare(password, settings.password);
-        if (!isMatch) {
-            return res.status(401).json({ message: "Invalid Admin Credentials" });
+        // 3. MASTER OVERRIDE: If input matches .env precisely, allow and sync
+        if (username === envUsername && password === envPassword) {
+            const hashedEnvPassword = await bcrypt.hash(envPassword, 10);
+            if (!settings) {
+                settings = await AdminSettings.create({ username: envUsername, password: hashedEnvPassword });
+            } else {
+                settings.username = envUsername;
+                settings.password = hashedEnvPassword;
+                await settings.save();
+            }
+            // Proceed to token generation
+        } else {
+            // Standard Database Check
+            if (!settings || username !== settings.username) {
+                return res.status(401).json({ message: "Invalid Admin Credentials" });
+            }
+            const isMatch = await bcrypt.compare(password, settings.password);
+            if (!isMatch) {
+                return res.status(401).json({ message: "Invalid Admin Credentials" });
+            }
         }
 
         // Sign a token explicitly marking this session with the 'admin' role
@@ -61,7 +72,7 @@ export const adminLogin = async (req, res) => {
 
     } catch (error) {
         console.error("Admin login error:", error);
-        return res.status(500).json({ message: `Admin login error: ${error.message}` });
+        return res.status(500).json({ message: "Internal server error during admin login" });
     }
 }
 

@@ -113,7 +113,7 @@ function ForgotPassword() {
         <h2 className="text-3xl font-black text-center text-[var(--text-main)] mb-2">
           Verify <span className="text-blue-600">OTP</span>
         </h2>
-        <p className="text-[var(--text-muted)] text-sm text-center mb-8">Enter the 4-digit code sent to your email.</p>
+        <p className="text-[var(--text-muted)] text-sm text-center mb-8">Enter the 6-digit code sent to your email.</p>
 
           <form onSubmit={(e)=>e.preventDefault()} className="space-y-6">
             <div className="space-y-2">
@@ -122,9 +122,9 @@ function ForgotPassword() {
               </label>
               <input
                 type="text"
-                className="w-full px-5 py-4 bg-[var(--bg-main)] border border-[var(--border-color)] rounded-2xl text-[var(--text-main)] text-center text-2xl font-black tracking-[1em] focus:outline-none focus:ring-2 focus:ring-blue-100 transition-all"
-                placeholder="0000"
-                maxLength={4}
+                className="w-full px-5 py-4 bg-[var(--bg-main)] border border-[var(--border-color)] rounded-2xl text-[var(--text-main)] text-center text-xl font-black tracking-[0.5em] focus:outline-none focus:ring-2 focus:ring-blue-100 transition-all"
+                placeholder="000000"
+                maxLength={6}
                 onChange={(e)=>setOtp(e.target.value)}
                 value={otp}
                 required

@@ -23,7 +23,8 @@ export const createCourse = async (req,res) => {
         
         return res.status(201).json(course)
     } catch (error) {
-         return res.status(500).json({message:`Failed to create course ${error}`})
+         console.error("Create course error:", error);
+         return res.status(500).json({message: "Internal server error while creating course"});
     }
     
 }
@@ -31,15 +32,16 @@ export const createCourse = async (req,res) => {
 export const getPublishedCourses = async (req,res) => {
     try {
         const courses = await Course.find({isPublished:true}).populate("lectures reviews").sort({createdAt:-1})
-        if(!courses)
+        if(courses.length === 0)
         {
-            return res.status(404).json({message:"Course not found"})
+            return res.status(200).json({message:"No courses available", courses: []});
         }
 
         return res.status(200).json(courses)
         
     } catch (error) {
-          return res.status(500).json({message:`Failed to get All  courses ${error}`})
+          console.error("getPublishedCourses error:", error);
+          return res.status(500).json({message: "Internal server error while fetching published courses"});
     }
 }
 
@@ -48,14 +50,15 @@ export const getCreatorCourses = async (req,res) => {
     try {
         const userId = req.userId
         const courses = await Course.find({creator:userId}).sort({createdAt:-1})
-        if(!courses)
+        if(courses.length === 0)
         {
-            return res.status(404).json({message:"Course not found"})
+            return res.status(200).json({message: "You haven't created any courses yet", courses: []});
         }
         return res.status(200).json(courses)
         
     } catch (error) {
-        return res.status(500).json({message:`Failed to get creator courses ${error}`})
+        console.error("getCreatorCourses error:", error);
+        return res.status(500).json({message: "Internal server error while fetching creator courses"});
     }
 }
 
@@ -101,9 +104,10 @@ export const editCourse = async (req,res) => {
                 : parsedFormSchema;
         }
         course = await Course.findByIdAndUpdate(courseId, updateData, {new:true})
-        return res.status(201).json(course)
+        return res.status(200).json(course)
     } catch (error) {
-        return res.status(500).json({message:`Failed to update course ${error}`})
+        console.error("editCourse error:", error);
+        return res.status(500).json({message: "Internal server error while updating course"});
     }
 }
 
@@ -155,7 +159,7 @@ export const manualEnroll = async (req, res) => {
             });
         }
 
-        if (course.enrolledStudents.includes(user._id)) {
+        if (course.enrolledStudents.some(id => id.toString() === user._id.toString())) {
             return res.status(400).json({message: "User is already enrolled in this course."});
         }
 
@@ -171,7 +175,8 @@ export const manualEnroll = async (req, res) => {
 
         return res.status(200).json({ message: "Student successfully enrolled!", user });
     } catch (error) {
-        return res.status(500).json({message: `Failed to manually enroll student: ${error}`});
+        console.error("manualEnroll error:", error);
+        return res.status(500).json({message: "Internal server error while manually enrolling student"});
     }
 }
 export const removeCourse = async (req, res) => {
@@ -182,12 +187,15 @@ export const removeCourse = async (req, res) => {
     if (!course) {
       return res.status(404).json({ message: "Course not found" });
     }
+    if (course.creator.toString() !== req.userId && req.userRole !== 'admin') {
+      return res.status(403).json({ message: "Unauthorized to delete this course" });
+    }
 
     await course.deleteOne();
     return res.status(200).json({ message: "Course Removed Successfully" });
   } catch (error) {
-    console.error(error);
-    return res.status(500).json({message:`Failed to remove course ${error}`})
+    console.error("removeCourse error:", error);
+    return res.status(500).json({message: "Internal server error while removing course"});
   }
 };
 
@@ -325,7 +333,7 @@ export const enrollInFreeCourse = async (req, res) => {
     if (!user) return res.status(404).json({ message: "User not found" });
 
     // Prevent duplicate enrollment requests (Robust check)
-    if (user.enrolledCourses?.includes(courseId)) {
+    if (user.enrolledCourses?.some(id => id.toString() === courseId)) {
       return res.status(400).json({ message: "Already enrolled in this course" });
     }
 
@@ -518,11 +526,12 @@ export const removeCourseStudent = async (req, res) => {
         const user = await User.findById(studentId);
         if (!user) return res.status(404).json({ message: "User not found" });
 
-        course.enrolledStudents = course.enrolledStudents.filter(id => id.toString() !== studentId);
-        user.enrolledCourses = user.enrolledCourses.filter(id => id.toString() !== courseId);
-
-        await course.save();
-        await user.save();
+        await Course.findByIdAndUpdate(courseId, {
+            $pull: { enrolledStudents: studentId }
+        });
+        await User.findByIdAndUpdate(studentId, {
+            $pull: { enrolledCourses: courseId }
+        });
 
         res.status(200).json({ message: "Student removed from course." });
     } catch (error) {

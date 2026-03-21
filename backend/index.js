@@ -1,7 +1,7 @@
-console.log("INDEX.JS TOP");
-
 import express from "express";
 import dotenv from "dotenv";
+import helmet from "helmet";
+import rateLimit from "express-rate-limit";
 import connectDb from "./configs/db.js";
 import authRouter from "./routes/authRoute.js";
 import cookieParser from "cookie-parser";
@@ -33,15 +33,41 @@ const app = express();
 const port = process.env.PORT || 5000;
 
 // ✅ Middlewares
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+app.use(express.json({ limit: '10mb' }));
+app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 app.use(cookieParser());
+
+// Generic rate limiter
+const limiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 100, // Limit each IP to 100 requests per windowMs
+  message: "Too many requests from this IP, please try again later."
+});
+app.use("/api", limiter);
+
+const allowedOrigins = [
+  process.env.FRONTEND_URL,
+  "http://localhost:5173",
+  "http://localhost:3000",
+  "https://freesiksha.vercel.app"
+].filter(Boolean);
+
 app.use(
   cors({
-    origin: "http://localhost:3000",
+    origin: (origin, callback) => {
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error("Not allowed by CORS"));
+      }
+    },
     credentials: true,
   })
 );
+
+app.use(helmet({
+  contentSecurityPolicy: false, // Disable CSP for now to prevent rendering blocks in dev/docker
+})); 
 
 // ✅ API Routes
 app.use("/api/auth", authRouter);
@@ -63,15 +89,15 @@ app.get("/", (req, res) => {
   res.send("Backend is running 🚀");
 });
 
-// ✅ API Health Check Route (FIXED YOUR ISSUE)
-app.get("/api", (req, res) => {
+// ✅ API Health Check Route
+app.get("/api/health", (req, res) => {
   res.json({
     success: true,
-    message: "API is running 🚀",
+    message: "API is healthy 🚀",
   });
 });
 
-// ✅ 404 Handler (PRO LEVEL)
+// ✅ 404 Handler
 app.use((req, res) => {
   res.status(404).json({
     success: false,
@@ -79,8 +105,20 @@ app.use((req, res) => {
   });
 });
 
+// ✅ Global Error Handler (NO RAW ERRORS EXPOSED)
+app.use((err, req, res, next) => {
+    console.error("GLOBAL ERROR:", err.stack);
+    const status = err.status || 500;
+    const message = err.message || "Internal server error";
+    
+    res.status(status).json({
+        success: false,
+        message: process.env.NODE_ENV === "production" ? "Something went wrong" : message
+    });
+});
+
 // ✅ Start Server
 app.listen(port, () => {
   console.log(`Server running on port ${port}`);
   connectDb();
-});
+});

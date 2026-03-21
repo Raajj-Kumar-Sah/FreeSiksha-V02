@@ -28,16 +28,13 @@ export default function AdminLogin() {
         e.preventDefault();
         setLoading(true);
         try {
-            const res = await axios.post(`${serverUrl}/api/admin/login`, { username, password }, { withCredentials: true });
-            toast.success(res.data.message);
+            await axios.post(`${serverUrl}/api/admin/login`, { username, password }, { withCredentials: true });
             
-            // Update Redux state immediately to allow navigation
-            dispatch(setUserData(res.data.admin));
+            // Cookie is now set — fetch the actual admin user object into Redux
+            const userRes = await axios.get(`${serverUrl}/api/user/currentuser`, { withCredentials: true });
+            dispatch(setUserData(userRes.data));
             
-            // Wait briefly to show success before redirecting to the god-mode dashboard
-            setTimeout(() => {
-                navigate("/admin");
-            }, 1000);
+            navigate("/admin");
             
         } catch (error) {
             toast.error(error.response?.data?.message || "Login failed");
