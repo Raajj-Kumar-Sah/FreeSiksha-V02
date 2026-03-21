@@ -139,7 +139,7 @@ console.log("Average Rating:", avgRating);
 
 
   useEffect(() => {
-  if (creatorData?._id && courseData.length > 0) {
+  if (creatorData?._id && Array.isArray(courseData) && courseData.length > 0) {
     const creatorCourses = courseData.filter(
       (course) =>
         course.creator === creatorData._id && course._id !== courseId // Exclude current course

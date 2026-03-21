@@ -106,7 +106,7 @@ const editCourseHandler = async () => {
       }
       dispatch(setCourseData(updatedCourses));
     } else {
-      const filteredCourses = courseData.filter(c => c._id !== courseId);
+      const filteredCourses = Array.isArray(courseData) ? courseData.filter(c => c._id !== courseId) : [];
       dispatch(setCourseData(filteredCourses));
     }
 
@@ -144,7 +144,7 @@ const handleReopen = async () => {
     try {
       const result = await axios.delete(serverUrl + `/api/course/removecourse/${courseId}` , {withCredentials:true})
       toast.success("Course Deleted")
-       const filteredCourses = courseData.filter(c => c._id !== courseId);
+       const filteredCourses = Array.isArray(courseData) ? courseData.filter(c => c._id !== courseId) : [];
       dispatch(setCourseData(filteredCourses));
       console.log(result)
       navigate("/courses")

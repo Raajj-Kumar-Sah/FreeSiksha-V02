@@ -89,7 +89,7 @@ function Home() {
   }, [subIndex, index, reverse]);
 
   useEffect(() => {
-    if (courseData && courseData.length > 0) {
+    if (Array.isArray(courseData) && courseData.length > 0) {
       const openCourses = courseData.filter(course => {
         if (!course.isPublished) return false;
         if (!course.registrationDeadline) return false;

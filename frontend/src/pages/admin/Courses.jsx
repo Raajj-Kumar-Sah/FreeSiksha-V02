@@ -57,7 +57,7 @@ function Courses() {
           dispatch(setCourseData(courseData.map(c => c._id === courseId ? result.data : c)))
         }
       } else {
-        dispatch(setCourseData(courseData.filter(c => c._id !== courseId)))
+        dispatch(setCourseData(Array.isArray(courseData) ? courseData.filter(c => c._id !== courseId) : []))
       }
       
       toast.success(result.data.isPublished ? "Course Published" : "Course Unpublished")

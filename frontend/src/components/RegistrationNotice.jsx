@@ -6,8 +6,10 @@ import { FaExclamationTriangle } from 'react-icons/fa';
 const RegistrationNotice = () => {
     const { courseData } = useSelector(state => state.course);
 
+    if (!Array.isArray(courseData)) return null;
+
     // Logic: Find courses that closed within the last 30 days
-    const closedCourses = courseData?.filter(course => {
+    const closedCourses = courseData.filter(course => {
         if (!course.isPublished || !course.registrationDeadline) return false;
         
         const deadline = new Date(course.registrationDeadline);
