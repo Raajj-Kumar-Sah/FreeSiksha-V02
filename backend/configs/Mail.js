@@ -1,4 +1,4 @@
-import SibApiV3Sdk from 'sib-api-v3-sdk';
+import * as SibApiV3Sdk from 'sib-api-v3-sdk';
 import dotenv from 'dotenv';
 
 dotenv.config();
@@ -10,6 +10,10 @@ apiKey.apiKey = process.env.BREVO_API_KEY;
 
 const apiInstance = new SibApiV3Sdk.TransactionalEmailsApi();
 const sender = { email: process.env.EMAIL || "no-reply@freesiksha.com", name: "FreeSiksha" };
+
+if (!process.env.BREVO_API_KEY) {
+    console.warn("[Brevo Warning] BREVO_API_KEY is missing in .env!");
+}
 
 const sendMail = async (to, otp) => {
     try {

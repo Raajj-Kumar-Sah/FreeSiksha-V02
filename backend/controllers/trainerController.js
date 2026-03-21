@@ -89,8 +89,12 @@ export const submitTrainerApplication = async (req, res) => {
         application.userId = user._id;
         await application.save();
 
-        // Send confirmation email to applicant
-        await sendApplicationReceivedEmail(email, name);
+        // Send confirmation email to applicant (Non-critical, don't fail the whole request if email service has issues)
+        try {
+            await sendApplicationReceivedEmail(email, name);
+        } catch (mailError) {
+            console.error(`[TrainerApply] Non-critical email failure for ${email}:`, mailError.message);
+        }
 
         console.log(`[TrainerApply] Submission complete for ${email}`);
         res.status(201).json({ message: "Application submitted successfully and is under review.", application });
