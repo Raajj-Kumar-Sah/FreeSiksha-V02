@@ -1,4 +1,4 @@
-import React, { Suspense, lazy } from 'react'
+import React, { Suspense, lazy, useEffect } from 'react'
 import { Navigate, Route, Routes } from 'react-router-dom'
 import Home from './pages/Home'
 import { ToastContainer } from 'react-toastify';
@@ -13,7 +13,7 @@ const EditProfile = lazy(() => import('./pages/EditProfile'));
 const Dashboard = lazy(() => import('./pages/admin/Dashboard'));
 const Courses = lazy(() => import('./pages/admin/Courses'));
 import JoinModal from './components/JoinModal';
-import { toggleJoinModal } from './redux/userSlice';
+import { setUserData, toggleJoinModal } from './redux/userSlice';
 import { useDispatch } from 'react-redux';
 const AllCourses = lazy(() => import('./pages/AllCourses'));
 const AddCourses = lazy(() => import('./pages/admin/AddCourses'));
@@ -31,6 +31,8 @@ const SearchWithAi = lazy(() => import('./pages/SearchWithAi'));
 const Enrollments = lazy(() => import('./pages/admin/Enrollments'));
 const AdminLogin = lazy(() => import('./pages/admin/AdminLogin'));
 const MainAdmin = lazy(() => import('./pages/admin/MainAdmin'));
+const TrainerRegistration = lazy(() => import('./pages/TrainerRegistration'));
+const SetPassword = lazy(() => import('./pages/SetPassword'));
 
 import useGetCurrentUser from './customHooks/useGetCurrentUser'
 import useGetCourseData from './customHooks/useGetCourseData'
@@ -56,6 +58,17 @@ function App() {
   const dispatch = useDispatch()
   const { isJoinModalOpen } = useSelector(state => state.user)
 
+  useEffect(() => {
+    const handleStorageChange = (e) => {
+      if (e.key === 'auth_event') {
+        dispatch(setUserData(null));
+        // Force refresh to clear any cached states if needed, or rely on Redux
+      }
+    };
+    window.addEventListener('storage', handleStorageChange);
+    return () => window.removeEventListener('storage', handleStorageChange);
+  }, [dispatch]);
+
   return (
     <HelmetProvider>
       {isLoading && <Loader />}
@@ -63,11 +76,14 @@ function App() {
       <ScrollToTop/>
       <JoinModal isOpen={isJoinModalOpen} onClose={() => dispatch(toggleJoinModal(false))} />
       <Suspense fallback={<Loader />}>
-        <Routes>
-          <Route path='/' element={<Home/>}/>
-          <Route path='/about' element={<AboutPage/>}/>
+        {!isLoading && (
+          <Routes>
+            <Route path='/' element={<Home/>}/>
+            <Route path='/about' element={<AboutPage/>}/>
           <Route path='/login' element={<Login/>}/>
           <Route path='/signup' element={!userData?<SignUp/>:<Navigate to={"/"}/>}/>
+          <Route path='/register-trainer' element={<TrainerRegistration/>}/>
+          <Route path='/set-password/:token' element={<SetPassword/>}/>
           <Route path='/profile' element={userData?<Profile/>:<Navigate to={"/signup"}/>}/>
           <Route path='/allcourses' element={userData?<AllCourses/>:<Navigate to={"/signup"}/>}/>
           <Route path='/viewcourse/:courseId' element={userData?<ViewCourse/>:<Navigate to={"/signup"}/>}/>
@@ -76,16 +92,16 @@ function App() {
           <Route path='/viewlecture/:courseId' element={userData?<ViewLecture/>:<Navigate to={"/signup"}/>}/>
           <Route path='/searchwithai' element={userData?<SearchWithAi/>:<Navigate to={"/signup"}/>}/>
           
-          {/* Educator Dedicated Routes */}
-          <Route path='/enrollments' element={userData?.role === "educator"?<Enrollments/>:<Navigate to={"/signup"}/>}/>
-          <Route path='/manage-blogs' element={userData?.role === "educator" ? <AdminBlogs userRole="educator" /> : <Navigate to={"/signup"} />} />
+          {/* Trainer & Admin Shared Routes */}
+          <Route path='/enrollments' element={(userData?.role === "trainer" || userData?.role === "admin")?<Enrollments/>:<Navigate to={"/signup"}/>}/>
+          <Route path='/manage-blogs' element={(userData?.role === "trainer" || userData?.role === "admin") ? <AdminBlogs userRole={userData?.role} /> : <Navigate to={"/signup"} />} />
           
-          <Route path='/dashboard' element={userData?.role === "educator"?<Dashboard/>:<Navigate to={"/signup"}/>}/>
-          <Route path='/courses' element={userData?.role === "educator"?<Courses/>:<Navigate to={"/signup"}/>}/>
-          <Route path='/addcourses/:courseId' element={userData?.role === "educator"?<AddCourses/>:<Navigate to={"/signup"}/>}/>
-          <Route path='/createcourses' element={userData?.role === "educator"?<CreateCourse/>:<Navigate to={"/signup"}/>}/>
-          <Route path='/createlecture/:courseId' element={userData?.role === "educator"?<CreateLecture/>:<Navigate to={"/signup"}/>}/>
-          <Route path='/editlecture/:courseId/:lectureId' element={userData?.role === "educator"?<EditLecture/>:<Navigate to={"/signup"}/>}/>
+          <Route path='/dashboard' element={(userData?.role === "trainer" || userData?.role === "admin")?<Dashboard/>:<Navigate to={"/signup"}/>}/>
+          <Route path='/courses' element={(userData?.role === "trainer" || userData?.role === "admin")?<Courses/>:<Navigate to={"/signup"}/>}/>
+          <Route path='/addcourses/:courseId' element={(userData?.role === "trainer" || userData?.role === "admin")?<AddCourses/>:<Navigate to={"/signup"}/>}/>
+          <Route path='/createcourses' element={(userData?.role === "trainer" || userData?.role === "admin")?<CreateCourse/>:<Navigate to={"/signup"}/>}/>
+          <Route path='/createlecture/:courseId' element={(userData?.role === "trainer" || userData?.role === "admin")?<CreateLecture/>:<Navigate to={"/signup"}/>}/>
+          <Route path='/editlecture/:courseId/:lectureId' element={(userData?.role === "trainer" || userData?.role === "admin")?<EditLecture/>:<Navigate to={"/signup"}/>}/>
           <Route path='/forgotpassword' element={<ForgotPassword/>}/>
           
           {/* Blog System Routes */}
@@ -93,9 +109,10 @@ function App() {
           <Route path='/blog/:id' element={<BlogDetail />} />
           
           {/* Main Admin Dedicated Routes */}
-          <Route path='/mainadmin-login' element={<AdminLogin />} />
-          <Route path='/mainadmin' element={<MainAdmin />} />
-        </Routes>
+          <Route path='/admin-login' element={<AdminLogin />} />
+          <Route path='/admin' element={userData?.role === "admin" ? <MainAdmin /> : <Navigate to="/admin-login" />} />
+          </Routes>
+        )}
       </Suspense>
     </HelmetProvider>
   )

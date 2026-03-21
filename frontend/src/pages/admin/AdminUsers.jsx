@@ -3,12 +3,22 @@ import axios from 'axios';
 import { serverUrl } from '../../App';
 import { toast } from 'react-toastify';
 import { ClipLoader } from 'react-spinners';
-import { FaUserShield, FaBan, FaCheckCircle, FaTrash, FaFileExport, FaSearch } from 'react-icons/fa';
+import { FaUserShield, FaBan, FaCheckCircle, FaTrash, FaFileExport, FaSearch, FaKey, FaSave, FaTimes } from 'react-icons/fa';
 
 export default function AdminUsers({ role }) {
     const [users, setUsers] = useState([]);
     const [loading, setLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState("");
+    
+    // Edit Modal State
+    const [selectedUser, setSelectedUser] = useState(null);
+    const [editMode, setEditMode] = useState(false);
+    const [editData, setEditData] = useState({
+        email: "",
+        studentId: "",
+        volunteerId: "",
+        password: ""
+    });
 
     useEffect(() => {
         fetchUsers();
@@ -35,6 +45,28 @@ export default function AdminUsers({ role }) {
             toast.error("Status update failed");
         }
     };
+    
+    const openEditModal = (user) => {
+        setSelectedUser(user);
+        setEditData({
+            email: user.email || "",
+            studentId: user.studentId || "",
+            volunteerId: user.volunteerId || "",
+            password: ""
+        });
+        setEditMode(true);
+    };
+
+    const handleUpdateCredentials = async () => {
+        try {
+            await axios.put(`${serverUrl}/api/admin/users/${selectedUser._id}/credentials`, editData, { withCredentials: true });
+            toast.success("Credentials updated successfully");
+            setEditMode(false);
+            fetchUsers();
+        } catch (error) {
+            toast.error(error.response?.data?.message || "Failed to update credentials");
+        }
+    };
 
     const handleDelete = async (userId) => {
         if (!window.confirm("Are you absolutely sure you want to permanently delete this user? This action cannot be undone.")) return;
@@ -59,6 +91,7 @@ export default function AdminUsers({ role }) {
     );
 
     return (
+        <>
         <div className="bg-white rounded-[32px] shadow-sm border border-gray-200 overflow-hidden">
             <div className="p-6 border-b border-gray-100 flex flex-col md:flex-row md:items-center justify-between bg-gray-50 gap-4">
                 <div className="flex items-center gap-4">
@@ -111,13 +144,20 @@ export default function AdminUsers({ role }) {
                                             </div>
                                             <div>
                                                 <p className="font-black text-gray-900 leading-tight">{u.name}</p>
-                                                <p className="text-xs text-gray-400 font-bold">{u.email}</p>
+                                                <div className="flex flex-col">
+                                                    <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest">{u.email}</p>
+                                                    {(u.studentId || u.volunteerId) && (
+                                                        <p className="text-[10px] text-blue-500 font-black mt-1 uppercase tracking-tighter">
+                                                            ID: {u.studentId || u.volunteerId}
+                                                        </p>
+                                                    )}
+                                                </div>
                                             </div>
                                         </div>
                                     </td>
                                     <td className="p-6 text-center">
                                         <span className={`text-[10px] font-black px-3 py-1.5 rounded-lg uppercase tracking-widest border ${
-                                            u.role === 'educator' ? 'bg-purple-50 text-purple-700 border-purple-100' : 
+                                            u.role === 'trainer' ? 'bg-purple-50 text-purple-700 border-purple-100' : 
                                             u.role === 'volunteer' ? 'bg-amber-50 text-amber-700 border-amber-100' : 'bg-gray-50 text-gray-600 border-gray-100'
                                         }`}>
                                             {u.role}
@@ -134,6 +174,9 @@ export default function AdminUsers({ role }) {
                                         </span>
                                     </td>
                                     <td className="p-6 flex gap-2 justify-end opacity-0 group-hover:opacity-100 transition-all transform translate-x-2 group-hover:translate-x-0">
+                                        <button onClick={() => openEditModal(u)} title="Edit Credentials" className="p-2.5 bg-blue-50 text-blue-600 hover:bg-blue-100 rounded-xl transition-all border border-blue-100">
+                                            <FaKey />
+                                        </button>
                                         {u.status === 'suspended' || u.status === 'banned' ? (
                                             <button onClick={() => handleStatusChange(u._id, 'active')} title="Activate" className="p-2.5 bg-emerald-50 text-emerald-600 hover:bg-emerald-100 rounded-xl transition-all border border-emerald-100">
                                                 <FaCheckCircle />
@@ -167,5 +210,76 @@ export default function AdminUsers({ role }) {
                 </div>
             )}
         </div>
+        
+        {/* Credential Edit Modal */}
+        {editMode && (
+            <div className="fixed inset-0 bg-gray-900/60 backdrop-blur-sm z-[100] flex items-center justify-center p-4">
+                <div className="bg-white rounded-[40px] w-full max-w-md shadow-2xl border border-gray-100 overflow-hidden animate-in zoom-in-95 duration-200 text-black">
+                    <div className="bg-gray-900 p-8 text-white flex justify-between items-center">
+                        <div>
+                            <h3 className="text-xl font-black tracking-tight">{selectedUser?.name}</h3>
+                            <p className="text-gray-400 text-xs font-bold uppercase tracking-widest mt-1">Adjust Credentials</p>
+                        </div>
+                        <button onClick={() => setEditMode(false)} className="text-gray-400 hover:text-white"><FaTimes size={20} /></button>
+                    </div>
+                    
+                    <div className="p-8 space-y-6">
+                        <div className="space-y-2">
+                            <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest pl-1">Primary Email</label>
+                            <input 
+                                type="email" 
+                                value={editData.email}
+                                onChange={(e) => setEditData({ ...editData, email: e.target.value })}
+                                className="w-full bg-gray-50 border-2 border-transparent focus:border-blue-200 px-5 py-3 rounded-2xl font-bold text-sm outline-none transition-all text-black"
+                            />
+                        </div>
+
+                        {(role === 'student' || role === 'trainer' || selectedUser?.role === 'student' || selectedUser?.role === 'trainer') ? (
+                            <div className="space-y-2">
+                                <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest pl-1">Official FS-ID</label>
+                                <input 
+                                    type="text" 
+                                    value={editData.studentId}
+                                    onChange={(e) => setEditData({ ...editData, studentId: e.target.value })}
+                                    className="w-full bg-gray-50 border-2 border-transparent focus:border-blue-200 px-5 py-3 rounded-2xl font-black tracking-widest text-sm outline-none transition-all text-black"
+                                />
+                            </div>
+                        ) : (
+                            <div className="space-y-2">
+                                <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest pl-1">Volunteer FS-ID</label>
+                                <input 
+                                    type="text" 
+                                    value={editData.volunteerId}
+                                    onChange={(e) => setEditData({ ...editData, volunteerId: e.target.value })}
+                                    className="w-full bg-gray-50 border-2 border-transparent focus:border-blue-200 px-5 py-3 rounded-2xl font-black tracking-widest text-sm outline-none transition-all text-black"
+                                />
+                            </div>
+                        )}
+
+                        <div className="space-y-2">
+                            <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest pl-1">Reset Password</label>
+                            <div className="relative">
+                                <FaKey className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-300" />
+                                <input 
+                                    type="password" 
+                                    placeholder="Leave blank to keep current"
+                                    value={editData.password}
+                                    onChange={(e) => setEditData({ ...editData, password: e.target.value })}
+                                    className="w-full bg-gray-50 border-2 border-transparent focus:border-blue-200 px-12 py-3 rounded-2xl font-bold text-sm outline-none transition-all text-black"
+                                />
+                            </div>
+                        </div>
+
+                        <button 
+                            onClick={handleUpdateCredentials}
+                            className="w-full bg-blue-600 hover:bg-blue-700 text-white py-4 rounded-2xl font-black shadow-lg shadow-blue-500/20 transition-all active:scale-95 flex items-center justify-center gap-2"
+                        >
+                            <FaSave /> Update Security Details
+                        </button>
+                    </div>
+                </div>
+            </div>
+        )}
+        </>
     );
 }

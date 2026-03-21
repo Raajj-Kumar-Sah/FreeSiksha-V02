@@ -24,27 +24,43 @@ function Home() {
   const {userData} = useSelector(state => state.user);
   const [newestOpenCourse, setNewestOpenCourse] = useState(null);
   
-  const words = ["Education","Skills","Growth","Future","Success"];
   const [index, setIndex] = useState(0);
   const [subIndex, setSubIndex] = useState(0);
   const [reverse, setReverse] = useState(false);
+  const [settings, setSettings] = useState(null); // New state
   const [recentStudents, setRecentStudents] = useState([]);
+
+  // Dynamic Content with defaults
+  const words = settings?.heroWords?.length > 0 ? settings.heroWords : ["Education", "Skills", "Growth", "Future", "Success"];
+  const heroTitleStatic = settings?.heroTitleStatic || "Free & Quality";
+  const heroTitleSuffix = settings?.heroTitleSuffix || "for All";
+  const heroDescription = settings?.heroDescription || "Empowering learners worldwide with accessible, high-quality education and industry-recognized certifications. Join 1M+ students today.";
+  const heroVideo = settings?.heroVideoUrl || heroBgVideo;
+  const heroImage = settings?.heroImageUrl || heroImg;
+  const tagline = settings?.tagline || "NON PROFIT EDUCATION";
+  const socialProofCount = settings?.socialProofCount || 1000000;
+
+  useEffect(() => {
+    const fetchSettings = async () => {
+      try {
+        const res = await axios.get(`${serverUrl}/api/home-page/settings`);
+        setSettings(res.data);
+      } catch (error) {
+        console.error("Failed to fetch home settings", error);
+      }
+    };
+    fetchSettings();
+  }, []);
 
   // Social Proof animation counter
   const countV = useMotionValue(0);
   const roundedCount = useTransform(countV, (v) => Math.round(v));
 
   useEffect(() => {
-    let target = parseInt(localStorage.getItem('socialCount') || '1200', 10);
-    target += 1;
-    if (target > 1500) {
-      target = 1200;
-    }
-    localStorage.setItem('socialCount', target.toString());
-    
-    const controls = animate(countV, target, { duration: 2.5, ease: "easeOut" });
+    countV.set(0);
+    const controls = animate(countV, socialProofCount, { duration: 2, ease: "easeOut" });
     return controls.stop;
-  }, []);
+  }, [socialProofCount]);
 
   useEffect(() => {
     axios.get(`${serverUrl}/api/auth/recent-students`)
@@ -106,7 +122,7 @@ function Home() {
       <RegistrationNotice />
       
       {/* Hero Section */}
-      <section className="relative min-h-[90vh] flex items-center pt-32 pb-16 px-4 lg:px-12">
+      <section className="relative min-h-[85vh] lg:min-h-[90vh] flex items-center pt-24 pb-12 lg:pt-32 lg:pb-16 px-4 lg:px-12">
         {/* Background Video and Overlay */}
         <div className="hero-video-container">
           <video 
@@ -116,7 +132,7 @@ function Home() {
             playsInline 
             className="hero-video"
           >
-            <source src={heroBgVideo} type="video/mp4" />
+            <source src={heroVideo} type="video/mp4" />
             Your browser does not support the video tag.
           </video>
           <div className="hero-overlay"></div>
@@ -127,42 +143,43 @@ function Home() {
             {/* Left Content */}
             <div className="space-y-8">
               <div className="inline-flex items-center px-4 py-1.5 rounded-full bg-blue-600/10 border border-blue-600/20 backdrop-blur-md">
-                <span className="text-xs font-bold text-blue-600 tracking-wider">NON PROFIT EDUCATION</span>
+                <span className="text-xs font-bold text-blue-600 tracking-wider font-outfit uppercase">{tagline}</span>
               </div>
               
-              <h1 className="text-5xl lg:text-7xl font-extrabold text-[var(--text-main)] leading-[1.1]">
-                Free & Quality <br />
-                <span className="text-blue-600 inline-block min-w-[300px]">
+              <h1 className="text-4xl sm:text-5xl lg:text-7xl font-extrabold text-[var(--text-main)] leading-[1.2] lg:leading-[1.1] text-center lg:text-left">
+                {heroTitleStatic} <br className="hidden sm:block" />
+                <span className="text-blue-600 inline-block min-w-[140px] sm:min-w-[300px] text-center lg:text-left">
                   {words[index].substring(0, subIndex)}
                   <motion.span
                     animate={{ opacity: [0, 1, 0] }}
                     transition={{ duration: 0.8, repeat: Infinity, ease: "linear" }}
-                    className="inline-block w-[4px] h-[0.9em] bg-blue-600 ml-1 translate-y-2"
+                    className="inline-block w-[3px] sm:w-[4px] h-[0.9em] bg-blue-600 ml-1 translate-y-1 sm:translate-y-2"
                   />
-                </span>for All
+                </span>
+                <span className="inline-block lg:block xl:inline"> {heroTitleSuffix}</span>
               </h1>
               
-              <p className="text-lg text-[var(--text-muted)] leading-relaxed max-w-xl">
-                Empowering learners worldwide with accessible, high-quality education and industry-recognized certifications. Join 1M+ students today.
+              <p className="text-base sm:text-lg text-[var(--text-muted)] leading-relaxed max-w-xl mx-auto lg:mx-0 text-center lg:text-left">
+                {heroDescription}
               </p>
               
-              <div className="flex flex-wrap gap-4">
+              <div className="flex flex-wrap gap-4 justify-center lg:justify-start">
                 <button 
                   onClick={() => navigate("/allcourses")}
-                  className="btn-primary px-8 py-4 rounded-full text-[16px] shadow-lg shadow-blue-600/20"
+                  className="btn-primary px-6 sm:px-8 py-3 sm:py-4 rounded-full text-sm sm:text-[16px] shadow-lg shadow-blue-600/20"
                 >
                   Explore Courses
                 </button>
                 <button 
                   onClick={() => navigate("/signup")}
-                  className="btn-secondary px-8 py-4 rounded-full text-[16px] backdrop-blur-md bg-white/5 border-white/10"
+                  className="btn-secondary px-6 sm:px-8 py-3 sm:py-4 rounded-full text-sm sm:text-[16px] backdrop-blur-md bg-white/5 border-white/10"
                 >
                   Join Now
                 </button>
               </div>
               
               {/* Social Proof */}
-              <div className="flex items-center gap-4 pt-4">
+              <div className="flex flex-col sm:flex-row items-center gap-4 pt-4 justify-center lg:justify-start">
                 <div className="flex -space-x-3">
                   {recentStudents.length > 0 ? (
                     recentStudents.map((student, i) => (
@@ -187,7 +204,7 @@ function Home() {
               <div className="absolute -inset-4 bg-blue-600/10 rounded-[40px] transform rotate-3 blur-sm"></div>
               <div className="relative bg-[var(--bg-surface)]/40 backdrop-blur-md p-2 rounded-[32px] shadow-2xl border border-white/10 overflow-hidden">
                 <img 
-                  src={heroImg} 
+                  src={heroImage} 
                   alt="Students collaborating" 
                   className="w-full h-auto rounded-[24px] opacity-90"
                 />

@@ -58,6 +58,19 @@ const DynamicForm = ({ schema, formData, setFormData }) => {
                         />
                     )}
 
+                    {field.fieldType === 'file' && (
+                        <div className="relative group">
+                            <input 
+                                type="file" 
+                                accept=".pdf,.doc,.docx"
+                                required={field.required}
+                                onChange={(e) => handleInputChange(field.fieldName, e.target.files[0])}
+                                className="w-full bg-white/50 backdrop-blur-sm border-2 border-gray-100 focus:border-blue-500 rounded-2xl px-6 py-4 outline-none transition-all font-bold text-gray-700 shadow-sm file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-sm file:font-bold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 cursor-pointer"
+                            />
+                            <p className="mt-2 text-[10px] text-gray-400 font-bold uppercase tracking-wider pl-2">Accepted formats: PDF, DOC, DOCX</p>
+                        </div>
+                    )}
+
                     {field.fieldType === 'select' && (
                         <select 
                             required={field.required}

@@ -5,7 +5,7 @@ import { toast } from 'react-toastify';
 import { FaPlus, FaTrash, FaSave, FaWrench, FaArrowUp, FaArrowDown, FaEye, FaRegCheckSquare, FaDotCircle, FaChevronDown, FaAlignLeft, FaGripVertical, FaFileUpload } from 'react-icons/fa';
 import { ClipLoader } from 'react-spinners';
 
-const VolunteerFormBuilder = () => {
+const TrainerFormBuilder = () => {
     const [fields, setFields] = useState([]);
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
@@ -17,7 +17,7 @@ const VolunteerFormBuilder = () => {
 
     const fetchForm = async () => {
         try {
-            const res = await axios.get(`${serverUrl}/api/volunteer/form`);
+            const res = await axios.get(`${serverUrl}/api/trainer/form`);
             setFields(res.data.fields || []);
         } catch (error) {
             console.error("No form found, starting fresh");
@@ -79,10 +79,10 @@ const VolunteerFormBuilder = () => {
         }
         setSaving(true);
         try {
-            await axios.post(`${serverUrl}/api/volunteer/form`, { fields }, { withCredentials: true });
-            toast.success("Form schema updated successfully");
+            await axios.post(`${serverUrl}/api/trainer/form`, { fields }, { withCredentials: true });
+            toast.success("Trainer form updated successfully");
         } catch (error) {
-            toast.error("Failed to save form schema");
+            toast.error("Failed to save trainer form");
         } finally {
             setSaving(false);
         }
@@ -95,7 +95,7 @@ const VolunteerFormBuilder = () => {
             case 'select': return <FaChevronDown className="text-emerald-500" />;
             case 'radio': return <FaDotCircle className="text-purple-500" />;
             case 'checkbox': return <FaRegCheckSquare className="text-amber-500" />;
-            case 'file': return <FaFileUpload className="text-rose-500" />;
+            case 'file': return <FaFileUpload className="text-red-500" />;
             default: return <FaWrench />;
         }
     };
@@ -111,9 +111,9 @@ const VolunteerFormBuilder = () => {
                         <div className="w-12 h-12 bg-blue-600 rounded-2xl flex items-center justify-center shadow-lg shadow-blue-200">
                             <FaWrench className="text-white text-xl" />
                         </div>
-                        <h2 className="text-3xl font-black text-gray-900 tracking-tight">Form <span className="text-blue-600">Builder</span></h2>
+                        <h2 className="text-3xl font-black text-gray-900 tracking-tight">Trainer Form <span className="text-blue-600">Builder</span></h2>
                     </div>
-                    <p className="text-gray-400 font-bold text-sm tracking-wide ml-1">PLATFORM ONBOARDING ENGINE v2.0</p>
+                    <p className="text-gray-400 font-bold text-sm tracking-wide ml-1">DYNAMIC ONBOARDING ENGINE v2.0</p>
                 </div>
                 <div className="flex gap-3">
                     <button 
@@ -136,8 +136,8 @@ const VolunteerFormBuilder = () => {
                 /* LIVE PREVIEW SECTION */
                 <div className="bg-white p-12 rounded-[40px] shadow-2xl border border-gray-100 space-y-12 min-h-[600px]">
                     <div className="space-y-2 border-l-8 border-blue-600 pl-6">
-                        <h1 className="text-4xl font-black text-gray-900">Volunteer Application</h1>
-                        <p className="text-gray-500 font-medium">Join our global community of contributors.</p>
+                        <h1 className="text-4xl font-black text-gray-900">Trainer Registration</h1>
+                        <p className="text-gray-500 font-medium">Apply to share your expertise with our learners.</p>
                     </div>
                     
                     <div className="space-y-10">
@@ -166,18 +166,11 @@ const VolunteerFormBuilder = () => {
                                     </div>
                                 )}
 
-                                {field.fieldType === 'file' && (
-                                    <div className="w-full border-2 border-dashed border-gray-200 bg-gray-50 py-8 rounded-2xl flex flex-col items-center justify-center text-gray-400">
-                                        <FaFileUpload className="text-3xl mb-2 text-gray-300" />
-                                        <span className="font-bold text-sm">File Upload Area (PDF/DOCX)</span>
-                                    </div>
-                                )}
-
                                 {field.fieldType === 'radio' && (
                                     <div className="space-y-3">
                                         {field.options.map((o, i) => (
                                             <div key={i} className="flex items-center gap-4 p-4 rounded-2xl bg-gray-50/50 hover:bg-gray-50 transition-colors w-full max-w-md border border-transparent">
-                                                <div className="w-6 h-6 rounded-full border-2 border-gray-300 flex items-center justify-center group-hover:border-blue-500">
+                                                <div className="w-6 h-6 rounded-full border-2 border-gray-300 flex items-center justify-center">
                                                     <div className="w-3 h-3 rounded-full bg-transparent"></div>
                                                 </div>
                                                 <span className="font-bold text-gray-700">{o}</span>
@@ -190,10 +183,17 @@ const VolunteerFormBuilder = () => {
                                     <div className="space-y-3">
                                         {field.options.map((o, i) => (
                                             <div key={i} className="flex items-center gap-4 p-4 rounded-2xl bg-gray-50/50 hover:bg-gray-50 transition-colors w-full max-w-md border border-transparent">
-                                                <div className="w-6 h-6 rounded-lg border-2 border-gray-300 flex items-center justify-center group-hover:border-blue-500"></div>
+                                                <div className="w-6 h-6 rounded-lg border-2 border-gray-300 flex items-center justify-center"></div>
                                                 <span className="font-bold text-gray-700">{o}</span>
                                             </div>
                                         ))}
+                                    </div>
+                                )}
+
+                                {field.fieldType === 'file' && (
+                                    <div className="border-4 border-dashed border-gray-100 rounded-3xl p-8 flex flex-col items-center justify-center gap-3 bg-gray-50/50">
+                                        <FaFileUpload className="text-3xl text-gray-300" />
+                                        <span className="text-sm font-bold text-gray-400">Upload documents (PDF, DOC, Images)</span>
                                     </div>
                                 )}
                             </div>
@@ -240,25 +240,9 @@ const VolunteerFormBuilder = () => {
                                                 <option value="radio">Multiple Choice</option>
                                                 <option value="checkbox">Checkboxes</option>
                                                 <option value="select">Dropdown Menu</option>
-                                                <option value="file">File Upload (PDF/DOCX)</option>
+                                                <option value="file">File Upload</option>
                                             </select>
                                         </div>
-                                        {field.fieldType === 'text' && (
-                                            <div className="mt-4 lg:mt-0 space-y-2">
-                                                <label className="text-[10px] font-black uppercase text-gray-400 tracking-widest pl-1">Validation</label>
-                                                <select 
-                                                    value={field.validationType || 'none'}
-                                                    onChange={(e) => updateField(index, 'validationType', e.target.value)}
-                                                    className="w-full px-4 py-4 bg-gray-50 border-2 border-transparent focus:border-emerald-600 rounded-2xl font-black text-xs text-gray-600 outline-none appearance-none cursor-pointer transition-all"
-                                                >
-                                                    <option value="none">Regular Text</option>
-                                                    <option value="name">Full Name</option>
-                                                    <option value="email">Email Address</option>
-                                                    <option value="tel">Phone/Mobile</option>
-                                                    <option value="number">Pure Number</option>
-                                                </select>
-                                            </div>
-                                        )}
                                     </div>
                                 </div>
 
@@ -354,4 +338,4 @@ const VolunteerFormBuilder = () => {
     );
 };
 
-export default VolunteerFormBuilder;
+export default TrainerFormBuilder;

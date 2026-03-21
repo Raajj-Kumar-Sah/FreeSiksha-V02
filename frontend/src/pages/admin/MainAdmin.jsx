@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import { serverUrl } from '../../App';
+import { serverUrl } from '../../config';
 import { toast } from 'react-toastify';
 import { FaFileCsv } from 'react-icons/fa';
 import AdminUsers from './AdminUsers';
@@ -11,7 +11,14 @@ import AdminReviews from './AdminReviews';
 import AdminBlogs from './AdminBlogs';
 import AdminVolunteerApplications from './AdminVolunteerApplications';
 import VolunteerFormBuilder from './VolunteerFormBuilder';
-import { FaUsers, FaUserEdit, FaWrench, FaInbox, FaHandsHelping } from 'react-icons/fa';
+import AboutManager from './AboutManager';
+import AdminSettings from './AdminSettings';
+import AdminContacts from './AdminContacts';
+import HomeManager from './HomeManager';
+import TrainerFormBuilder from './TrainerFormBuilder';
+import AdminTrainerApplications from './AdminTrainerApplications';
+import ManageTrainers from './ManageTrainers';
+import { FaUsers, FaUserEdit, FaWrench, FaInbox, FaHandsHelping, FaColumns, FaShieldAlt, FaEnvelopeOpenText, FaHome, FaChalkboardTeacher } from 'react-icons/fa';
 
 export default function MainAdmin() {
     const navigate = useNavigate();
@@ -27,7 +34,7 @@ export default function MainAdmin() {
                 setStats(statsRes.data);
             } catch (err) {
                 toast.error("Unauthorized Access. Redirecting to Admin Core.");
-                navigate("/mainadmin-login");
+                navigate("/admin-login");
             }
         };
         verifyAdminAndFetchStats();
@@ -36,7 +43,7 @@ export default function MainAdmin() {
     const handleExportCSV = () => {
         if (!stats) return toast.error("Stats not loaded yet");
         
-        const csvContent = `data:text/csv;charset=utf-8,Metric,Value\nTotal Students,${stats.students}\nTotal Teachers,${stats.teachers}\nTotal Courses,${stats.courses}\nTotal Enrollments,${stats.enrollments}\nPlatform Status,${stats.status}`;
+        const csvContent = `data:text/csv;charset=utf-8,Metric,Value\nTotal Students,${stats.students}\nTotal Trainers,${stats.trainers}\nTotal Courses,${stats.courses}\nTotal Enrollments,${stats.enrollments}\nPlatform Status,${stats.status}`;
         
         const encodedUri = encodeURI(csvContent);
         const link = document.createElement("a");
@@ -51,14 +58,20 @@ export default function MainAdmin() {
     const renderContent = () => {
         switch (activeTab) {
             case 'students': return <AdminUsers role="student" />;
-            case 'teachers': return <AdminUsers role="educator" />;
+            case 'trainers': return <ManageTrainers />;
             case 'volunteers': return <AdminUsers role="volunteer" />;
-            case 'applications': return <AdminVolunteerApplications />;
-            case 'form-builder': return <VolunteerFormBuilder />;
+            case 'volunteer-applications': return <AdminVolunteerApplications />;
+            case 'volunteer-form': return <VolunteerFormBuilder />;
+            case 'trainer-applications': return <AdminTrainerApplications />;
+            case 'trainer-form': return <TrainerFormBuilder />;
             case 'courses': return <AdminCourses />;
             case 'enrollments': return <AdminEnrollments />;
             case 'moderation': return <AdminReviews />;
             case 'blogs': return <AdminBlogs userRole="admin" />;
+            case 'about': return <AboutManager />;
+            case 'settings': return <AdminSettings />;
+            case 'contacts': return <AdminContacts />;
+            case 'home': return <HomeManager />;
             case 'overview':
             default: return (
                 <>
@@ -68,8 +81,8 @@ export default function MainAdmin() {
                             <p className="text-4xl font-black text-gray-900">{stats?.students || '--'}</p>
                         </div>
                         <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-200">
-                            <h3 className="text-gray-500 font-bold uppercase tracking-wider mb-2 text-xs">Total Teachers</h3>
-                            <p className="text-4xl font-black text-gray-900">{stats?.teachers || '--'}</p>
+                            <h3 className="text-gray-500 font-bold uppercase tracking-wider mb-2 text-xs">Total Trainers</h3>
+                            <p className="text-4xl font-black text-gray-900">{stats?.trainers || '--'}</p>
                         </div>
                         <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-200">
                             <h3 className="text-gray-500 font-bold uppercase tracking-wider mb-2 text-xs">Total Courses</h3>
@@ -106,13 +119,25 @@ export default function MainAdmin() {
         }
     };
 
+    const handleLogout = async () => {
+        try {
+            await axios.get(`${serverUrl}/api/auth/logout`, { withCredentials: true });
+            localStorage.setItem('auth_event', Date.now());
+            toast.success("Admin Session Terminated");
+            navigate("/");
+        } catch (error) {
+            console.error("Logout failed:", error);
+            navigate("/");
+        }
+    };
+
     return (
         <div className="min-h-screen bg-gray-100 flex flex-col">
             <header className="bg-gray-900 text-white py-4 px-8 flex justify-between items-center shadow-lg">
                 <h1 className="text-2xl font-black tracking-widest">FreeSiksha <span className="text-blue-500">SUPER ADMIN</span></h1>
                 <div className="flex gap-4">
                     <button 
-                        onClick={() => navigate("/")}
+                        onClick={handleLogout}
                         className="bg-gray-800 hover:bg-gray-700 px-4 py-2 rounded-lg font-bold transition-all border border-gray-700"
                     >
                         Exit Portal
@@ -136,10 +161,10 @@ export default function MainAdmin() {
                         <FaUsers /> Manage Students
                     </button>
                     <button 
-                        onClick={() => setActiveTab('teachers')} 
-                        className={`group flex items-center gap-3 px-4 py-3 rounded-xl font-bold transition-all ${activeTab === 'teachers' ? 'bg-blue-50 text-blue-600 shadow-sm border-l-4 border-blue-600' : 'text-gray-600 hover:bg-gray-50'}`}
+                        onClick={() => setActiveTab('trainers')} 
+                        className={`group flex items-center gap-3 px-4 py-3 rounded-xl font-bold transition-all ${activeTab === 'trainers' ? 'bg-blue-50 text-blue-600 shadow-sm border-l-4 border-blue-600' : 'text-gray-600 hover:bg-gray-50'}`}
                     >
-                        <FaUserEdit /> Manage Teachers
+                        <FaUserEdit /> Manage Trainers
                     </button>
                     <button 
                         onClick={() => setActiveTab('volunteers')} 
@@ -148,16 +173,29 @@ export default function MainAdmin() {
                         <FaHandsHelping /> Manage Volunteers
                     </button>
                     <button 
-                        onClick={() => setActiveTab('applications')} 
-                        className={`group flex items-center gap-3 px-4 py-3 rounded-xl font-bold transition-all ${activeTab === 'applications' ? 'bg-blue-50 text-blue-600 shadow-sm border-l-4 border-blue-600' : 'text-gray-600 hover:bg-gray-50'}`}
+                        onClick={() => setActiveTab('volunteer-applications')} 
+                        className={`group flex items-center gap-3 px-4 py-3 rounded-xl font-bold transition-all ${activeTab === 'volunteer-applications' ? 'bg-blue-50 text-blue-600 shadow-sm border-l-4 border-blue-600' : 'text-gray-600 hover:bg-gray-50'}`}
                     >
                         <FaInbox /> Volunteer Inbox
                     </button>
                     <button 
-                        onClick={() => setActiveTab('form-builder')} 
-                        className={`group flex items-center gap-3 px-4 py-3 rounded-xl font-bold transition-all ${activeTab === 'form-builder' ? 'bg-blue-50 text-blue-600 shadow-sm border-l-4 border-blue-600' : 'text-gray-600 hover:bg-gray-50'}`}
+                        onClick={() => setActiveTab('volunteer-form')} 
+                        className={`group flex items-center gap-3 px-4 py-3 rounded-xl font-bold transition-all ${activeTab === 'volunteer-form' ? 'bg-blue-50 text-blue-600 shadow-sm border-l-4 border-blue-600' : 'text-gray-600 hover:bg-gray-50'}`}
                     >
-                        <FaWrench /> Form Builder
+                        <FaWrench /> Volunteer Form
+                    </button>
+                    <div className="h-px bg-gray-100 my-2"></div>
+                    <button 
+                        onClick={() => setActiveTab('trainer-applications')} 
+                        className={`group flex items-center gap-3 px-4 py-3 rounded-xl font-bold transition-all ${activeTab === 'trainer-applications' ? 'bg-blue-50 text-blue-600 shadow-sm border-l-4 border-blue-600' : 'text-gray-600 hover:bg-gray-50'}`}
+                    >
+                        <FaInbox /> Trainer Applications
+                    </button>
+                    <button 
+                        onClick={() => setActiveTab('trainer-form')} 
+                        className={`group flex items-center gap-3 px-4 py-3 rounded-xl font-bold transition-all ${activeTab === 'trainer-form' ? 'bg-blue-50 text-blue-600 shadow-sm border-l-4 border-blue-600' : 'text-gray-600 hover:bg-gray-50'}`}
+                    >
+                        <FaChalkboardTeacher /> Trainer Form Builder
                     </button>
                     <div className="h-px bg-gray-100 my-2"></div>
                     <button 
@@ -183,6 +221,31 @@ export default function MainAdmin() {
                         className={`text-left px-4 py-3 rounded-xl font-bold transition-colors ${activeTab === 'moderation' ? 'bg-blue-50 text-blue-600' : 'text-gray-600 hover:bg-gray-50'}`}
                     >
                         Content Moderation
+                    </button>
+                    <div className="h-px bg-gray-100 my-2"></div>
+                    <button 
+                        onClick={() => setActiveTab('home')} 
+                        className={`group flex items-center gap-3 px-4 py-3 rounded-xl font-bold transition-all ${activeTab === 'home' ? 'bg-blue-50 text-blue-600 shadow-sm border-l-4 border-blue-600' : 'text-gray-600 hover:bg-gray-50'}`}
+                    >
+                        <FaHome /> Home Page
+                    </button>
+                    <button 
+                        onClick={() => setActiveTab('about')} 
+                        className={`group flex items-center gap-3 px-4 py-3 rounded-xl font-bold transition-all ${activeTab === 'about' ? 'bg-blue-50 text-blue-600 shadow-sm border-l-4 border-blue-600' : 'text-gray-600 hover:bg-gray-50'}`}
+                    >
+                        <FaColumns /> About Sections
+                    </button>
+                    <button 
+                        onClick={() => setActiveTab('contacts')} 
+                        className={`group flex items-center gap-3 px-4 py-3 rounded-xl font-bold transition-all ${activeTab === 'contacts' ? 'bg-blue-50 text-blue-600 shadow-sm border-l-4 border-blue-600' : 'text-gray-600 hover:bg-gray-50'}`}
+                    >
+                        <FaEnvelopeOpenText /> Inquiries Inbox
+                    </button>
+                    <button 
+                        onClick={() => setActiveTab('settings')} 
+                        className={`group flex items-center gap-3 px-4 py-3 rounded-xl font-bold transition-all ${activeTab === 'settings' ? 'bg-blue-50 text-blue-600 shadow-sm border-l-4 border-blue-600' : 'text-gray-600 hover:bg-gray-50'}`}
+                    >
+                        <FaShieldAlt /> System Settings
                     </button>
                 </aside>
 

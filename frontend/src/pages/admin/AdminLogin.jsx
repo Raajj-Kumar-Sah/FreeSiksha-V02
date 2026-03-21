@@ -6,12 +6,23 @@ import { toast } from 'react-toastify';
 import { ClipLoader } from 'react-spinners';
 import security_auth_bg from '../../assets/security_auth_bg.png';
 import logo from '../../assets/logo.jpg';
+import { useSelector, useDispatch } from 'react-redux';
+import { useEffect } from 'react';
+import { setUserData } from '../../redux/userSlice';
 
 export default function AdminLogin() {
+    const { userData } = useSelector(state => state.user);
     const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
     const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
+    const dispatch = useDispatch();
+
+    useEffect(() => {
+        if (userData?.role === "admin") {
+            navigate("/admin");
+        }
+    }, [userData, navigate]);
 
     const handleLogin = async (e) => {
         e.preventDefault();
@@ -20,9 +31,12 @@ export default function AdminLogin() {
             const res = await axios.post(`${serverUrl}/api/admin/login`, { username, password }, { withCredentials: true });
             toast.success(res.data.message);
             
+            // Update Redux state immediately to allow navigation
+            dispatch(setUserData(res.data.admin));
+            
             // Wait briefly to show success before redirecting to the god-mode dashboard
             setTimeout(() => {
-                navigate("/mainadmin");
+                navigate("/admin");
             }, 1000);
             
         } catch (error) {

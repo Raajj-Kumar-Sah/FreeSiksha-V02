@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import logo from '../assets/logo.jpg'
 import google from '../assets/google.jpg'
 import security_auth_bg from '../assets/security_auth_bg.png'
@@ -13,14 +13,24 @@ import { toast } from 'react-toastify'
 import { useDispatch } from 'react-redux'
 import { setUserData } from '../redux/userSlice'
 import { useSearchParams } from 'react-router-dom'
+import { FaChalkboardTeacher } from 'react-icons/fa'
 
 function SignUp() {
     // Standard Auth Fields
     const [searchParams] = useSearchParams()
+    const navigate = useNavigate()
+    const dispatch = useDispatch()
+    
     const [name,setName] = useState("")
     const [email,setEmail] = useState("")
     const [password,setPassword]= useState("")
     const [role,setRole] = useState(searchParams.get('role') || "student")
+    
+    useEffect(() => {
+        if (role === 'trainer') {
+            navigate('/register-trainer');
+        }
+    }, [role, navigate]);
     
     // New Demographic Fields
     const [phone, setPhone] = useState("")
@@ -30,10 +40,8 @@ function SignUp() {
     const [city, setCity] = useState("")
 
     // UI States
-    const navigate = useNavigate()
     const [show,setShow] = useState(false)
     const [loading,setLoading]= useState(false)
-    const dispatch = useDispatch()
     
     // OTP States
     const [showOtpScreen, setShowOtpScreen] = useState(false)
@@ -47,7 +55,7 @@ function SignUp() {
         setLoading(true)
         try {
             const payload = { 
-                name, email, password, role, 
+                name, email, password, roleValue: role, 
                 phone, age: Number(age), gender, qualification, city 
             }
             const result = await axios.post(serverUrl + "/api/auth/signup" , payload, {withCredentials:true})
@@ -55,7 +63,7 @@ function SignUp() {
             if (result.data.requireOtp) {
                 setOtpEmail(result.data.email);
                 setShowOtpScreen(true);
-                toast.success(result.data.message || "OTP sent to your email!");
+                toast.success(result.data.message || (role === 'trainer' ? "Application submitted! Waiting for approval." : "OTP sent to your email!"));
             } else {
                 // If backend decides not to trigger OTP for some reason
                 dispatch(setUserData(result.data));
@@ -188,8 +196,8 @@ function SignUp() {
                                       <button type="button" className={`flex-1 py-3 px-4 rounded-xl font-bold transition-all border ${role === 'student' ? "bg-blue-50 dark:bg-blue-500/10 text-blue-600 border-blue-200 dark:border-blue-500/30 shadow-md" : "bg-[var(--bg-main)] text-[var(--text-muted)] border-[var(--border-color)] hover:border-blue-300"}`} onClick={()=>setRole("student")}>
                                         Student
                                       </button>
-                                      <button type="button" className={`flex-1 py-3 px-4 rounded-xl font-bold transition-all border ${role === 'educator' ? "bg-blue-50 dark:bg-blue-500/10 text-blue-600 border-blue-200 dark:border-blue-500/30 shadow-md" : "bg-[var(--bg-main)] text-[var(--text-muted)] border-[var(--border-color)] hover:border-blue-300"}`} onClick={()=>setRole("educator")}>
-                                        Educator
+                                      <button type="button" className={`flex-1 py-3 px-4 rounded-xl font-bold transition-all border ${role === 'trainer' ? "bg-blue-50 dark:bg-blue-500/10 text-blue-600 border-blue-200 dark:border-blue-500/30 shadow-md" : "bg-[var(--bg-main)] text-[var(--text-muted)] border-[var(--border-color)] hover:border-blue-300"}`} onClick={()=>setRole("trainer")}>
+                                        Trainer
                                       </button>
                                    </div>
                                 </div>

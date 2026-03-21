@@ -19,7 +19,7 @@ const blogSchema = new mongoose.Schema({
     },
     authorRole: {
         type: String,
-        enum: ["educator", "admin"],
+        enum: ["educator", "trainer", "admin"],
         required: true
     },
     category: {

@@ -3,37 +3,54 @@ import { FiMail } from 'react-icons/fi';
 import emailjs from '@emailjs/browser';
 import { toast } from 'react-toastify';
 import { ClipLoader } from 'react-spinners';
+import axios from 'axios';
+import { serverUrl } from '../App';
 
 function Contact() {
   const form = useRef();
   const [loading, setLoading] = useState(false);
 
-  const sendEmail = (e) => {
+  const sendEmail = async (e) => {
     e.preventDefault();
     setLoading(true);
 
-    // Securely pulling from the frontend environment variables
-    const serviceId = import.meta.env.VITE_EMAILJS_SERVICE_ID;
-    const templateId = import.meta.env.VITE_EMAILJS_TEMPLATE_ID;
-    const publicKey = import.meta.env.VITE_EMAILJS_PUBLIC_KEY;
+    const formData = new FormData(form.current);
+    const data = {
+      name: formData.get("user_name"),
+      email: formData.get("user_email"),
+      message: formData.get("message")
+    };
 
-    if (!serviceId || !templateId || !publicKey) {
-      toast.warning("EmailJS is not configured. Please add your credentials in your frontend .env file.");
+    try {
+      // 1. Store in Database (Primary) - This is the source of truth
+      const dbResponse = await axios.post(`${serverUrl}/api/contact/submit`, data);
+      
+      // 2. Send via EmailJS (Optional/Notification)
+      // We wrap this in a separate try-catch so placeholder keys don't break the UI
+      try {
+        const serviceId = import.meta.env.VITE_EMAILJS_SERVICE_ID;
+        const templateId = import.meta.env.VITE_EMAILJS_TEMPLATE_ID;
+        const publicKey = import.meta.env.VITE_EMAILJS_PUBLIC_KEY;
+
+        // Only attempt if not using placeholders
+        if (serviceId && !serviceId.includes("here") && 
+            templateId && !templateId.includes("here") && 
+            publicKey && !publicKey.includes("here")) {
+          await emailjs.sendForm(serviceId, templateId, form.current, publicKey);
+        }
+      } catch (emailError) {
+        console.warn("EmailJS notification failed:", emailError);
+        // We don't toast an error here because the DB save succeeded
+      }
+
+      toast.success(dbResponse.data.message || "Message received! Our team will contact you soon.");
+      form.current.reset();
+    } catch (error) {
+      console.error("Submission failed:", error);
+      toast.error(error.response?.data?.message || "Something went wrong. Please try again.");
+    } finally {
       setLoading(false);
-      return;
     }
-
-    emailjs.sendForm(serviceId, templateId, form.current, publicKey)
-      .then((result) => {
-        console.log(result.text);
-        toast.success("Message sent successfully!");
-        form.current.reset();
-        setLoading(false);
-      }, (error) => {
-        console.log(error.text);
-        toast.error("Failed to send message. Please try again.");
-        setLoading(false);
-      });
   };
 
   return (

@@ -7,12 +7,13 @@ import {
     updateApplicationStatus 
 } from "../controllers/volunteerController.js";
 import { isAuth, isAdmin } from "../middlewares/isAuth.js";
+import upload from "../middlewares/multer.js";
 
 const router = express.Router();
 
 // Public Routes
 router.get("/form", getVolunteerForm);
-router.post("/apply", submitApplication);
+router.post("/apply", upload.single("resume"), submitApplication);
 
 // Admin Routes
 router.post("/form", isAuth, isAdmin, saveVolunteerForm);

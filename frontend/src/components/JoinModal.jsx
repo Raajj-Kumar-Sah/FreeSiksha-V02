@@ -12,6 +12,9 @@ const JoinModal = ({ isOpen, onClose }) => {
     const [step, setStep] = useState('options'); // 'options' or 'volunteer-form'
     const [formSchema, setFormSchema] = useState(null);
     const [loading, setLoading] = useState(false);
+    const [showTrainerConfirm, setShowTrainerConfirm] = useState(false);
+    const [showSubmitConfirm, setShowSubmitConfirm] = useState(false);
+    const [pendingFormData, setPendingFormData] = useState(null);
 
     useEffect(() => {
         if (isOpen) {
@@ -23,24 +26,47 @@ const JoinModal = ({ isOpen, onClose }) => {
     const fetchVolunteerForm = async () => {
         try {
             const res = await axios.get(`${serverUrl}/api/volunteer/form`);
+            if (!res.data || !res.data.isActive) {
+                setFormSchema(null);
+                return;
+            }
             setFormSchema(res.data.fields);
         } catch (error) {
-            console.error("Failed to fetch volunteer form", error);
+            setFormSchema(null);
         }
     };
 
     const handleVolunteerSubmit = async (formData) => {
+        setPendingFormData(formData);
+        setShowSubmitConfirm(true);
+    };
+
+    const confirmSubmit = async () => {
         setLoading(true);
         try {
-            const res = await axios.post(`${serverUrl}/api/volunteer/apply`, {
-                name: formData.Name || formData.name || "Anonymous",
-                email: formData.Email || formData.email || "",
-                responses: formData
+            const data = new FormData();
+            data.append("name", pendingFormData.Name || pendingFormData.name || "Anonymous");
+            data.append("email", pendingFormData.Email || pendingFormData.email || "");
+
+            const formAnswers = {};
+            Object.entries(pendingFormData).forEach(([key, value]) => {
+                if (value instanceof File) {
+                    data.append("resume", value);
+                } else {
+                    formAnswers[key] = value;
+                }
+            });
+            data.append("responses", JSON.stringify(formAnswers));
+
+            await axios.post(`${serverUrl}/api/volunteer/apply`, data, { 
+                headers: { 'Content-Type': 'multipart/form-data' },
+                withCredentials: true 
             });
             toast.success("Application submitted! Admin will contact you soon.");
+            setShowSubmitConfirm(false);
             onClose();
         } catch (error) {
-            toast.error(error.response?.data?.message || "Failed to submit application");
+            toast.error(error.response?.data?.message || "Something went wrong, please try again");
         } finally {
             setLoading(false);
         }
@@ -74,7 +100,7 @@ const JoinModal = ({ isOpen, onClose }) => {
                         <FaTimes className="text-xl" />
                     </button>
 
-                    {step === 'options' ? (
+                    {step === 'options' && (
                         <div className="space-y-8">
                             <div className="text-center space-y-2">
                                 <h2 className="text-3xl font-black text-[var(--text-main)]">Join <span className="text-blue-600">FreeSiksha</span></h2>
@@ -96,7 +122,7 @@ const JoinModal = ({ isOpen, onClose }) => {
                                 </button>
 
                                 <button 
-                                    onClick={() => { navigate("/signup?role=educator"); onClose(); }}
+                                    onClick={() => setStep('trainer-confirm')}
                                     className="group flex items-center gap-5 p-5 bg-[var(--bg-main)] hover:bg-emerald-600/10 border border-[var(--border-color)] hover:border-emerald-500/50 rounded-2xl transition-all shadow-sm"
                                 >
                                     <div className="w-14 h-14 bg-emerald-100 dark:bg-emerald-900/40 rounded-xl flex items-center justify-center text-emerald-600 dark:text-emerald-400 group-hover:scale-110 transition-transform">
@@ -109,7 +135,13 @@ const JoinModal = ({ isOpen, onClose }) => {
                                 </button>
 
                                 <button 
-                                    onClick={() => setStep('volunteer-form')}
+                                    onClick={() => {
+                                        if (!formSchema) {
+                                            toast.info("No volunteer form is open yet. Please try again later.");
+                                            return;
+                                        }
+                                        setStep('volunteer-form');
+                                    }}
                                     className="group flex items-center gap-5 p-5 bg-[var(--bg-main)] hover:bg-purple-600/10 border border-[var(--border-color)] hover:border-purple-500/50 rounded-2xl transition-all shadow-sm"
                                 >
                                     <div className="w-14 h-14 bg-purple-100 dark:bg-purple-900/40 rounded-xl flex items-center justify-center text-purple-600 dark:text-purple-400 group-hover:scale-110 transition-transform">
@@ -122,7 +154,67 @@ const JoinModal = ({ isOpen, onClose }) => {
                                 </button>
                             </div>
                         </div>
-                    ) : (
+                    )}
+                    
+                    {step === 'trainer-confirm' && (
+                        <div className="space-y-8 py-4 text-center">
+                            <div className="w-20 h-20 bg-emerald-100 dark:bg-emerald-900/40 rounded-3xl flex items-center justify-center text-emerald-600 dark:text-emerald-400 mx-auto shadow-xl shadow-emerald-500/10">
+                                <FaChalkboardTeacher size={32} />
+                            </div>
+                            <div className="space-y-2">
+                                <h3 className="text-2xl font-black text-[var(--text-main)]">Apply as a Trainer?</h3>
+                                <p className="text-[var(--text-muted)] font-medium leading-relaxed">
+                                    You are about to start your application to join <b>FreeSiksha</b> as an educator. Are you ready to share your knowledge?
+                                </p>
+                            </div>
+                            <div className="flex gap-4">
+                                <button 
+                                    onClick={() => { setStep('options'); navigate("/register-trainer"); onClose(); }}
+                                    className="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white py-4 rounded-2xl font-black shadow-lg shadow-emerald-500/20 transition-all active:scale-95"
+                                >
+                                    Yes, Proceed
+                                </button>
+                                <button 
+                                    onClick={() => setStep('options')}
+                                    className="flex-1 bg-[var(--bg-main)] border border-[var(--border-color)] text-[var(--text-main)] py-4 rounded-2xl font-black hover:bg-[var(--bg-surface)] transition-all active:scale-95"
+                                >
+                                    Cancel
+                                </button>
+                            </div>
+                        </div>
+                    )}
+                    
+                    {step === 'volunteer-form' && showSubmitConfirm && (
+                        <div className="space-y-8 py-4 text-center">
+                            <div className="w-20 h-20 bg-purple-100 dark:bg-purple-900/40 rounded-3xl flex items-center justify-center text-purple-600 dark:text-purple-400 mx-auto shadow-xl shadow-purple-500/10">
+                                <FaHandsHelping size={32} />
+                            </div>
+                            <div className="space-y-2">
+                                <h3 className="text-2xl font-black text-[var(--text-main)]">Submit Application?</h3>
+                                <p className="text-[var(--text-muted)] font-medium leading-relaxed">
+                                    Are you sure you want to submit your volunteer application to FreeSiksha?
+                                </p>
+                            </div>
+                            <div className="flex gap-4">
+                                <button 
+                                    disabled={loading}
+                                    onClick={confirmSubmit}
+                                    className="flex-1 bg-purple-600 hover:bg-purple-700 text-white py-4 rounded-2xl font-black shadow-lg shadow-purple-500/20 transition-all active:scale-95 disabled:opacity-50"
+                                >
+                                    {loading ? "Submitting..." : "Yes, Submit"}
+                                </button>
+                                <button 
+                                    disabled={loading}
+                                    onClick={() => setShowSubmitConfirm(false)}
+                                    className="flex-1 bg-[var(--bg-main)] border border-[var(--border-color)] text-[var(--text-main)] py-4 rounded-2xl font-black hover:bg-[var(--bg-surface)] transition-all active:scale-95 disabled:opacity-50"
+                                >
+                                    Cancel
+                                </button>
+                            </div>
+                        </div>
+                    )}
+                    
+                    {step === 'volunteer-form' && !showSubmitConfirm && (
                         <div className="space-y-6">
                             <div className="flex items-center gap-4">
                                 <button 

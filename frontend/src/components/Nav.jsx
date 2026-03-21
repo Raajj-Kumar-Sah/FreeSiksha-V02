@@ -26,6 +26,7 @@ function Nav() {
   const handleLogout = async () => {
     try {
       await axios.get(serverUrl + "/api/auth/logout", { withCredentials: true })
+      localStorage.setItem('auth_event', Date.now());
       dispatch(setUserData(null))
       toast.success("Logged out successfully")
     } catch (error) {
@@ -123,12 +124,12 @@ function Nav() {
             </>
           ) : (
             <div className="flex items-center gap-4">
-              {userData.role === "educator" && (
+              {userData.role === "trainer" && (
                 <button 
                   onClick={() => navigate("/dashboard")}
                   className="btn-secondary px-4 py-2 rounded-full text-sm"
                 >
-                  Dashboard
+                  Trainer Dashboard
                 </button>
               )}
               <div className="relative">
@@ -150,7 +151,7 @@ function Nav() {
                   <div className="absolute top-14 right-0 w-48 bg-[var(--bg-surface)] rounded-2xl shadow-xl border border-[var(--border-color)] py-2 animate-in fade-in slide-in-from-top-2 duration-200">
                     <button onClick={() => { navigate("/profile"); setShowPro(false); }} className="w-full text-left px-4 py-2 hover:bg-[var(--bg-main)] text-[var(--text-main)]">My Profile</button>
                     <button onClick={() => { navigate("/enrolledcourses"); setShowPro(false); }} className="w-full text-left px-4 py-2 hover:bg-[var(--bg-main)] text-[var(--text-main)]">My Courses</button>
-                    {userData.role === "educator" && (
+                    {userData.role === "trainer" && (
                         <>
                             <button onClick={() => { navigate("/enrollments"); setShowPro(false); }} className="w-full text-left px-4 py-2 hover:bg-[var(--bg-main)] text-[var(--text-main)]">Manage Enrollments</button>
                             <button onClick={() => { navigate("/manage-blogs"); setShowPro(false); }} className="w-full text-left px-4 py-2 hover:bg-[var(--bg-main)] text-[var(--text-main)]">Manage Blogs</button>
@@ -230,9 +231,9 @@ function Nav() {
                     <Link to="/profile" onClick={() => setShowHam(false)} className="hover:text-blue-600 transition-colors">My Profile</Link>
                     <Link to="/enrolledcourses" onClick={() => setShowHam(false)} className="hover:text-blue-600 transition-colors">My Enrolled Courses</Link>
                     
-                    {userData.role === "educator" && (
+                    {userData.role === "trainer" && (
                         <>
-                           <Link to="/dashboard" onClick={() => setShowHam(false)} className="hover:text-blue-600 transition-colors text-blue-500">Educator Dashboard</Link>
+                           <Link to="/dashboard" onClick={() => setShowHam(false)} className="hover:text-blue-600 transition-colors text-blue-500">Trainer Dashboard</Link>
                            <Link to="/enrollments" onClick={() => setShowHam(false)} className="hover:text-blue-600 transition-colors">Manage Enrollments</Link>
                         </>
                     )}

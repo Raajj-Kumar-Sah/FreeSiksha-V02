@@ -3,7 +3,7 @@ import axios from 'axios';
 import { serverUrl } from '../../App';
 import { toast } from 'react-toastify';
 import { ClipLoader } from 'react-spinners';
-import { FaCheck, FaTimes, FaInbox, FaUser, FaEnvelope, FaPhone, FaHashtag, FaInfoCircle } from 'react-icons/fa';
+import { FaCheck, FaTimes, FaInbox, FaUser, FaEnvelope, FaPhone, FaHashtag, FaInfoCircle, FaFileAlt } from 'react-icons/fa';
 
 const AdminVolunteerApplications = () => {
     const [applications, setApplications] = useState([]);
@@ -120,11 +120,15 @@ const AdminVolunteerApplications = () => {
                                     {Object.entries(app.responses || {}).map(([key, val]) => (
                                         <div key={key} className="space-y-1">
                                             <div className="flex items-center gap-2">
-                                                {getValidationIcon(key)}
+                                                {key.toLowerCase() === 'resume' ? <FaFileAlt className="text-blue-500" /> : getValidationIcon(key)}
                                                 <span className="text-[10px] uppercase font-black text-gray-400 tracking-wider">{key}</span>
                                             </div>
-                                            <div className="text-sm font-black text-gray-700 bg-white px-4 py-2 rounded-xl shadow-sm border border-gray-100">
-                                                {Array.isArray(val) ? val.join(", ") : (val || 'N/A')}
+                                            <div className="text-sm font-black text-gray-700 bg-white px-4 py-2 rounded-xl shadow-sm border border-gray-100 overflow-hidden text-ellipsis whitespace-nowrap">
+                                                {key.toLowerCase() === 'resume' && typeof val === 'string' && val.startsWith('http') ? (
+                                                    <a href={val} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:text-blue-800 underline font-bold flex items-center gap-2">
+                                                        <FaFileAlt /> View Document
+                                                    </a>
+                                                ) : Array.isArray(val) ? val.join(", ") : (val || 'N/A')}
                                             </div>
                                         </div>
                                     ))}

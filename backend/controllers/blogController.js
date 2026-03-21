@@ -115,17 +115,20 @@ export const toggleHeart = async (req, res) => {
         const blog = await Blog.findById(req.params.id);
         if (!blog) return res.status(404).json({ message: "Blog not found" });
 
-        const userId = req.userId; // from isAuth middleware
-        const index = blog.hearts.indexOf(userId);
+        const userId = req.userId;
+        const hasLiked = blog.hearts.some(id => id.toString() === userId.toString());
 
-        if (index === -1) {
-            blog.hearts.push(userId); // Like
+        let newLength = blog.hearts.length;
+
+        if (!hasLiked) {
+            await Blog.findByIdAndUpdate(req.params.id, { $addToSet: { hearts: userId } });
+            newLength += 1;
         } else {
-            blog.hearts.splice(index, 1); // Unlike
+            await Blog.findByIdAndUpdate(req.params.id, { $pull: { hearts: userId } });
+            newLength -= 1;
         }
 
-        await blog.save();
-        res.status(200).json({ message: "Heart updated", heartsLength: blog.hearts.length, isLiked: index === -1 });
+        res.status(200).json({ message: "Heart updated", heartsLength: newLength, isLiked: !hasLiked });
     } catch (error) {
         console.log("Toggle Heart Error: ", error);
         res.status(500).json({ message: "Failed to update like status." });

@@ -198,16 +198,14 @@ const handleCancelRequest = async () => {
   setCancelLoading(true);
   try {
     await axios.post(`${serverUrl}/api/course/${courseId}/unenroll`, {}, { withCredentials: true });
-    // Remove courseId from pending list in Redux
     const updatedUser = {
       ...userData,
-      pendingCourses: (userData.pendingCourses || []).filter(id => {
-        const pendingId = typeof id === 'string' ? id : id._id;
-        return pendingId?.toString() !== courseId?.toString();
-      })
+      pendingCourses: (userData.pendingCourses || []).filter(id => (typeof id === 'string' ? id : id._id)?.toString() !== courseId?.toString()),
+      enrolledCourses: (userData.enrolledCourses || []).filter(id => (typeof id === 'string' ? id : id._id)?.toString() !== courseId?.toString())
     };
     dispatch(setUserData(updatedUser));
-    toast.success("Enrollment request cancelled. You can re-apply anytime!");
+    setIsEnrolled(false);
+    toast.success("Unenrolled successfully. You can re-apply anytime!");
   } catch (err) {
     toast.error(err.response?.data?.message || "Failed to cancel request.");
     console.error("Cancel Error:", err);
@@ -316,7 +314,7 @@ const handleCancelRequest = async () => {
                   }}
                   disabled={isDeadlinePassed}
                 >
-                  {isDeadlinePassed ? "Registration Closed" : "Request to Join"}
+                  {isDeadlinePassed ? "Registration Closed" : "Request Enrollment"}
                 </button>
                ) : !isEnrolled && userData?.pendingCourses?.some(id => (typeof id === 'string' ? id : id._id)?.toString() === courseId?.toString()) ? (
                  <button 
@@ -325,30 +323,39 @@ const handleCancelRequest = async () => {
                   disabled={cancelLoading}
                 >
                   {cancelLoading ? (
-                    <>⏳ Cancelling...</>
+                    <>⏳ Processing...</>
                   ) : (
-                    <>⏳ Pending Approval &mdash; <span className="underline text-sm">Click to Cancel</span></>
+                    <>⏳ Approval Pending Request &mdash; <span className="underline text-sm">Unenroll</span></>
                   )}
                 </button>
               ) : (
-                <>
-                  <button 
-                    className="flex-1 min-w-[140px] bg-emerald-500 hover:bg-emerald-600 text-white py-4 rounded-xl font-bold shadow-lg shadow-emerald-500/20 transition-all" 
-                    onClick={() => navigate(`/viewlecture/${courseId}`)}
-                  >
-                    Watch Now
-                  </button>
-                  
-                  {selectedCourseData?.zoomLink && (
+                <div className="flex flex-col w-full gap-3">
+                  <div className="flex flex-wrap gap-4 w-full">
                     <button 
-                      className="flex-1 min-w-[140px] bg-indigo-600 hover:bg-indigo-700 text-white py-4 rounded-xl font-bold shadow-lg shadow-indigo-500/20 transition-all flex items-center justify-center gap-2"
-                      onClick={() => window.open(selectedCourseData.zoomLink, "_blank")}
+                      className="flex-1 min-w-[140px] bg-emerald-500 hover:bg-emerald-600 text-white py-4 rounded-xl font-bold shadow-lg shadow-emerald-500/20 transition-all" 
+                      onClick={() => navigate(`/viewlecture/${courseId}`)}
                     >
-                      <span className="w-2 h-2 rounded-full bg-red-400 animate-pulse"></span>
-                      Join Live Class
+                      Watch Now
                     </button>
-                  )}
-                </>
+                    
+                    {selectedCourseData?.zoomLink && (
+                      <button 
+                        className="flex-1 min-w-[140px] bg-indigo-600 hover:bg-indigo-700 text-white py-4 rounded-xl font-bold shadow-lg shadow-indigo-500/20 transition-all flex items-center justify-center gap-2"
+                        onClick={() => window.open(selectedCourseData.zoomLink, "_blank")}
+                      >
+                        <span className="w-2 h-2 rounded-full bg-red-400 animate-pulse"></span>
+                        Join Live Class
+                      </button>
+                    )}
+                  </div>
+                  <button 
+                    onClick={handleCancelRequest}
+                    disabled={cancelLoading}
+                    className="text-[var(--text-muted)] hover:text-red-500 text-xs font-bold transition-all w-fit px-2"
+                  >
+                    {cancelLoading ? "Syncing..." : "Unenroll from this Course"}
+                  </button>
+                </div>
               )}
             </div>
           </div>
@@ -475,9 +482,9 @@ const handleCancelRequest = async () => {
             </div>
 
             <div className="flex-1 text-center md:text-left">
-              <span className="text-xs font-bold text-blue-600 uppercase tracking-widest mb-1 block">Course Instructor</span>
+              <span className="text-xs font-bold text-blue-600 uppercase tracking-widest mb-1 block">Course Trainer</span>
               <h3 className="text-2xl font-black text-[var(--text-main)] mb-2">{creatorData?.name}</h3>
-              <p className="text-[var(--text-muted)] text-sm leading-relaxed max-w-2xl">{creatorData?.description || "Expert educator with years of industry experience in professional development."}</p>
+              <p className="text-[var(--text-muted)] text-sm leading-relaxed max-w-2xl">{creatorData?.description || "Expert trainer with years of industry experience in professional development."}</p>
               <div className="flex flex-wrap justify-center md:justify-start gap-4 mt-4">
                 <span className="text-xs font-bold px-3 py-1 bg-blue-50 dark:bg-blue-900/30 text-blue-600 rounded-full">{creatorData?.email}</span>
                 <span className="text-xs font-bold px-3 py-1 bg-emerald-50 dark:bg-emerald-900/30 text-emerald-600 rounded-full">12 Courses</span>
@@ -488,7 +495,7 @@ const handleCancelRequest = async () => {
           {selectedCreatorCourse?.length > 0 && (
             <div>
               <div className="flex items-center justify-between mb-8">
-                <h2 className="text-2xl font-black text-[var(--text-main)]">More from this instructor</h2>
+                <h2 className="text-2xl font-black text-[var(--text-main)]">More from this trainer</h2>
                 <span className="h-0.5 flex-1 mx-8 bg-[var(--border-color)] rounded-full hidden md:block"></span>
               </div>
               <div className="flex overflow-x-auto pb-6 gap-6 scrollbar-hide">

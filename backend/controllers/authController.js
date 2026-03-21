@@ -9,7 +9,8 @@ import sendMail from "../configs/Mail.js"
 
 export const signUp=async (req,res)=>{
     try {
-        let {name, email, password, role, age, city, qualification, phone, gender}= req.body
+        let {name, email, password, roleValue, age, city, qualification, phone, gender}= req.body
+        const role = roleValue === "trainer" ? "trainer" : "student";
         let existUser= await User.findOne({email})
         
         if(existUser){
@@ -31,7 +32,7 @@ export const signUp=async (req,res)=>{
         
         // Generate FS-ID
         const year = new Date().getFullYear();
-        const prefix = role === "educator" ? "FS-EDU" : "FS-STU";
+        const prefix = role === "trainer" ? "FS-TRA" : "FS-STU";
         const count = await User.countDocuments({ role });
         const seq = String(count + 1).padStart(4, '0');
         const studentId = `${prefix}-${year}-${seq}`;
@@ -81,8 +82,22 @@ export const login=async(req,res)=>{
             return res.status(200).json({ message: "OTP sent to your registered email to verify account.", requireOtp: true, email: user.email })
         }
 
+        if (user.status === "pending") {
+            return res.status(401).json({ message: "Your account is under review. You will be notified once approved." });
+        }
+
+        if (!user.password) {
+            return res.status(401).json({ message: "Your account is approved but you haven't set your password. Please check your email for the activation link." });
+        }
+
         let isMatch =await bcrypt.compare(password, user.password)
         if(!isMatch){
+            if (user.role === "volunteer") {
+                return res.status(400).json({ 
+                    message: "Incorrect Password. Please contact Admin if you are having trouble logging in.",
+                    isVolunteer: true 
+                });
+            }
             return res.status(400).json({message:"incorrect Password"})
         }
 
@@ -117,7 +132,7 @@ export const verifyAuthOtp = async (req,res) => {
         user.otpExpires = undefined;
         await user.save();
 
-        let token = await genToken(user._id)
+        let token = await genToken(user._id, user.role)
         res.cookie("token",token,{
             httpOnly:true,
             secure:false,
@@ -147,14 +162,28 @@ export const logOut = async(req,res)=>{
 
 export const googleSignup = async (req,res) => {
     try {
-        const {name , email , role} = req.body
-        let user= await User.findOne({email})
-        if(!user){
+        const { name, email, role: roleInput } = req.body;
+        const role = (roleInput && ["student", "trainer", "admin"].includes(roleInput)) ? roleInput : "student";
+        
+        let user = await User.findOne({ email });
+        
+        if (!user) {
+            // Generate FS-ID for new Google user
+            const year = new Date().getFullYear();
+            const prefix = role === "trainer" ? "FS-TRA" : "FS-STU";
+            const count = await User.countDocuments({ role });
+            const seq = String(count + 1).padStart(4, '0');
+            const studentId = `${prefix}-${year}-${seq}`;
+
             user = await User.create({
-            name , email ,role
-        })
+                name,
+                email,
+                role,
+                studentId,
+                isOtpVerifed: true // Google users are pre-verified
+            });
         }
-        let token =await genToken(user._id)
+        let token =await genToken(user._id, user.role)
         res.cookie("token",token,{
             httpOnly:true,
             secure:false,

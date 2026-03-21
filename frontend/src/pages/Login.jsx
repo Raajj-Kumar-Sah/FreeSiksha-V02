@@ -54,7 +54,14 @@ function Login() {
         } catch (error) {
             console.log(error)
             setLoading(false)
-            toast.error(error.response?.data?.message || "Login failed");
+            if (error.response?.data?.isVolunteer) {
+                toast.error(error.response.data.message || "Volunteer login failed. Please contact administrator.", {
+                    autoClose: 10000,
+                    position: "bottom-center"
+                });
+            } else {
+                toast.error(error.response?.data?.message || "Login failed");
+            }
         }
     }
 
@@ -87,8 +94,17 @@ function Login() {
             navigate("/");
             toast.success("Login Successfully")
         } catch (error) {
-            console.log(error)
-            toast.error(error.response?.data?.message || "Google Login failed")
+            console.log(error);
+            if (error.response?.data?.isVolunteer) {
+                toast.error(error.response.data.message || "Volunteer login failed. Please contact administrator.", {
+                    autoClose: 10000,
+                    position: "bottom-center"
+                });
+            } else {
+                toast.error(error.response?.data?.message || "Google Login failed");
+            }
+        } finally {
+            // Any cleanup or final actions can go here if needed
         }
     }
 

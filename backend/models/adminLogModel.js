@@ -4,7 +4,7 @@ const adminLogSchema = new mongoose.Schema({
     adminId: {
         type: String,
         required: true,
-        default: 'superadmin_id'
+        default: '000000000000000000000001'
     },
     action: {
         type: String,
@@ -15,7 +15,7 @@ const adminLogSchema = new mongoose.Schema({
     },
     targetModel: {
         type: String,
-        enum: ['User', 'Course', 'Enrollment', 'Review']
+        enum: ['User', 'Course', 'Enrollment', 'Review', 'Contact', 'AdminSettings']
     },
     details: {
         type: String

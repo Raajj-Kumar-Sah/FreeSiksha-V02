@@ -43,14 +43,14 @@ function Dashboard() {
           <div className="absolute top-0 right-0 w-32 h-32 bg-blue-600/5 rounded-full -mr-16 -mt-16"></div>
           <img
             src={userData?.photoUrl || img}
-            alt="Educator"
+            alt="Trainer"
             className="w-32 h-32 rounded-3xl object-cover border-4 border-[var(--bg-main)] shadow-xl relative z-10"
           />
           <div className="text-center md:text-left space-y-4 flex-1">
             <div className="space-y-1">
               <p className="text-xs font-bold text-blue-600 uppercase tracking-widest">Dashboard Overview</p>
               <h1 className="text-3xl font-black text-[var(--text-main)]">
-                Welcome, {userData?.name || "Educator"} 👋
+                Welcome, {userData?.name || "Trainer"} 👋
               </h1>
             </div>
             

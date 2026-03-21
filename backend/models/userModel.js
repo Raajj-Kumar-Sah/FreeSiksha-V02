@@ -10,6 +10,11 @@ const userSchema = new mongoose.Schema(
       unique: true,
       sparse: true
     },
+    volunteerId: {
+      type: String,
+      unique: true,
+      sparse: true
+    },
     email: {
       type: String,
       required: true,
@@ -24,34 +29,29 @@ const userSchema = new mongoose.Schema(
     },
     role: {
       type: String,
-      enum: ["educator", "student", "admin", "volunteer"],
-      required: true
+      enum: ["student", "trainer", "admin"],
+      default: "student",
     },
     status: {
       type: String,
-      enum: ["active", "suspended", "banned"],
-      default: "active"
+      enum: ["pending", "approved", "rejected", "active", "suspended", "banned"],
+      default: "pending",
     },
     age: {
-      type: Number,
-      required: true
+      type: Number
     },
     city: {
-      type: String,
-      required: true
+      type: String
     },
     qualification: {
-      type: String,
-      required: true
+      type: String
     },
     phone: {
-      type: String,
-      required: true
+      type: String
     },
     gender: {
       type: String,
-      enum: ['Male', 'Female', 'Other'],
-      required: true
+      enum: ['Male', 'Female', 'Other']
     },
     photoUrl: {
       type: String,
@@ -74,6 +74,12 @@ const userSchema = new mongoose.Schema(
     isOtpVerifed:{
       type:Boolean,
       default:false
+    },
+    activationToken: {
+      type: String
+    },
+    activationExpires: {
+      type: Date
     },
     formResponsesMap: {
       type: Map,

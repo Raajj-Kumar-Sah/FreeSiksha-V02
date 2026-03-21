@@ -4,6 +4,8 @@ import Lecture from "../models/lectureModel.js"
 import User from "../models/userModel.js"
 import bcrypt from "bcryptjs"
 import { sendApprovalEmail } from "../configs/Mail.js"
+import EnrollmentRequest from "../models/enrollmentRequestModel.js"
+import FormResponse from "../models/formResponseModel.js"
 
 // create Courses
 export const createCourse = async (req,res) => {
@@ -307,6 +309,10 @@ export const enrollInFreeCourse = async (req, res) => {
     const userId = req.userId;
     const { formResponses } = req.body;
 
+    if (!courseId || !userId) {
+        return res.status(400).json({ message: "Missing required student or course identification." });
+    }
+
     const course = await Course.findById(courseId);
     if (!course) return res.status(404).json({ message: "Course not found" });
 
@@ -318,30 +324,53 @@ export const enrollInFreeCourse = async (req, res) => {
     const user = await User.findById(userId);
     if (!user) return res.status(404).json({ message: "User not found" });
 
-    if (user.enrolledCourses.includes(courseId)) {
+    // Prevent duplicate enrollment requests (Robust check)
+    if (user.enrolledCourses?.includes(courseId)) {
       return res.status(400).json({ message: "Already enrolled in this course" });
     }
-    if (user.pendingCourses.includes(courseId)) {
-      return res.status(400).json({ message: "Enrollment request already pending" });
+
+    const existingRequest = await EnrollmentRequest.findOne({
+        studentId: userId,
+        courseId: courseId,
+        status: 'pending'
+    });
+
+    if (existingRequest) {
+        return res.status(400).json({ message: "Enrollment request already pending" });
     }
 
-    // Add to pending queues
-    user.pendingCourses.push(courseId);
-    // Store form responses if provided
-    if(formResponses && Object.keys(formResponses).length > 0){
-        if(!user.formResponsesMap) user.formResponsesMap = {};
-        user.formResponsesMap[courseId] = formResponses;
-        user.markModified('formResponsesMap');
+    // NEW: Handle Course Form Submission
+    let formResponseId = null;
+    if (formResponses && Object.keys(formResponses).length > 0) {
+        const response = await FormResponse.create({
+            studentId: userId,
+            courseId: courseId,
+            answers: formResponses
+        });
+        formResponseId = response._id;
     }
-    await user.save({ validateBeforeSave: false });
 
-    course.pendingStudents.push(userId);
-    await course.save();
+    // Create persistent EnrollmentRequest record
+    await EnrollmentRequest.create({
+        studentId: userId,
+        courseId: courseId,
+        trainerId: course.creator, 
+        status: 'pending', 
+        formResponseId: formResponseId
+    });
 
-    return res.status(200).json({ message: "Enrollment requested successfully! Waiting for teacher approval." });
+    // Update legacy arrays for backward compatibility
+    await User.findByIdAndUpdate(userId, {
+        $addToSet: { pendingCourses: courseId }
+    });
+    await Course.findByIdAndUpdate(courseId, {
+        $addToSet: { pendingStudents: userId }
+    });
+
+    return res.status(200).json({ message: "Enrollment request sent successfully" });
   } catch (error) {
     console.error("Enrollment error:", error);
-    res.status(500).json({ message: "Internal server error during enrollment request" });
+    res.status(500).json({ message: "Something went wrong, please try again" });
   }
 };
 
@@ -350,8 +379,8 @@ export const getCourseStudents = async (req, res) => {
     try {
         const { courseId } = req.params;
         const course = await Course.findById(courseId)
-            .populate('enrolledStudents', 'name email phone age city qualification gender createdAt')
-            .populate('pendingStudents', 'name email phone age city qualification gender createdAt');
+            .populate('enrolledStudents', 'name email phone age city qualification gender createdAt studentId photoUrl')
+            .populate('pendingStudents', 'name email phone age city qualification gender createdAt studentId photoUrl');
 
         if (!course) return res.status(404).json({ message: "Course not found" });
 
@@ -384,19 +413,25 @@ export const approveStudent = async (req, res) => {
         const user = await User.findById(studentId);
         if (!user) return res.status(404).json({ message: "User not found" });
 
-        // Remove from pending arrays
-        course.pendingStudents = course.pendingStudents.filter(id => id.toString() !== studentId);
-        user.pendingCourses = user.pendingCourses.filter(id => id.toString() !== courseId);
+        // Atomic updates to bypass document validation errors and ensure safety
+        await Course.findByIdAndUpdate(courseId, {
+            $pull: { pendingStudents: studentId },
+            $addToSet: { enrolledStudents: studentId }
+        });
 
-        // Add to enrolled arrays
-        if (!course.enrolledStudents.includes(studentId)) course.enrolledStudents.push(studentId);
-        if (!user.enrolledCourses.includes(courseId)) user.enrolledCourses.push(courseId);
+        await User.findByIdAndUpdate(studentId, {
+            $pull: { pendingCourses: courseId },
+            $addToSet: { enrolledCourses: courseId }
+        });
 
-        await course.save();
-        await user.save();
+        // Update EnrollmentRequest status
+        await EnrollmentRequest.findOneAndUpdate(
+            { studentId: studentId, courseId: courseId },
+            { status: 'approved' }
+        );
 
         try {
-            await sendApprovalEmail(user.email, course.title, user.name);
+            await sendApprovalEmail(user.email, course.title, user.name, user.studentId || "N/A");
         } catch (mailError) {
             console.error("Failed to send approval email:", mailError);
         }
@@ -422,12 +457,17 @@ export const rejectStudent = async (req, res) => {
         const user = await User.findById(studentId);
         if (!user) return res.status(404).json({ message: "User not found" });
 
-        // Remove from pending arrays explicitly
-        course.pendingStudents = course.pendingStudents.filter(id => id.toString() !== studentId);
-        user.pendingCourses = user.pendingCourses.filter(id => id.toString() !== courseId);
+        // Atomic updates to bypass document validation errors and ensure safety
+        await Course.findByIdAndUpdate(courseId, {
+            $pull: { pendingStudents: studentId }
+        });
 
-        await course.save();
-        await user.save();
+        await User.findByIdAndUpdate(studentId, {
+            $pull: { pendingCourses: courseId }
+        });
+
+        // Delete/Update EnrollmentRequest
+        await EnrollmentRequest.findOneAndDelete({ studentId: studentId, courseId: courseId });
 
         res.status(200).json({ message: "Student enrollment request rejected." });
     } catch (error) {
@@ -453,6 +493,9 @@ export const unenrollFromCourse = async (req, res) => {
         await User.findByIdAndUpdate(userId, {
             $pull: { pendingCourses: courseId, enrolledCourses: courseId }
         });
+
+        // NEW: Also remove the persistent EnrollmentRequest record
+        await EnrollmentRequest.findOneAndDelete({ studentId: userId, courseId: courseId });
 
         res.status(200).json({ message: "Unenrolled successfully." });
     } catch (error) {
@@ -568,3 +611,19 @@ export const getEnrollmentAnalytics = async (req, res) => {
     }
 };
 
+// Get All Pending Enrollment Requests for a Trainer
+export const getTrainerEnrollmentRequests = async (req, res) => {
+    try {
+        const trainerId = req.userId;
+        const requests = await EnrollmentRequest.find({ trainerId, status: 'pending' })
+            .populate('studentId', 'name email phone studentId photoUrl')
+            .populate('courseId', 'title thumbnail courseUniqueId')
+            .populate('formResponseId')
+            .sort({ createdAt: -1 });
+
+        res.status(200).json(requests);
+    } catch (error) {
+        console.error("Fetch trainer requests error:", error);
+        res.status(500).json({ message: "Failed to fetch enrollment requests" });
+    }
+};
