@@ -34,7 +34,7 @@ export const getPublishedCourses = async (req,res) => {
         const courses = await Course.find({isPublished:true}).populate("lectures reviews").sort({createdAt:-1})
         if(courses.length === 0)
         {
-            return res.status(200).json({message:"No courses available", courses: []});
+            return res.status(200).json([]);
         }
 
         return res.status(200).json(courses)
@@ -52,7 +52,7 @@ export const getCreatorCourses = async (req,res) => {
         const courses = await Course.find({creator:userId}).sort({createdAt:-1})
         if(courses.length === 0)
         {
-            return res.status(200).json({message: "You haven't created any courses yet", courses: []});
+            return res.status(200).json([]);
         }
         return res.status(200).json(courses)
         

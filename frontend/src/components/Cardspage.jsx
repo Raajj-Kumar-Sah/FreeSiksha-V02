@@ -10,7 +10,7 @@ function Cardspage() {
   const navigate = useNavigate()
 
   useEffect(() => {
-    setPopularCourses(courseData.slice(0, 4));
+    setPopularCourses(Array.isArray(courseData) ? courseData.slice(0, 4) : []);
   }, [courseData])
 
   return (

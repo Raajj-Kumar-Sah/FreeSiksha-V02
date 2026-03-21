@@ -23,7 +23,7 @@ function AllCourses() {
   }
 
   const applyFilter = () =>{
-    let courseCopy = courseData.slice();
+    let courseCopy = Array.isArray(courseData) ? courseData.slice() : [];
 
     if(category.length > 0){
       courseCopy = courseCopy.filter(item => category.includes(item.category))
