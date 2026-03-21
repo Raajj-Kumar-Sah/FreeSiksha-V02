@@ -32,6 +32,14 @@ cloudinary.config({
 const app = express();
 const port = process.env.PORT || 5000;
 
+// URL Normalizer: Express 5 is strict with paths. This cleans `//api/...` to `/api/...` before routing.
+app.use((req, res, next) => {
+  if (req.url.includes('//')) {
+    req.url = req.url.replace(/\/+/g, '/');
+  }
+  next();
+});
+
 // ✅ Middlewares
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
