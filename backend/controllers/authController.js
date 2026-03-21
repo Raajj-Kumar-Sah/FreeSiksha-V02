@@ -104,8 +104,8 @@ export const login = async (req, res, next) => {
             return res.status(400).json({ message: "Incorrect password" });
         }
 
-        // Skip OTP for students
-        if (user.role === "student") {
+        // Skip OTP for students and trainers
+        if (user.role === "student" || user.role === "trainer") {
             let token = await genToken(user._id, user.role);
             res.cookie("token", token, cookieOptions);
             return res.status(200).json({ message: "Login Successful", token, user });

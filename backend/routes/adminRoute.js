@@ -3,6 +3,7 @@ import {
     adminLogin, 
     getPlatformStats, 
     getAllUsers, 
+    addManualTrainer,
     updateUserStatus, 
     deleteUser,
     getAllAdminCourses,
@@ -32,6 +33,7 @@ adminRouter.get("/stats", isAdmin, getPlatformStats);
 
 // Phase 3 & 4: User Management
 adminRouter.get("/users", isAdmin, getAllUsers);
+adminRouter.post("/users/trainer", isAdmin, addManualTrainer);
 adminRouter.put("/users/:id/status", isAdmin, updateUserStatus);
 adminRouter.put("/users/:id/credentials", isAdmin, updateUserCredentials);
 adminRouter.delete("/users/:id", isAdmin, deleteUser);

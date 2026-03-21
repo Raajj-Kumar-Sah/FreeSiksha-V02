@@ -6,6 +6,7 @@ import AdminLog from "../models/adminLogModel.js";
 import AdminSettings from "../models/adminSettingsModel.js";
 import Contact from "../models/contactModel.js";
 import bcrypt from "bcryptjs";
+import { sendManualTrainerCredentials } from "../configs/Mail.js";
 
 // Dedicated login for the main admin
 export const adminLogin = async (req, res) => {
@@ -466,5 +467,75 @@ export const deleteContact = async (req, res) => {
         res.status(200).json({ message: "Inquiry deleted successfully" });
     } catch (error) {
         res.status(500).json({ message: "Failed to delete inquiry" });
+    }
+};
+
+export const addManualTrainer = async (req, res) => {
+    try {
+        const { name, email, password } = req.body;
+
+        if (!name || !email || !password) {
+            return res.status(400).json({ message: "Name, Email, and Password are required" });
+        }
+
+        // 1. Check if user already exists
+        const existingUser = await User.findOne({ email });
+        if (existingUser) {
+            return res.status(400).json({ message: "A user with this email already exists" });
+        }
+
+        // 2. Hash password
+        const hashedPassword = await bcrypt.hash(password, 10);
+
+        // 3. Generate Trainer ID
+        const year = new Date().getFullYear();
+        const trainerId = `FS-TRA-${year}-${Math.floor(1000 + Math.random() * 9000)}`;
+
+        // 4. Create User
+        const user = await User.create({
+            name,
+            email,
+            password: hashedPassword,
+            role: "trainer",
+            status: "active",
+            isOtpVerifed: true,
+            studentId: trainerId,
+            age: 0, 
+            city: "Assigned", 
+            qualification: "Assigned", 
+            phone: "0000000000", 
+            gender: "Other" 
+        });
+
+        // 5. Send Credentials Email (Resilient: log failure but don't stop the process)
+        try {
+            await sendManualTrainerCredentials(email, name, password);
+        } catch (mailError) {
+            console.error(`[AdminAddTrainer] Email notification failed for ${email}:`, mailError.message);
+        }
+
+        // 6. Audit Log
+        await AdminLog.create({
+            action: "MANUAL_ADD_TRAINER",
+            targetId: user._id,
+            targetModel: "User",
+            details: `Admin manually created trainer account: ${email} (${trainerId})`
+        });
+
+        res.status(201).json({ 
+            message: "Trainer account created successfully! Credentials have been sent to their email.", 
+            user: {
+                _id: user._id,
+                name: user.name,
+                email: user.email,
+                studentId: user.studentId,
+                role: user.role,
+                status: user.status
+            }
+        });
+
+    } catch (error) {
+        console.error("Add manual trainer error:", error);
+        res.status(500).json({ message: `Failed to create trainer: ${error.message}` });
     }
 };

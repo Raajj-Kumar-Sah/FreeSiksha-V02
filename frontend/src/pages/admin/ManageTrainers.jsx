@@ -6,7 +6,7 @@ import { ClipLoader } from 'react-spinners';
 import { 
     FaUserShield, FaBan, FaCheckCircle, FaTrash, FaFileExport, 
     FaSearch, FaKey, FaSave, FaTimes, FaChalkboardTeacher, 
-    FaIdCard, FaHistory, FaExternalLinkAlt 
+    FaIdCard, FaHistory, FaExternalLinkAlt, FaPlus
 } from 'react-icons/fa';
 
 export default function ManageTrainers() {
@@ -25,6 +25,14 @@ export default function ManageTrainers() {
 
     // Profile View Modal
     const [viewMode, setViewMode] = useState(false);
+
+    // Add Trainer Modal State
+    const [addMode, setAddMode] = useState(false);
+    const [addData, setAddData] = useState({
+        name: "",
+        email: "",
+        password: ""
+    });
 
     useEffect(() => {
         fetchTrainers();
@@ -101,6 +109,19 @@ export default function ManageTrainers() {
         }
     };
 
+    const handleAddTrainer = async (e) => {
+        e.preventDefault();
+        try {
+            const res = await axios.post(`${serverUrl}/api/admin/users/trainer`, addData, { withCredentials: true });
+            toast.success(res.data.message);
+            setAddMode(false);
+            setAddData({ name: "", email: "", password: "" });
+            fetchTrainers();
+        } catch (error) {
+            toast.error(error.response?.data?.message || "Failed to create trainer account");
+        }
+    };
+
     const filteredTrainers = trainers.filter(t => {
         // Show everything except explicitly rejected/pending ONLY if they are not the target of this section
         // But to be safe, let's log the statuses we are seeing
@@ -139,12 +160,18 @@ export default function ManageTrainers() {
                         <FaSearch className="absolute left-5 top-1/2 -translate-y-1/2 text-gray-300" />
                         <input 
                             type="text" 
-                            placeholder="Search by name, email, or Trainer ID..."
+                            placeholder="Search..."
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
                             className="w-full bg-gray-50 border-2 border-transparent focus:border-blue-100 rounded-2xl pl-14 pr-6 py-4 text-sm font-bold focus:outline-none transition-all shadow-inner"
                         />
                     </div>
+                    <button 
+                        onClick={() => setAddMode(true)}
+                        className="flex items-center gap-2 bg-blue-600 text-white px-8 py-4 rounded-2xl font-black hover:bg-blue-700 transition-all shadow-lg active:scale-95 whitespace-nowrap"
+                    >
+                        <FaPlus /> Add New Trainer
+                    </button>
                     <button 
                         onClick={() => window.open(`${serverUrl}/api/admin/export?role=trainer`, "_blank")}
                         className="flex items-center gap-2 bg-gray-900 text-white px-8 py-4 rounded-2xl font-black hover:bg-black transition-all shadow-lg active:scale-95"
@@ -394,6 +421,74 @@ export default function ManageTrainers() {
                                 CLOSE PROFILE
                              </button>
                         </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Add Trainer Modal */}
+            {addMode && (
+                <div className="fixed inset-0 bg-gray-900/80 backdrop-blur-md z-[100] flex items-center justify-center p-4 animate-in zoom-in duration-300">
+                    <div className="bg-white rounded-[48px] w-full max-w-lg shadow-2xl border border-gray-100 overflow-hidden">
+                        <div className="bg-blue-600 p-10 text-white relative">
+                            <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full blur-3xl -mr-10 -mt-10"></div>
+                            <h3 className="text-3xl font-black tracking-tight leading-tight flex items-center gap-3">
+                                <FaPlus /> Add New Trainer
+                            </h3>
+                            <p className="text-blue-100 text-[10px] font-black uppercase tracking-[0.2em] mt-2">Manual Account Creation</p>
+                            <button onClick={() => setAddMode(false)} className="absolute top-10 right-10 text-blue-200 hover:text-white transition-colors">
+                                <FaTimes size={24} />
+                            </button>
+                        </div>
+                        
+                        <form onSubmit={handleAddTrainer} className="p-10 space-y-8">
+                            <div className="space-y-3">
+                                <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest pl-2">Full Name</label>
+                                <input 
+                                    type="text" 
+                                    required
+                                    value={addData.name}
+                                    onChange={(e) => setAddData({ ...addData, name: e.target.value })}
+                                    className="w-full bg-gray-50 border-2 border-transparent focus:border-blue-600 px-6 py-4 rounded-3xl font-black text-gray-700 outline-none transition-all shadow-sm"
+                                    placeholder="e.g. John Doe"
+                                />
+                            </div>
+
+                            <div className="space-y-3">
+                                <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest pl-2">Email Address</label>
+                                <input 
+                                    type="email" 
+                                    required
+                                    value={addData.email}
+                                    onChange={(e) => setAddData({ ...addData, email: e.target.value })}
+                                    className="w-full bg-gray-50 border-2 border-transparent focus:border-blue-600 px-6 py-4 rounded-3xl font-black text-gray-700 outline-none transition-all shadow-sm"
+                                    placeholder="john@example.com"
+                                />
+                            </div>
+
+                            <div className="space-y-3">
+                                <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest pl-2">Assign Password</label>
+                                <div className="relative">
+                                    <FaKey className="absolute left-6 top-1/2 -translate-y-1/2 text-gray-300 pointer-events-none" />
+                                    <input 
+                                        type="password" 
+                                        required
+                                        min={8}
+                                        placeholder="Min 8 characters"
+                                        value={addData.password}
+                                        onChange={(e) => setAddData({ ...addData, password: e.target.value })}
+                                        className="w-full bg-gray-50 border-2 border-transparent focus:border-blue-600 pl-14 pr-6 py-4 rounded-3xl font-black text-gray-700 outline-none transition-all shadow-sm"
+                                    />
+                                </div>
+                                <p className="text-[10px] text-blue-500 font-bold ml-2 italic">Note: These credentials will be sent to the trainer via email.</p>
+                            </div>
+
+                            <button 
+                                type="submit"
+                                className="w-full bg-blue-600 hover:bg-blue-700 text-white py-5 rounded-[32px] font-black shadow-2xl shadow-blue-500/20 transition-all hover:-translate-y-1 active:translate-y-0.5 flex items-center justify-center gap-3 text-lg"
+                            >
+                                <FaPlus /> Create Trainer Account
+                            </button>
+                        </form>
                     </div>
                 </div>
             )}

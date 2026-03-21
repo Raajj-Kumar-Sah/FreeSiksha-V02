@@ -211,4 +211,41 @@ export const sendVolunteerApprovalEmail = async (email, name) => {
     }
 };
 
+export const sendManualTrainerCredentials = async (email, name, password) => {
+    try {
+        const sendSmtpEmail = new SibApiV3Sdk.SendSmtpEmail();
+        sendSmtpEmail.subject = "🚀 Welcome to the FreeSiksha Educator Network";
+        sendSmtpEmail.htmlContent = `
+                <div style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: auto; border: 1px solid #e5e7eb; border-radius: 12px; padding: 24px;">
+                    <h2 style="color: #2563eb; margin-bottom: 16px;">Welcome, Trainer ${name}!</h2>
+                    <p>An administrative account has been created for you on the <b>FreeSiksha</b> platform.</p>
+                    
+                    <div style="background: #f8fafc; padding: 20px; border-radius: 12px; border: 1px solid #e2e8f0; margin: 24px 0;">
+                        <p style="margin: 0; font-size: 14px; color: #64748b;">🔑 <b>Your Login Credentials:</b></p>
+                        <p style="margin: 12px 0 0; font-size: 14px; color: #1e293b;">📧 <b>Email:</b> ${email}</p>
+                        <p style="margin: 4px 0 0; font-size: 14px; color: #1e293b;">🔒 <b>Password:</b> <span style="font-family: monospace; font-weight: bold; background: #fff; padding: 2px 6px; border-radius: 4px;">${password}</span></p>
+                    </div>
+
+                    <p>You can now log in to the Trainer Dashboard to start creating courses and managing your students.</p>
+                    
+                    <div style="text-align: center; margin: 32px 0;">
+                        <a href="${process.env.FRONTEND_URL}/login" style="background-color: #2563eb; color: white; padding: 14px 28px; text-decoration: none; border-radius: 8px; font-weight: bold; display: inline-block;">Login to Dashboard</a>
+                    </div>
+                    
+                    <p style="font-size: 12px; color: #ef4444; font-weight: bold;">⚠️ Security Tip: For your safety, please change your password immediately after your first login.</p>
+                    
+                    <p>Best regards,<br/><strong>Team FreeSiksha</strong></p>
+                </div>
+            `;
+        sendSmtpEmail.sender = sender;
+        sendSmtpEmail.to = [{ email: email }];
+
+        await apiInstance.sendTransacEmail(sendSmtpEmail);
+        console.log(`[Brevo API] Manual trainer credentials sent to ${email}`);
+    } catch (error) {
+        console.error(`[Brevo Error] Failed to send manual trainer credentials to ${email}:`, error.message);
+        throw error;
+    }
+};
+
 export default sendMail;
