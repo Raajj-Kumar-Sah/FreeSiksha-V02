@@ -20,9 +20,33 @@ export default function AdminUsers({ role }) {
         password: ""
     });
 
+    // Add Member Modal State
+    const [showAddModal, setShowAddModal] = useState(false);
+    const [newData, setNewData] = useState({ name: "", email: "", password: "" });
+    const [adding, setAdding] = useState(false);
+
     useEffect(() => {
         fetchUsers();
     }, [role]);
+
+    const handleAddMember = async () => {
+        if (!newData.name || !newData.email || !newData.password) {
+            return toast.error("All fields are required");
+        }
+        setAdding(true);
+        try {
+            const endpoint = role === 'student' ? '/api/admin/users/student' : '/api/admin/users/trainer';
+            await axios.post(`${serverUrl}${endpoint}`, newData, { withCredentials: true });
+            toast.success(`${role.charAt(0).toUpperCase() + role.slice(1)} added successfully!`);
+            setShowAddModal(false);
+            setNewData({ name: "", email: "", password: "" });
+            fetchUsers();
+        } catch (error) {
+            toast.error(error.response?.data?.message || `Failed to add ${role}`);
+        } finally {
+            setAdding(false);
+        }
+    };
 
     const fetchUsers = async () => {
         setLoading(true);
@@ -99,6 +123,14 @@ export default function AdminUsers({ role }) {
                     <span className="bg-blue-100 text-blue-800 text-[10px] font-black px-3 py-1 rounded-full uppercase tracking-wider">
                         {users.length} Total
                     </span>
+                    {(role === 'student' || role === 'trainer') && (
+                        <button 
+                            onClick={() => setShowAddModal(true)}
+                            className="bg-blue-600 text-white text-[10px] font-black px-4 py-1.5 rounded-full uppercase tracking-widest hover:bg-blue-700 transition-all shadow-md flex items-center gap-2"
+                        >
+                            + Add New {role}
+                        </button>
+                    )}
                 </div>
                 
                 <div className="flex flex-1 max-w-md gap-2">
@@ -275,6 +307,64 @@ export default function AdminUsers({ role }) {
                             className="w-full bg-blue-600 hover:bg-blue-700 text-white py-4 rounded-2xl font-black shadow-lg shadow-blue-500/20 transition-all active:scale-95 flex items-center justify-center gap-2"
                         >
                             <FaSave /> Update Security Details
+                        </button>
+                    </div>
+                </div>
+            </div>
+        )}
+
+        {/* Add Member Modal */}
+        {showAddModal && (
+            <div className="fixed inset-0 bg-gray-900/60 backdrop-blur-sm z-[100] flex items-center justify-center p-4">
+                <div className="bg-white rounded-[40px] w-full max-w-md shadow-2xl border border-gray-100 overflow-hidden animate-in zoom-in-95 duration-200">
+                    <div className="bg-blue-600 p-8 text-white flex justify-between items-center">
+                        <div>
+                            <h3 className="text-xl font-black tracking-tight uppercase">Register New {role}</h3>
+                            <p className="text-blue-100 text-xs font-bold uppercase tracking-widest mt-1">Manual Administration Override</p>
+                        </div>
+                        <button onClick={() => setShowAddModal(false)} className="text-white/80 hover:text-white"><FaTimes size={20} /></button>
+                    </div>
+                    
+                    <div className="p-8 space-y-6">
+                        <div className="space-y-2">
+                            <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest pl-1">Full Name</label>
+                            <input 
+                                type="text" 
+                                placeholder="Enter member's legal name"
+                                value={newData.name}
+                                onChange={(e) => setNewData({ ...newData, name: e.target.value })}
+                                className="w-full bg-gray-50 border-2 border-transparent focus:border-blue-200 px-5 py-3 rounded-2xl font-bold text-sm outline-none transition-all text-black"
+                            />
+                        </div>
+
+                        <div className="space-y-2">
+                            <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest pl-1">Primary Email</label>
+                            <input 
+                                type="email" 
+                                placeholder="Enter official email address"
+                                value={newData.email}
+                                onChange={(e) => setNewData({ ...newData, email: e.target.value })}
+                                className="w-full bg-gray-50 border-2 border-transparent focus:border-blue-200 px-5 py-3 rounded-2xl font-bold text-sm outline-none transition-all text-black"
+                            />
+                        </div>
+
+                        <div className="space-y-2">
+                            <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest pl-1">Initial Password</label>
+                            <input 
+                                type="password" 
+                                placeholder="Create a temporary password"
+                                value={newData.password}
+                                onChange={(e) => setNewData({ ...newData, password: e.target.value })}
+                                className="w-full bg-gray-50 border-2 border-transparent focus:border-blue-200 px-5 py-3 rounded-2xl font-bold text-sm outline-none transition-all text-black"
+                            />
+                        </div>
+
+                        <button 
+                            onClick={handleAddMember}
+                            disabled={adding}
+                            className="w-full bg-blue-600 hover:bg-blue-700 text-white py-4 rounded-2xl font-black shadow-lg shadow-blue-500/20 transition-all active:scale-95 flex items-center justify-center gap-2 disabled:opacity-50"
+                        >
+                            {adding ? <ClipLoader size={20} color="white" /> : <FaSave />} Create {role} Account
                         </button>
                     </div>
                 </div>

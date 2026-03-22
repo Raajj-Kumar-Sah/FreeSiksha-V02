@@ -540,3 +540,73 @@ export const addManualTrainer = async (req, res) => {
         res.status(500).json({ message: `Failed to create trainer: ${error.message}` });
     }
 };
+
+export const addManualStudent = async (req, res) => {
+    try {
+        const { name, email, password } = req.body;
+
+        if (!name || !email || !password) {
+            return res.status(400).json({ message: "Name, Email, and Password are required" });
+        }
+
+        // 1. Check if user already exists
+        const existingUser = await User.findOne({ email });
+        if (existingUser) {
+            return res.status(400).json({ message: "A user with this email already exists" });
+        }
+
+        // 2. Hash password
+        const hashedPassword = await bcrypt.hash(password, 10);
+
+        // 3. Generate Student ID
+        const year = new Date().getFullYear();
+        const studentId = `FS-STU-${year}-${crypto.randomUUID().slice(0, 8).toUpperCase()}`;
+
+        // 4. Create User
+        const user = await User.create({
+            name,
+            email,
+            password: hashedPassword,
+            role: "student",
+            status: "active",
+            isOtpVerifed: true,
+            studentId,
+            age: 0, 
+            city: "Assigned", 
+            qualification: "Assigned", 
+            phone: "0000000000", 
+            gender: "Other" 
+        });
+
+        // 5. Send Credentials Email
+        try {
+            await sendManualStudentCredentials(email, name, password);
+        } catch (mailError) {
+            console.error(`[AdminAddStudent] Email notification failed for ${email}:`, mailError.message);
+        }
+
+        // 6. Audit Log
+        await AdminLog.create({
+            action: "MANUAL_ADD_STUDENT",
+            targetId: user._id,
+            targetModel: "User",
+            details: `Admin manually created student account: ${email} (${studentId})`
+        });
+
+        res.status(201).json({ 
+            message: "Student account created successfully! Credentials have been sent to their email.", 
+            user: {
+                _id: user._id,
+                name: user.name,
+                email: user.email,
+                studentId: user.studentId,
+                role: user.role,
+                status: user.status
+            }
+        });
+
+    } catch (error) {
+        console.error("Add manual student error:", error);
+        res.status(500).json({ message: `Failed to create student: ${error.message}` });
+    }
+};
