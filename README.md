@@ -76,7 +76,7 @@ Google OAuth via Firebase + email/password with bcrypt. Role-based access (Stude
 
 | Course Player | Certificate | Trainer Tools |
 |:-:|:-:|:-:|
-| ![Player](https://placehold.co/300x180/1a1a2e/e94560?text=Course+Player&font=montserrat) | ![Cert](https://placehold.co/300x180/16213e/20c997?text=Certificate&font=montserrat) | ![Trainer](https://placehold.co/300x180/0f3460/a8b2d8?text=Trainer+Tools&font=montserrat) |
+| ![(image.png)](https://freesiksha-v02-frontend.onrender.com/allcourses) | ![Cert](https://placehold.co/300x180/16213e/20c997?text=Certificate&font=montserrat) | ![Trainer](https://placehold.co/300x180/0f3460/a8b2d8?text=Trainer+Tools&font=montserrat) |
 
 </div>
 
@@ -524,7 +524,7 @@ Please read [CONTRIBUTING.md](CONTRIBUTING.md) before submitting PRs.
 
 <img src="https://avatars.githubusercontent.com/Raajj-Kumar-Sah" width="100" style="border-radius:50%"/>
 
-### Your Name
+### Raj Kumar Sah
 **Full Stack Developer · MERN · AI Integration**
 
 [![LinkedIn](https://img.shields.io/badge/LinkedIn-0077B5?style=for-the-badge&logo=linkedin&logoColor=white)](https://www.linkedin.com/in/raj-kumar-sah-470323308/)
@@ -569,6 +569,6 @@ Distributed under the MIT License. See [`LICENSE`](LICENSE) for more information
 
 **⭐ If FreeSiksha helped you learn something or impressed you — drop a star. It means a lot.**
 
-*Built with ❤️ using the MERN Stack + Google Gemini AI*
+*Built with ❤️ using the MERN Stack *
 
 </div>
