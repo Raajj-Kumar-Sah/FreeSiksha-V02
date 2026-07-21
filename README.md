@@ -58,7 +58,7 @@
 <br/>
 
 ### 🛡️ Super Admin — The God Console
-<img width="100%" src="ss5_admin.png" alt="Super Admin Panel" />
+<img width="100%" src="(https://github.com/user-attachments/assets/d5da310f-b074-46b6-b2d9-042ea4aaaf78")" alt="Super Admin Panel" />
 
 ---
 
