@@ -53,12 +53,12 @@
 <br/>
 
 ### 👨‍🏫 Trainer Overview — Stats at a Glance
-<img width="100%" src="ss4_trainer.png" alt="Trainer Dashboard Overview" />
+<img width="100%" alt="Image" src="https://github.com/user-attachments/assets/7d557f27-1ba4-4cc3-8bb6-6665c0716fc4" />
 
 <br/>
 
 ### 🛡️ Super Admin — The God Console
-<img width="100%" src="(https://github.com/user-attachments/assets/d5da310f-b074-46b6-b2d9-042ea4aaaf78")" alt="Super Admin Panel" />
+<img width="1892" alt="Image" src="https://github.com/user-attachments/assets/d5da310f-b074-46b6-b2d9-042ea4aaaf78" />
 
 ---
 
