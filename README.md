@@ -38,17 +38,17 @@
 <br/>
 
 ### 🏠 Homepage — Clean, Fast, Welcoming
-<img width="100%" src="ss1_home.png" alt="FreeSiksha Homepage" />
+<img width="100%" alt="Image" src="https://github.com/user-attachments/assets/88dc9dd8-ebd9-420a-80a8-4fde4e0bb563" />
 
 <br/>
 
 ### 📚 Course Detail Page — Dark Mode, Rich Content
-<img width="100%" src="ss2_course.png" alt="Course Detail Page" />
+<img width="100%" alt="Image" src="https://github.com/user-attachments/assets/be645598-0f81-451d-a11b-e0c5c09e4b84" />
 
 <br/>
 
 ### 📊 Trainer Dashboard — Enrollment Analytics
-<img width="100%" src="ss3_enrollments.png" alt="Trainer Enrollment Management" />
+<img width="100%" alt="Image" src="https://github.com/user-attachments/assets/e2b1c635-b7d0-4588-9f23-6f8575aaa66a" />
 
 <br/>
 
