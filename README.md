@@ -25,7 +25,7 @@
 
 <br/>
 
-[🚀 Live Demo](#) · [📖 API Docs](#) · [🐛 Report Bug](#) · [✨ Request Feature](#)
+[🚀 Live Demo](https://freesiksha-v02-frontend.onrender.com/) · [📖 API Docs](#) · [🐛 Report Bug](mailto:rajkumar68580@gmail.com) · [✨ Request Feature](mailto:rajkumar68580@gmail.com)
 
 </div>
 
@@ -261,7 +261,7 @@ docker >= 24.0.0     # optional, for containerized setup
 
 ```bash
 # 1. Clone
-git clone https://github.com/yourusername/freesiksha.git
+git clone https://github.com/Raajj-Kumar-Sah/FreeSiksha-V02
 cd freesiksha
 
 # 2. Set environment variables
@@ -490,8 +490,8 @@ docker-compose exec backend sh   # Shell into backend container
 - [ ] 🤖 AI Tutor (real-time Gemini chat per course)
 - [ ] 📱 Mobile app (React Native)
 - [ ] 🌐 Multi-language support (Hindi, regional languages)
-- [ ] 🎥 Live classes (Zoom / Jitsi integration)
-- [ ] 📈 Advanced analytics dashboard
+- [x] 🎥 Live classes (Zoom / Jitsi integration)
+- [x] 📈 Advanced analytics dashboard
 - [ ] 🔤 Video auto-subtitles (AI transcription)
 
 ---
@@ -522,15 +522,15 @@ Please read [CONTRIBUTING.md](CONTRIBUTING.md) before submitting PRs.
 
 <div align="center">
 
-<img src="https://avatars.githubusercontent.com/yourusername" width="100" style="border-radius:50%"/>
+<img src="https://avatars.githubusercontent.com/Raajj-Kumar-Sah" width="100" style="border-radius:50%"/>
 
 ### Your Name
 **Full Stack Developer · MERN · AI Integration**
 
-[![LinkedIn](https://img.shields.io/badge/LinkedIn-0077B5?style=for-the-badge&logo=linkedin&logoColor=white)](https://linkedin.com/in/yourprofile)
-[![GitHub](https://img.shields.io/badge/GitHub-100000?style=for-the-badge&logo=github&logoColor=white)](https://github.com/yourusername)
-[![Portfolio](https://img.shields.io/badge/Portfolio-e94560?style=for-the-badge&logo=vercel&logoColor=white)](https://yourportfolio.com)
-[![Email](https://img.shields.io/badge/Email-D14836?style=for-the-badge&logo=gmail&logoColor=white)](mailto:your@email.com)
+[![LinkedIn](https://img.shields.io/badge/LinkedIn-0077B5?style=for-the-badge&logo=linkedin&logoColor=white)](https://www.linkedin.com/in/raj-kumar-sah-470323308/)
+[![GitHub](https://img.shields.io/badge/GitHub-100000?style=for-the-badge&logo=github&logoColor=white)](https://github.com/Raajj-Kumar-Sah)
+[![Portfolio](https://img.shields.io/badge/Portfolio-e94560?style=for-the-badge&logo=vercel&logoColor=white)](https://rajkumar-dev-b6ci.vercel.app/)
+[![Email](https://img.shields.io/badge/Email-D14836?style=for-the-badge&logo=gmail&logoColor=white)](mailto:rajkumar68580@gmail.com)
 
 </div>
 
