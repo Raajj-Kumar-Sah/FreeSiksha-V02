@@ -31,6 +31,37 @@
 
 ---
 
+## 🖼️ Live Screenshots
+
+> Real screens from the deployed application — every pixel built from scratch.
+
+<br/>
+
+### 🏠 Homepage — Clean, Fast, Welcoming
+<img width="100%" src="ss1_home.png" alt="FreeSiksha Homepage" />
+
+<br/>
+
+### 📚 Course Detail Page — Dark Mode, Rich Content
+<img width="100%" src="ss2_course.png" alt="Course Detail Page" />
+
+<br/>
+
+### 📊 Trainer Dashboard — Enrollment Analytics
+<img width="100%" src="ss3_enrollments.png" alt="Trainer Enrollment Management" />
+
+<br/>
+
+### 👨‍🏫 Trainer Overview — Stats at a Glance
+<img width="100%" src="ss4_trainer.png" alt="Trainer Dashboard Overview" />
+
+<br/>
+
+### 🛡️ Super Admin — The God Console
+<img width="100%" src="ss5_admin.png" alt="Super Admin Panel" />
+
+---
+
 ## ⚡ What Makes FreeSiksha Different
 
 <table>
@@ -57,28 +88,12 @@ Enroll → Watch → Track Progress → Complete → **Auto-generate Certificate
 </td>
 <td width="50%">
 
-### 🔐 Enterprise-Grade Auth
-Google OAuth via Firebase + email/password with bcrypt. Role-based access (Student / Trainer / Admin) enforced at every API layer.
+### 🛡️ God Console (Super Admin)
+13-phase admin architecture with granular control over students, trainers, courses, content, blogs, volunteers, and system-wide reports — all in one panel.
 
 </td>
 </tr>
 </table>
-
----
-
-## 🖼️ Screenshots
-
-<div align="center">
-
-| Student Dashboard | AI Course Search | Admin Panel |
-|:-:|:-:|:-:|
-| ![Dashboard](https://placehold.co/300x180/1a1a2e/e94560?text=Student+Dashboard&font=montserrat) | ![AI Search](https://placehold.co/300x180/16213e/20c997?text=AI+Search&font=montserrat) | ![Admin](https://placehold.co/300x180/0f3460/a8b2d8?text=Admin+Panel&font=montserrat) |
-
-| Course Player | Certificate | Trainer Tools |
-|:-:|:-:|:-:|
-| ![(image.png)](https://freesiksha-v02-frontend.onrender.com/allcourses) | ![Cert](https://placehold.co/300x180/16213e/20c997?text=Certificate&font=montserrat) | ![Trainer](https://placehold.co/300x180/0f3460/a8b2d8?text=Trainer+Tools&font=montserrat) |
-
-</div>
 
 ---
 
@@ -110,7 +125,7 @@ Google OAuth via Firebase + email/password with bcrypt. Role-based access (Stude
   │   MongoDB Atlas      │              │   Google Gemini AI  │    │  Cloudinary CDN     │
   │   (Cloud Database)   │              │   (NLP Search)      │    │  (Media Storage)    │
   └─────────────────────┘              └─────────────────────┘    └─────────────────────┘
-              │                                                                  
+
   ┌─────────────────────┐              ┌─────────────────────┐
   │   Firebase Auth      │              │  Resend / Brevo     │
   │   (Google OAuth)     │              │  (Email Service)    │
@@ -163,6 +178,7 @@ Google OAuth via Firebase + email/password with bcrypt. Role-based access (Stude
 - 📊 **Progress Tracking** — lecture-by-lecture completion, visual progress bars
 - 🏆 **Auto Certificates** — PDF certificate generated automatically at 100% completion
 - 📖 **Blog Feed** — curated learning articles from trainers and platform team
+- 🌙 **Dark / Light Mode** — full theme toggle across all pages
 
 </details>
 
@@ -173,20 +189,28 @@ Google OAuth via Firebase + email/password with bcrypt. Role-based access (Stude
 - ✍️ **Course Builder** — create courses with rich descriptions, categories, pricing, and thumbnails
 - 🎬 **Video Upload** — direct Cloudinary integration; no file size headaches
 - 📋 **Lecture Manager** — drag-and-drop ordering, per-lecture metadata
-- 📈 **Enrollment Analytics** — see how many students enrolled and their progress
+- 📈 **Enrollment Analytics** — enrollment trend charts + gender demographics
+- 📤 **Export Reports** — download student lists as CSV or PDF
 - ✅ **Approval Workflow** — submit for review, get notified on approval or rejection
+- 📝 **Manage Blogs** — publish educational content to the platform
 
 </details>
 
 <details>
-<summary><b>🛡️ For Admins</b></summary>
+<summary><b>🛡️ For Super Admin — The God Console</b></summary>
 <br/>
 
-- ✅ **Course Approval** — review, approve, or reject courses with feedback
-- 👥 **User Management** — view, suspend, or delete any account
-- 📊 **Platform Dashboard** — total users, courses, enrollments at a glance
-- 📝 **Blog Control** — publish and manage platform-wide content
-- 🔔 **Notification System** — automated emails keep everyone in the loop
+- 👥 **Manage Students** — view, suspend, or delete student accounts
+- 🧑‍🏫 **Manage Trainers** — review and manage all trainer accounts
+- 🙋 **Manage Volunteers** — volunteer inbox and custom form builder
+- 📋 **Trainer Applications** — review trainer applications with a form builder
+- ✅ **Course Approval** — approve or reject submitted courses
+- 🌐 **Global Enrollments** — view every enrollment across all courses
+- 🛑 **Content Moderation** — moderate blogs, lectures, and course content
+- 📊 **Export System Report** — full-platform data export
+- 🏠 **CMS Controls** — edit homepage and about sections live
+- ⚡ **Platform Status** — real-time ONLINE / OFFLINE indicator
+- 🔒 **13-Phase Architecture** — granular control at every layer
 
 </details>
 
@@ -216,7 +240,7 @@ freesiksha/
 │       ├── pages/               # Route-level pages
 │       │   ├── student/         # Dashboard, Search, Course Player
 │       │   ├── trainer/         # Course Builder, Lecture Manager
-│       │   └── admin/           # Approval Panel, User Manager
+│       │   └── admin/           # God Console, User Manager
 │       ├── redux/               # State management (slices)
 │       ├── hooks/               # Custom React hooks
 │       └── utils/               # API helpers, constants
@@ -441,57 +465,23 @@ Student Query → Backend → Gemini API (intent extract)
 
 ---
 
-## 🧪 Running Tests
-
-```bash
-# Backend unit tests
-cd server
-npm test
-
-# With coverage report
-npm run test:coverage
-
-# API integration tests (Postman)
-# Import: /docs/FreeSiksha.postman_collection.json
-```
-
----
-
-## 🐳 Docker Details
-
-```yaml
-# docker-compose.yml overview
-services:
-  nginx:      # Reverse proxy — ports 80, 443
-  frontend:   # React build — port 3000
-  backend:    # Express API — port 5000
-  mongodb:    # Local DB — port 27017 (use Atlas in production)
-```
-
-```bash
-# Useful commands
-docker-compose up --build        # Start all services
-docker-compose down              # Stop all services
-docker-compose logs backend      # View backend logs
-docker-compose exec backend sh   # Shell into backend container
-```
-
----
-
 ## 🗺️ Roadmap
 
 - [x] AI-powered course search (Gemini)
-- [x] Role-based access control (Student / Trainer / Admin)
+- [x] Role-based access control (Student / Trainer / Super Admin)
 - [x] Video lectures via Cloudinary
 - [x] Auto certificate generation
 - [x] Email notifications (Resend / Brevo)
 - [x] Docker + Nginx deployment
+- [x] Enrollment trend & demographics analytics
+- [x] CSV / PDF export for trainers
+- [x] Dark / Light mode toggle
+- [x] 13-phase Super Admin God Console
 - [ ] 💳 Payment gateway (Razorpay / Stripe)
 - [ ] 🤖 AI Tutor (real-time Gemini chat per course)
 - [ ] 📱 Mobile app (React Native)
 - [ ] 🌐 Multi-language support (Hindi, regional languages)
-- [x] 🎥 Live classes (Zoom / Jitsi integration)
-- [x] 📈 Advanced analytics dashboard
+- [ ] 🎥 Live classes (Zoom / Jitsi integration)
 - [ ] 🔤 Video auto-subtitles (AI transcription)
 
 ---
@@ -514,17 +504,13 @@ git push origin feature/AmazingFeature
 # 5. Open a Pull Request
 ```
 
-Please read [CONTRIBUTING.md](CONTRIBUTING.md) before submitting PRs.
-
 ---
 
 ## 👨‍💻 Author
 
 <div align="center">
 
-<img src="https://avatars.githubusercontent.com/Raajj-Kumar-Sah" width="100" style="border-radius:50%"/>
-
-### Raj Kumar Sah
+### RAJ KUMAR SAH
 **Full Stack Developer · MERN · AI Integration**
 
 [![LinkedIn](https://img.shields.io/badge/LinkedIn-0077B5?style=for-the-badge&logo=linkedin&logoColor=white)](https://www.linkedin.com/in/raj-kumar-sah-470323308/)
@@ -542,7 +528,7 @@ Please read [CONTRIBUTING.md](CONTRIBUTING.md) before submitting PRs.
 
 | Domain | Technologies |
 |--------|-------------|
-| **Frontend** | React.js, Redux, Tailwind CSS, Responsive Design |
+| **Frontend** | React.js, Redux, Tailwind CSS, Recharts, Dark/Light Mode |
 | **Backend** | Node.js, Express.js, REST API Design, MVC Architecture |
 | **Database** | MongoDB, Mongoose ODM, Schema Design, Indexing |
 | **AI Integration** | Google Gemini API, Prompt Engineering, NLP Search |
@@ -551,7 +537,8 @@ Please read [CONTRIBUTING.md](CONTRIBUTING.md) before submitting PRs.
 | **Email Services** | Resend API, Transactional Email, HTML Templates |
 | **DevOps** | Docker, Docker Compose, Nginx, Environment Config |
 | **Security** | Helmet.js, Rate Limiting, Input Validation, HTTPS |
-| **Software Engg.** | IEEE 830 SRS, UML Diagrams, SDLC, Design Patterns |
+| **Analytics** | Enrollment Trend Charts, Demographics, CSV/PDF Export |
+
 
 </div>
 
